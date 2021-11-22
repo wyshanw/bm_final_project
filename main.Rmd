@@ -34,3 +34,29 @@ cdi_cor = cdi_data %>%
  
 corrplot(cdi_cor)
 ```
+
+```{r}
+
+# Scatter plot 
+cdi_data %>% 
+  ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="Percent below poverty level", y="CRM_1000")
+
+# Simple linear regression: crm_1000 vs poverty
+cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
+summary(cdi_pov)
+
+
+cdi_pov = lm(crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
+summary(cdi_pov)
+
+
+cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 , data = cdi_data)
+summary(cdi_pov)
+
+cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000 , data = cdi_data)
+summary(cdi_pov)
+
+```
+

@@ -8,32 +8,40 @@ output: github_document
 ```{r}
 library(tidyverse)
 library(graphics)
+library(corrplot)
 ```
 
 ```{r}
-cdi = read.csv("data/cdi.csv")
 
 
-cdi_cor = cdi %>% 
-  select(-id,-cty,-state)
+
+
+
+
+cdi_data = read.csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(crime_rate = crimes/pop)
+
+cdi_cor = cdi_data %>%
+  select(-id,-cty,-state) %>%
+  cor() 
+
+corrplot(cdi_cor)
+
+
+
   
 ```
-```{r}
-cdi.cor = cor(cdi_cor)
 
-
-library(corrplot)
-corrplot(cdi.cor)
-```
 ```{r}
 
-ls(cdi)
-data = cdi %>% 
-  select(pop,pop18,docs,beds,crimes,poverty,totalinc)
+
+data = cdi_data %>% 
+  select(crimes,crime_rate,pop18,docs,beds,poverty,totalinc)
 
 
 
-groups <- cdi[, 17] 
+groups <- cdi_data[, 17] 
 # Plot correlation matrix
 pairs(data,lower.panel = panel.smooth)
 
@@ -42,10 +50,12 @@ pairs(data,lower.panel = panel.smooth)
 plot(data) 
 ```
 ```{r}
-plot(x, y, pch = 19, col = "lightblue")
+x = cdi$pop18
+y = cdi$crimes
+plot(cdi$pop18, cdi$crimes, pch = 19, col = "lightblue")
 
 # Regression line
-abline(lm(y ~ x), col = "red", lwd = 3)
+abline(lm(y ~ x))
 
 # Pearson correlation
 text(paste("Correlation:", round(cor(x, y), 2)), x = 25, y = 95)

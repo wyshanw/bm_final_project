@@ -2,7 +2,7 @@
 title: "YiqunJin"
 author: "Yiqun Jin"
 date: "11/22/2021"
-output: pdf_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -41,7 +41,7 @@ Percent high school graduates (Percent of persons 25 years old or older twho com
 
 ## Variable Information
 
-```{r}
+```{r, echo = FALSE}
 var <- c("id", "cty", "state", "area",	"pop", "pop18",	"pop65",	"docs",	"beds",	"crimes",	"hsgrad",	"bagrad",	"poverty",	"unemp",	"pcincome",	"totalinc",	"region")
 
 var_meaning <- c("ID number", "
@@ -98,7 +98,6 @@ reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$hsgrad)
 summary(reg_docs)
 reg_docs %>% broom::tidy()
 ```
-
 
 
 ## Abstract

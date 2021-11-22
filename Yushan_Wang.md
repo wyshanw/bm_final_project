@@ -44,32 +44,35 @@ cdi_data = read.csv("./data/cdi.csv") %>%
 poverty vs crime rate
 
 ``` r
-reg <- lm(crimes ~ poverty, data = cdi_data)
+reg <- lm(crime_rate ~ poverty, data = cdi_data)
 summary(reg)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = crimes ~ poverty, data = cdi_data)
+    ## lm(formula = crime_rate ~ poverty, data = cdi_data)
     ## 
     ## Residuals:
-    ##    Min     1Q Median     3Q    Max 
-    ## -65035 -20362 -12640   1354 655904 
+    ##       Min        1Q    Median        3Q       Max 
+    ## -0.064008 -0.014578 -0.002561  0.013605  0.208853 
     ## 
     ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   9181.3     5825.7   1.576 0.115750    
-    ## poverty       2056.1      589.4   3.488 0.000535 ***
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 0.0331390  0.0024435   13.56   <2e-16 ***
+    ## poverty     0.0027690  0.0002472   11.20   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 57510 on 438 degrees of freedom
-    ## Multiple R-squared:  0.02703,    Adjusted R-squared:  0.02481 
-    ## F-statistic: 12.17 on 1 and 438 DF,  p-value: 0.0005354
+    ## Residual standard error: 0.02412 on 438 degrees of freedom
+    ## Multiple R-squared:  0.2226, Adjusted R-squared:  0.2209 
+    ## F-statistic: 125.4 on 1 and 438 DF,  p-value: < 2.2e-16
 
 ``` r
-cdi_data %>% ggplot() + 
-  geom_point(aes(x = poverty, y = crime_rate, alpha = 0.5))
+ggplot(data = cdi_data, aes(x = poverty, y = crime_rate)) + 
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE)
 ```
+
+    ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Yushan_Wang_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->

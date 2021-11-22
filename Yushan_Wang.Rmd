@@ -31,7 +31,6 @@ cdi_data = read.csv("./data/cdi.csv") %>%
 ```
 
 
-
 poverty vs crime rate
 
 ```{r}
@@ -46,7 +45,35 @@ ggplot(data = cdi_data, aes(x = poverty, y = crime_rate)) +
 ```
 
 
+poverty vs pop vs age group
 
+```{r}
+
+# Simple linear regression: crm_1000 vs poverty
+cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
+summary(cdi_pov)
+
+# poverty + population
+cdi_pov_pop = lm(crime_rate_1000 ~ poverty + pop, data = cdi_data)
+summary(cdi_pov_pop)
+# consider population as interactive term
+
+# poverty + age 18-34
+cdi_pov_pop18 = lm(crime_rate_1000 ~ poverty + pop18 , data = cdi_data)
+summary(cdi_pov_pop18)
+
+# poverty + age 65
+cdi_pov_pop65 = lm(crime_rate_1000 ~ poverty + pop65 , data = cdi_data)
+summary(cdi_pov_pop65)
+
+# poverty + age 18 + age 65
+cdi_pov_pop18_pop65 = lm(crime_rate_1000 ~ poverty + pop18 + pop65 , data = cdi_data)
+summary(cdi_pov_pop18_pop65)
+
+#age65 not significant, remove
+
+
+```
 
 
 

@@ -79,7 +79,7 @@ reg_beds %>% broom::tidy()
 
 ## Crime Rate v.s. Docs
 
-docs (Number of active physicians)
+docs: Number of active physicians
 
 ```{r}
 ggplot(cdi_df, aes(x = docs_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
@@ -91,12 +91,48 @@ reg_docs %>% broom::tidy()
 
 ## Crime Rate v.s. hsgrad
 
+hsgrad: Percent of persons 25 years old or older who completed 12 or more years of school
+
 ```{r}
 ggplot(cdi_df, aes(x = hsgrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
 reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$hsgrad) 
 summary(reg_docs)
 reg_docs %>% broom::tidy()
+```
+
+## Crime Rate v.s. pop
+
+pop: Estimated 1990 population
+
+```{r}
+ggplot(cdi_df, aes(x = pop, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_pop = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop) 
+summary(reg_pop)
+reg_pop %>% broom::tidy()
+```
+
+## Crime Rate v.s. pop18
+
+pop18: Percent of total population in age range from 18-34
+
+```{r}
+ggplot(cdi_df, aes(x = pop18, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_pop18 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop18) 
+summary(reg_pop18)
+reg_pop18 %>% broom::tidy()
+```
+
+## Crime Rate v.s. pop65
+
+```{r}
+ggplot(cdi_df, aes(x = pop65, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_pop65 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop65) 
+summary(reg_pop65)
+reg_pop65 %>% broom::tidy()
 ```
 
 

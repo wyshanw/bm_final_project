@@ -155,7 +155,7 @@ reg_beds %>% broom::tidy()
 
 ## Crime Rate v.s. Docs
 
-docs (Number of active physicians)
+docs: Number of active physicians
 
 ``` r
 ggplot(cdi_df, aes(x = docs_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
@@ -201,6 +201,9 @@ reg_docs %>% broom::tidy()
 
 ## Crime Rate v.s. hsgrad
 
+hsgrad: Percent of persons 25 years old or older who completed 12 or
+more years of school
+
 ``` r
 ggplot(cdi_df, aes(x = hsgrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 ```
@@ -242,6 +245,142 @@ reg_docs %>% broom::tidy()
     ##   <chr>            <dbl>     <dbl>     <dbl>    <dbl>
     ## 1 (Intercept)    126.       14.1        8.90 1.46e-17
     ## 2 cdi_df$hsgrad   -0.882     0.181     -4.86 1.60e- 6
+
+## Crime Rate v.s. pop
+
+pop: Estimated 1990 population
+
+``` r
+ggplot(cdi_df, aes(x = pop, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](YiqunJin_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+reg_pop = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop) 
+summary(reg_pop)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = cdi_df$crime_rate_1000 ~ cdi_df$pop)
+    ## 
+    ## Residuals:
+    ##    Min     1Q Median     3Q    Max 
+    ## -87.26 -18.37  -3.65  14.44 214.44 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 5.229e+01  1.496e+00  34.957  < 2e-16 ***
+    ## cdi_df$pop  1.271e-05  2.082e-06   6.106 2.25e-09 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 26.26 on 438 degrees of freedom
+    ## Multiple R-squared:  0.07846,    Adjusted R-squared:  0.07635 
+    ## F-statistic: 37.29 on 1 and 438 DF,  p-value: 2.248e-09
+
+``` r
+reg_pop %>% broom::tidy()
+```
+
+    ## # A tibble: 2 × 5
+    ##   term          estimate  std.error statistic   p.value
+    ##   <chr>            <dbl>      <dbl>     <dbl>     <dbl>
+    ## 1 (Intercept) 52.3       1.50           35.0  8.41e-129
+    ## 2 cdi_df$pop   0.0000127 0.00000208      6.11 2.25e-  9
+
+## Crime Rate v.s. pop18
+
+pop18: Percent of total population in age range from 18-34
+
+``` r
+ggplot(cdi_df, aes(x = pop18, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](YiqunJin_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+reg_pop18 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop18) 
+summary(reg_pop18)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = cdi_df$crime_rate_1000 ~ cdi_df$pop18)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -63.493 -18.850  -3.212  15.114 239.034 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)   21.7875     8.8309   2.467    0.014 *  
+    ## cdi_df$pop18   1.2426     0.3058   4.063 5.75e-05 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 26.86 on 438 degrees of freedom
+    ## Multiple R-squared:  0.03632,    Adjusted R-squared:  0.03412 
+    ## F-statistic: 16.51 on 1 and 438 DF,  p-value: 5.747e-05
+
+``` r
+reg_pop18 %>% broom::tidy()
+```
+
+    ## # A tibble: 2 × 5
+    ##   term         estimate std.error statistic   p.value
+    ##   <chr>           <dbl>     <dbl>     <dbl>     <dbl>
+    ## 1 (Intercept)     21.8      8.83       2.47 0.0140   
+    ## 2 cdi_df$pop18     1.24     0.306      4.06 0.0000575
+
+## Crime Rate v.s. pop65
+
+``` r
+ggplot(cdi_df, aes(x = pop65, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](YiqunJin_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+reg_pop65 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop65) 
+summary(reg_pop65)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = cdi_df$crime_rate_1000 ~ cdi_df$pop65)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -53.810 -18.991  -4.039  15.095 238.805 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)   62.8284     4.1790  15.034   <2e-16 ***
+    ## cdi_df$pop65  -0.4554     0.3263  -1.396    0.164    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 27.3 on 438 degrees of freedom
+    ## Multiple R-squared:  0.004427,   Adjusted R-squared:  0.002154 
+    ## F-statistic: 1.948 on 1 and 438 DF,  p-value: 0.1636
+
+``` r
+reg_pop65 %>% broom::tidy()
+```
+
+    ## # A tibble: 2 × 5
+    ##   term         estimate std.error statistic  p.value
+    ##   <chr>           <dbl>     <dbl>     <dbl>    <dbl>
+    ## 1 (Intercept)    62.8       4.18      15.0  1.73e-41
+    ## 2 cdi_df$pop65   -0.455     0.326     -1.40 1.64e- 1
 
 ## Abstract
 

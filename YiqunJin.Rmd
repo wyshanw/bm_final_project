@@ -15,14 +15,20 @@ library(corrplot)
 ```{r}
 cdi_df = read.csv("data/cdi.csv") %>% 
   janitor::clean_names() %>%
-  mutate(crime_rate = crimes/pop)
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+  select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
 ```
 
 ## Crime Rate Correlation
 
 ```{r}
 cdi_cor = cdi_df %>% 
-  select(-id,-cty,-state) %>% 
+  select(-id,-cty_state, -cty, -state) %>% 
   cor() 
  
 corrplot(cdi_cor)
@@ -51,15 +57,12 @@ knitr::kable(var_info)
 Poverty: Percent of 1990 total population with income below poverty level
 
 ```{r}
-ggplot(cdi_df, aes(x = poverty, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_poverty = lm(cdi_df$crime_rate ~ cdi_df$poverty) 
+reg_poverty = lm(cdi_df$crime_rate_1000 ~ cdi_df$poverty) 
 summary(reg_poverty)
 fitted_value =  reg_poverty$fitted.values
 reg_poverty %>% broom::tidy()
-
-plot(cdi_df$poverty, cdi_df$crime_rate)
-abline(reg_poverty, lwd = 2, col = 2)
 ```
 
 ## Crime Rate v.s. Beds
@@ -67,9 +70,9 @@ abline(reg_poverty, lwd = 2, col = 2)
 Beds: Total number of beds, cribs, and bassinets during 1990
 
 ```{r}
-ggplot(cdi_df, aes(x = beds, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_df, aes(x = beds_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_beds = lm(cdi_df$crime_rate ~ cdi_df$beds) 
+reg_beds = lm(cdi_df$crime_rate_1000 ~ cdi_df$beds_rate_1000) 
 summary(reg_beds)
 reg_beds %>% broom::tidy()
 ```
@@ -79,9 +82,9 @@ reg_beds %>% broom::tidy()
 docs (Number of active physicians)
 
 ```{r}
-ggplot(cdi_df, aes(x = docs, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_df, aes(x = docs_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_docs = lm(cdi_df$crime_rate ~ cdi_df$docs) 
+reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$docs_rate_1000) 
 summary(reg_docs)
 reg_docs %>% broom::tidy()
 ```
@@ -89,12 +92,14 @@ reg_docs %>% broom::tidy()
 ## Crime Rate v.s. hsgrad
 
 ```{r}
-ggplot(cdi_df, aes(x = hsgrad, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_df, aes(x = hsgrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_docs = lm(cdi_df$crime_rate ~ cdi_df$hsgrad) 
+reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$hsgrad) 
 summary(reg_docs)
 reg_docs %>% broom::tidy()
 ```
+
+
 
 ## Abstract
 

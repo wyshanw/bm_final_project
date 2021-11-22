@@ -1,0 +1,26 @@
+---
+title: "YiqunJin"
+author: "Yiqun Jin"
+date: "11/22/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+## Load Data
+
+```{r}
+cdi_df = read.csv(./cdi.csv)
+```
+
+## Abstract
+
+## Introduction
+
+## Methods
+
+## Results
+
+## Conclusion/Discussion

@@ -58,7 +58,8 @@ corrplot(corr)
 
 #pop18
 reg = lm(crime_rate_1000 ~ pop18, data = cdi_data)
-summary(reg)$coefficients[8]
+p1 = summary(reg)$coefficients[8]
+p1
 
 cdi_data %>% 
   ggplot(aes(pop18, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -67,7 +68,8 @@ cdi_data %>%
 
 #pop65
 reg = lm(crime_rate_1000 ~ pop65, data = cdi_data)
-summary(reg)$coefficients[8]
+p2 = summary(reg)$coefficients[8]
+p2
 
 cdi_data %>% 
   ggplot(aes(pop65, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -76,7 +78,8 @@ cdi_data %>%
 
 #docs_rate_1000
 reg = lm(crime_rate_1000 ~ docs_rate_1000, data = cdi_data)
-summary(reg)$coefficients[8]
+p3 = summary(reg)$coefficients[8]
+p3
 
 cdi_data %>% 
   ggplot(aes(docs_rate_1000, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -85,7 +88,8 @@ cdi_data %>%
 
 #beds_rate_1000
 reg = lm(crime_rate_1000 ~ beds_rate_1000, data = cdi_data)
-summary(reg)$coefficients[8]
+p4 = summary(reg)$coefficients[8]
+p4
 
 cdi_data %>% 
   ggplot(aes(beds_rate_1000, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -95,7 +99,8 @@ cdi_data %>%
 
 #hsgrad
 reg = lm(crime_rate_1000 ~ hsgrad, data = cdi_data)
-summary(reg)$coefficients[8]
+p5 = summary(reg)$coefficients[8]
+p5
 
 cdi_data %>% 
   ggplot(aes(hsgrad, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -104,7 +109,8 @@ cdi_data %>%
 
 #bagrad
 reg = lm(crime_rate_1000 ~ bagrad, data = cdi_data)
-summary(reg)$coefficients[8]
+p6 = summary(reg)$coefficients[8]
+p6
 
 cdi_data %>% 
   ggplot(aes(bagrad, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -113,7 +119,8 @@ cdi_data %>%
 
 #poverty
 reg = lm(crime_rate_1000 ~ poverty, data = cdi_data)
-summary(reg)$coefficients[8]
+p7 = summary(reg)$coefficients[8]
+p7
 
 cdi_data %>% 
   ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -122,7 +129,8 @@ cdi_data %>%
 
 #unemp
 reg = lm(crime_rate_1000 ~ unemp, data = cdi_data)
-summary(reg)$coefficients[8]
+p8 = summary(reg)$coefficients[8]
+p8
 
 cdi_data %>% 
   ggplot(aes(unemp, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -131,7 +139,8 @@ cdi_data %>%
 
 #pcincome
 reg = lm(crime_rate_1000 ~ pcincome, data = cdi_data)
-summary(reg)$coefficients[8]
+p9 = summary(reg)$coefficients[8]
+p9
 
 cdi_data %>% 
   ggplot(aes(pcincome, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
@@ -140,22 +149,24 @@ cdi_data %>%
 
 #totalinc
 reg = lm(crime_rate_1000 ~ totalinc, data = cdi_data)
-summary(reg)$coefficients[8]
+p10 = summary(reg)$coefficients[8]
+p10
 
 cdi_data %>% 
   ggplot(aes(totalinc, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
   geom_smooth(method='lm', se=TRUE, color='red') +
   labs(x="totalinc", y="CRM_1000")
 
-#region
-reg = lm(crime_rate_1000 ~ region, data = cdi_data)
-summary(reg)$coefficients[8]
 
-cdi_data %>% 
-  ggplot(aes(region, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
-  geom_smooth(method='lm', se=TRUE, color='red') +
-  labs(x="region", y="CRM_1000")
 
+
+sum_df = tibble(
+  var = c( "pop18","pop65","docs_rate_1000","beds_rate_1000","hsgrad","bagrad","poverty","unemp","pcincome","totalinc"),
+  p.value = c(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10),
+  significant = p.value<0.05
+) 
+
+knitr::kable(sum_df)
 ```
 
 

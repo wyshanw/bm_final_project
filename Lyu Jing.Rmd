@@ -4,3 +4,24 @@ author: "LYU JING"
 date: "11/22/2021"
 output: html_document
 ---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+cdi = read.csv("data/cdi.csv")
+
+
+cdi_cor = cdi %>% 
+  select(-id,-cty,-state)
+  
+```
+```{r}
+cdi.cor = cor(cdi_cor)
+
+
+library(corrplot)
+corrplot(cdi.cor)
+```
+

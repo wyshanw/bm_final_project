@@ -1,5 +1,5 @@
 ---
-title: "case_study"
+title: "8130final"
 author: "Mengfan Luo"
 date: "23/10/2021"
 output: html_document
@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(corrplot)
 #library(p8105.datasets)
 #library(leaflet)
 
@@ -29,19 +30,16 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 ```{r}
-cdi_df = read_csv("cdi.csv") 
+cdi_df = read_csv("data/cdi.csv") 
+
+skimr::skim(cdi_df)
 
 numeric_cdi_df = cdi_df %>% 
   select(-cty,-state,-id)
 
 corr = round(cor(numeric_cdi_df), 1)
 
-ggcorrplot(corr,
-  hc.order = TRUE, type = "upper",
-  outline.color = "white"
-)
-
-skimr::skim(cdi_df)
+corrplot(corr)
 ```
 
 

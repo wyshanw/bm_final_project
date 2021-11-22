@@ -13,18 +13,47 @@ library(corrplot)
 ## Load Data
 
 ```{r}
-cdi_df = read.csv("data/cdi.csv")
-
-cdi_cor = cdi_df %>% 
-  select(-id,-cty,-state)
-  
+cdi_df = read.csv("data/cdi.csv") %>% 
+  janitor::clean_names() %>%
+  mutate(crime_rate = crimes/pop)
 ```
 
-correlation
+## Crime Rate Correlation
 
 ```{r}
-cdi.cor = cor(cdi_cor)
-corrplot(cdi.cor)
+cdi_cor = cdi_df %>% 
+  select(-id,-cty,-state) %>% 
+  cor() 
+ 
+corrplot(cdi_cor)
+```
+
+According to the plot above, we can see the poverty (Percent below poverty level), beds(Number of hospital beds), docs (Number of active physicians) have positive relationship with crime rate.
+
+Percent high school graduates (Percent of persons 25 years old or older twho completed 12 or more years of school) show a light negative relationship with crime rate.
+
+
+## Variable Information
+
+```{r}
+var <- c("id", "cty", "state", "area",	"pop", "pop18",	"pop65",	"docs",	"beds",	"crimes",	"hsgrad",	"bagrad",	"poverty",	"unemp",	"pcincome",	"totalinc",	"region")
+
+var_meaning <- c("ID number", "
+County name", "State name", "Land area", "Total population", "Percent of population aged 18-34", "Percent of population aged 65+", "Number of active physicians", "Number of hospital beds", "Total serious crimes", "Percent high school graduates", "Percent bachelor’s degrees", "Percent below poverty level", "Percent unemployment", "Per capita income", "Total personal income", "Geographic region")
+
+var_info <- data.frame(var, var_meaning)
+
+knitr::kable(var_info)
+```
+
+## Crime v.s. Poverty
+
+```{r}
+ggplot(cdi_df, aes(x = poverty, y = crime_rate)) + geom_point() + geom_smooth()
+
+relation = lm(cdi_df$crime_rate ~ cdi_df$poverty) 
+summary(relation)
+relation %>% broom::tidy()
 ```
 
 

@@ -48,6 +48,9 @@ ggplot(data = cdi_data, aes(x = poverty, y = crime_rate)) +
 poverty vs pop vs age group
 
 ```{r}
+# correlation between age group?
+cor(cdi_data$pop18, cdi_data$pop65)
+# yes, there is strong correlation between two age group, consider removing one
 
 # Simple linear regression: crm_1000 vs poverty
 cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
@@ -70,10 +73,15 @@ summary(cdi_pov_pop65)
 cdi_pov_pop18_pop65 = lm(crime_rate_1000 ~ poverty + pop18 + pop65 , data = cdi_data)
 summary(cdi_pov_pop18_pop65)
 
-#age65 not significant, remove
-
+# age65 not significant, remove
 
 ```
 
+best subset test
+```{r}
 
+bs<-BestSub(cdi_data[,c(6:17)],cdi_data$crime_rate_1000, method = "sse", num=1) # best subset
+
+
+```
 

@@ -23,5 +23,26 @@ knitr::kable(var_info)
 ```
 
 
+```{r}
+cdi_data = read.csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(crime_rate = crimes/pop) 
+  
+```
+
+poverty vs crime rate
+
+```{r}
+reg <- lm(crimes ~ poverty, data = cdi_data)
+summary(reg)
+
+cdi_data %>% ggplot() + 
+  geom_point(aes(x = poverty, y = crime_rate, alpha = 0.5))
+ 
+```
+
+
+
+
 
 

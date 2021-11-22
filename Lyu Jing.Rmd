@@ -64,21 +64,23 @@ cdi_data %>%
   geom_smooth(method='lm', se=TRUE, color='red') +
   labs(x="Percent below poverty level", y="CRM_1000")
 
-# Simple linear regression: Length of stay (LOS) vs number of BEDS 
-reg_hos = lm(LOS ~ BEDS, data = data_hosp)
-summary(reg_hos)
+# Simple linear regression: crm_1000 vs poverty
+cdi_pov = lm(crm_1000 ~ poverty, data = cdi_data)
+summary(cdi_pov)
 
-# Get the ANOVA table
-anova(reg_hos)
 
-# MLR LOS vs BEDS + INFRISK
-regmult1_hos = lm(LOS ~ BEDS + INFRISK, data = data_hosp)
-summary(regmult1_hos)
+cdi_pov = lm(crm_1000 ~ poverty + beds, data = cdi_data)
+summary(cdi_pov)
 
-# MLR LOS vs BEDS + INFRISK + NURSE
-regmulti2_hos = lm(LOS ~ BEDS + INFRISK + NURSE, data = data_hosp)
-summary(regmulti2_hos)
 
+cdi_pov = lm(crm_1000 ~ poverty + docs , data = cdi_data)
+summary(cdi_pov)
+
+cdi_pov = lm(crm_1000 ~ poverty + docs + beds , data = cdi_data)
+summary(cdi_pov)
+
+
+# so
 ```
 
 Is there a relationship between length of stay, number of beds, and medical school affiliation?

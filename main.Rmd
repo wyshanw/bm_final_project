@@ -51,7 +51,7 @@ summary(cdi_pov)
 cdi_pov = lm(crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
 summary(cdi_pov)
 
-
+# this one is the best!
 cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 , data = cdi_data)
 summary(cdi_pov)
 

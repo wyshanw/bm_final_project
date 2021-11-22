@@ -474,6 +474,20 @@ reg_bagrad %>% broom::tidy()
     ## 1 (Intercept)     54.4       3.82     14.2   4.74e-38
     ## 2 cdi_df$bagrad    0.137     0.170     0.802 4.23e- 1
 
+## Multiple Linear Regression
+
+``` r
+mlr = lm(crime_rate_1000 ~ docs_rate_1000 + beds_rate_1000 + poverty, data = cdi_df)
+
+qplot(x = poverty, y = crime_rate_1000, color = factor(region), data = cdi_df, alpha = .5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](YiqunJin_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
 ## Abstract
 
 ## Introduction

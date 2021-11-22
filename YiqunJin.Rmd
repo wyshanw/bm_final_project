@@ -159,6 +159,16 @@ summary(reg_bagrad)
 reg_bagrad %>% broom::tidy()
 ```
 
+## Multiple Linear Regression
+
+```{r}
+mlr = lm(crime_rate_1000 ~ docs_rate_1000 + beds_rate_1000 + poverty, data = cdi_df)
+
+qplot(x = poverty, y = crime_rate_1000, color = factor(region), data = cdi_df, alpha = .5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+```
+
 
 ## Abstract
 

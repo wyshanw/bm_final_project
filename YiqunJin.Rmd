@@ -135,6 +135,30 @@ summary(reg_pop65)
 reg_pop65 %>% broom::tidy()
 ```
 
+## Crime Rate v.s. Area
+
+Land area measured in square miles
+
+```{r}
+ggplot(cdi_df, aes(x = area, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_area = lm(cdi_df$crime_rate_1000 ~ cdi_df$area) 
+summary(reg_area)
+reg_pop65 %>% broom::tidy()
+```
+
+## Crime Rate v.s. bagrad
+
+Percent of persons 25 years old or older with bachelor’s degrees
+
+```{r}
+ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_bagrad = lm(cdi_df$crime_rate_1000 ~ cdi_df$bagrad) 
+summary(reg_bagrad)
+reg_bagrad %>% broom::tidy()
+```
+
 
 ## Abstract
 

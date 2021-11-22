@@ -382,6 +382,98 @@ reg_pop65 %>% broom::tidy()
     ## 1 (Intercept)    62.8       4.18      15.0  1.73e-41
     ## 2 cdi_df$pop65   -0.455     0.326     -1.40 1.64e- 1
 
+## Crime Rate v.s. Area
+
+Land area measured in square miles
+
+``` r
+ggplot(cdi_df, aes(x = area, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](YiqunJin_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+reg_area = lm(cdi_df$crime_rate_1000 ~ cdi_df$area) 
+summary(reg_area)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = cdi_df$crime_rate_1000 ~ cdi_df$area)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -52.216 -18.968  -4.955  15.294 239.435 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 5.650e+01  1.570e+00   35.98   <2e-16 ***
+    ## cdi_df$area 7.573e-04  8.417e-04    0.90    0.369    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 27.33 on 438 degrees of freedom
+    ## Multiple R-squared:  0.001845,   Adjusted R-squared:  -0.0004343 
+    ## F-statistic: 0.8094 on 1 and 438 DF,  p-value: 0.3688
+
+``` r
+reg_pop65 %>% broom::tidy()
+```
+
+    ## # A tibble: 2 × 5
+    ##   term         estimate std.error statistic  p.value
+    ##   <chr>           <dbl>     <dbl>     <dbl>    <dbl>
+    ## 1 (Intercept)    62.8       4.18      15.0  1.73e-41
+    ## 2 cdi_df$pop65   -0.455     0.326     -1.40 1.64e- 1
+
+## Crime Rate v.s. bagrad
+
+Percent of persons 25 years old or older with bachelor’s degrees
+
+``` r
+ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](YiqunJin_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+reg_bagrad = lm(cdi_df$crime_rate_1000 ~ cdi_df$bagrad) 
+summary(reg_bagrad)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = cdi_df$crime_rate_1000 ~ cdi_df$bagrad)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -52.264 -19.407  -4.478  15.727 239.313 
+    ## 
+    ## Coefficients:
+    ##               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)    54.4035     3.8226  14.232   <2e-16 ***
+    ## cdi_df$bagrad   0.1368     0.1705   0.802    0.423    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 27.34 on 438 degrees of freedom
+    ## Multiple R-squared:  0.001467,   Adjusted R-squared:  -0.0008125 
+    ## F-statistic: 0.6436 on 1 and 438 DF,  p-value: 0.4228
+
+``` r
+reg_bagrad %>% broom::tidy()
+```
+
+    ## # A tibble: 2 × 5
+    ##   term          estimate std.error statistic  p.value
+    ##   <chr>            <dbl>     <dbl>     <dbl>    <dbl>
+    ## 1 (Intercept)     54.4       3.82     14.2   4.74e-38
+    ## 2 cdi_df$bagrad    0.137     0.170     0.802 4.23e- 1
+
 ## Abstract
 
 ## Introduction

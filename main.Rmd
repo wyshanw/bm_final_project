@@ -1,0 +1,29 @@
+---
+title: "BIST8130 - Codings"
+author: "Mingkuan Xu (mx2262)"
+date: "11/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library,warning=FALSE,message=FALSE}
+library(tidyverse)
+library(corrplot)
+```
+## Data Preprocessing
+
+```{r}
+cdi_data = read.csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(crime_rate = crimes/pop)
+
+cdi_cor = cdi_data %>%
+  select(-id,-cty,-state) %>%
+  cor() 
+
+corrplot(cdi_cor)
+
+```

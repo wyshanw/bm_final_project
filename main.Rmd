@@ -15,20 +15,22 @@ library(corrplot)
 ```
 ## Data Preprocessing
 
-```{r}
+```{r preprocess}
 cdi_data = read.csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
-  mutate(crime_rate = crimes/pop,
-         cty_state = str_c(cty,",",state),
-         crm_1000 = 1000*crimes/pop) %>% 
-  relocate(cty_state,cty)
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+  select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
+```
 
+```{r corrplot}
 cdi_cor = cdi_data %>%
   select(-id,-cty,-state, -cty_state) %>%
   cor() 
-
+ 
 corrplot(cdi_cor)
-
-
-
 ```

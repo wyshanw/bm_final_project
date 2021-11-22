@@ -1,5 +1,5 @@
 ---
-title: "t"
+title: "Yushan Wang"
 output: github_document
 ---
 
@@ -8,10 +8,20 @@ library(tidyverse)
 
 ```
 
-## 
-
+## Variable information:
 
 ```{r}
+var <- c("id", "cty", "state", "area",	"pop", "pop18",	"pop65",	"docs",	"beds",	"crimes",	"hsgrad",	"bagrad",	"poverty",	"unemp",	"pcincome",	"totalinc",	"region")
 
+var_meaning <- c("ID number", "
+County name", "State name", "Land area", "Total population", "Percent of population aged 18-34", "Percent of population aged 65+", "Number of active physicians", "Number of hospital beds", "Total serious crimes", "Percent high school graduates", "Percent bachelor’s degrees
+", "Percent below poverty level", "Percent unemployment", "Per capita income", "Total personal income", "Geographic region")
+
+var_info <- data.frame(var, var_meaning)
+
+knitr::kable(var_info)
 ```
+
+
+
 

@@ -2,18 +2,173 @@
 title: "YiqunJin"
 author: "Yiqun Jin"
 date: "11/22/2021"
-output: pdf_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(corrplot)
 ```
 
 ## Load Data
 
 ```{r}
-cdi_df = read.csv(./cdi.csv)
+cdi_df = read.csv("data/cdi.csv") %>% 
+  janitor::clean_names() %>%
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+  select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
 ```
+
+## Crime Rate Correlation
+
+```{r}
+cdi_cor = cdi_df %>% 
+  select(-id,-cty_state, -cty, -state) %>% 
+  cor() 
+ 
+corrplot(cdi_cor)
+```
+
+According to the plot above, we can see the poverty (Percent below poverty level), beds(Number of hospital beds), docs (Number of active physicians) have positive relationship with crime rate.
+
+Percent high school graduates (Percent of persons 25 years old or older twho completed 12 or more years of school) show a light negative relationship with crime rate.
+
+
+## Variable Information
+
+```{r, echo = FALSE}
+var <- c("id", "cty", "state", "area",	"pop", "pop18",	"pop65",	"docs",	"beds",	"crimes",	"hsgrad",	"bagrad",	"poverty",	"unemp",	"pcincome",	"totalinc",	"region")
+
+var_meaning <- c("ID number", "
+County name", "State name", "Land area", "Total population", "Percent of population aged 18-34", "Percent of population aged 65+", "Number of active physicians", "Number of hospital beds", "Total serious crimes", "Percent high school graduates", "Percent bachelor’s degrees", "Percent below poverty level", "Percent unemployment", "Per capita income", "Total personal income", "Geographic region")
+
+var_info <- data.frame(var, var_meaning)
+
+knitr::kable(var_info)
+```
+
+## Crime Rate v.s. Poverty
+
+Poverty: Percent of 1990 total population with income below poverty level
+
+```{r}
+ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_poverty = lm(cdi_df$crime_rate_1000 ~ cdi_df$poverty) 
+summary(reg_poverty)
+fitted_value =  reg_poverty$fitted.values
+reg_poverty %>% broom::tidy()
+```
+
+## Crime Rate v.s. Beds
+
+Beds: Total number of beds, cribs, and bassinets during 1990
+
+```{r}
+ggplot(cdi_df, aes(x = beds_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_beds = lm(cdi_df$crime_rate_1000 ~ cdi_df$beds_rate_1000) 
+summary(reg_beds)
+reg_beds %>% broom::tidy()
+```
+
+## Crime Rate v.s. Docs
+
+docs: Number of active physicians
+
+```{r}
+ggplot(cdi_df, aes(x = docs_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$docs_rate_1000) 
+summary(reg_docs)
+reg_docs %>% broom::tidy()
+```
+
+## Crime Rate v.s. hsgrad
+
+hsgrad: Percent of persons 25 years old or older who completed 12 or more years of school
+
+```{r}
+ggplot(cdi_df, aes(x = hsgrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$hsgrad) 
+summary(reg_docs)
+reg_docs %>% broom::tidy()
+```
+
+## Crime Rate v.s. pop
+
+pop: Estimated 1990 population
+
+```{r}
+ggplot(cdi_df, aes(x = pop, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_pop = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop) 
+summary(reg_pop)
+reg_pop %>% broom::tidy()
+```
+
+## Crime Rate v.s. pop18
+
+pop18: Percent of total population in age range from 18-34
+
+```{r}
+ggplot(cdi_df, aes(x = pop18, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_pop18 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop18) 
+summary(reg_pop18)
+reg_pop18 %>% broom::tidy()
+```
+
+## Crime Rate v.s. pop65
+
+```{r}
+ggplot(cdi_df, aes(x = pop65, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_pop65 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop65) 
+summary(reg_pop65)
+reg_pop65 %>% broom::tidy()
+```
+
+## Crime Rate v.s. Area
+
+Land area measured in square miles
+
+```{r}
+ggplot(cdi_df, aes(x = area, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_area = lm(cdi_df$crime_rate_1000 ~ cdi_df$area) 
+summary(reg_area)
+reg_pop65 %>% broom::tidy()
+```
+
+## Crime Rate v.s. bagrad
+
+Percent of persons 25 years old or older with bachelor’s degrees
+
+```{r}
+ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_bagrad = lm(cdi_df$crime_rate_1000 ~ cdi_df$bagrad) 
+summary(reg_bagrad)
+reg_bagrad %>% broom::tidy()
+```
+
+## Multiple Linear Regression
+
+```{r}
+mlr = lm(crime_rate_1000 ~ docs_rate_1000 + beds_rate_1000 + poverty, data = cdi_df)
+
+qplot(x = poverty, y = crime_rate_1000, color = factor(region), data = cdi_df, alpha = .5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_bw()
+```
+
 
 ## Abstract
 

@@ -7,6 +7,7 @@ output: github_document
 
 ```{r}
 library(tidyverse)
+library(graphics)
 ```
 
 ```{r}
@@ -23,5 +24,32 @@ cdi.cor = cor(cdi_cor)
 
 library(corrplot)
 corrplot(cdi.cor)
+```
+```{r}
+
+ls(cdi)
+data = cdi %>% 
+  select(pop,pop18,docs,beds,crimes,poverty,totalinc)
+
+
+
+groups <- cdi[, 17] 
+# Plot correlation matrix
+pairs(data,lower.panel = panel.smooth)
+
+# Equivalent with a formula
+pairs(~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
+
+# Equivalent but using the plot function
+plot(data) 
+```
+```{r}
+plot(x, y, pch = 19, col = "lightblue")
+
+# Regression line
+abline(lm(y ~ x), col = "red", lwd = 3)
+
+# Pearson correlation
+text(paste("Correlation:", round(cor(x, y), 2)), x = 25, y = 95)
 ```
 

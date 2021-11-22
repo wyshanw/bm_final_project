@@ -46,16 +46,55 @@ var_info <- data.frame(var, var_meaning)
 knitr::kable(var_info)
 ```
 
-## Crime v.s. Poverty
+## Crime Rate v.s. Poverty
+
+Poverty: Percent of 1990 total population with income below poverty level
 
 ```{r}
-ggplot(cdi_df, aes(x = poverty, y = crime_rate)) + geom_point() + geom_smooth()
+ggplot(cdi_df, aes(x = poverty, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-relation = lm(cdi_df$crime_rate ~ cdi_df$poverty) 
-summary(relation)
-relation %>% broom::tidy()
+reg_poverty = lm(cdi_df$crime_rate ~ cdi_df$poverty) 
+summary(reg_poverty)
+fitted_value =  reg_poverty$fitted.values
+reg_poverty %>% broom::tidy()
+
+plot(cdi_df$poverty, cdi_df$crime_rate)
+abline(reg_poverty, lwd = 2, col = 2)
 ```
 
+## Crime Rate v.s. Beds
+
+Beds: Total number of beds, cribs, and bassinets during 1990
+
+```{r}
+ggplot(cdi_df, aes(x = beds, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_beds = lm(cdi_df$crime_rate ~ cdi_df$beds) 
+summary(reg_beds)
+reg_beds %>% broom::tidy()
+```
+
+## Crime Rate v.s. Docs
+
+docs (Number of active physicians)
+
+```{r}
+ggplot(cdi_df, aes(x = docs, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_docs = lm(cdi_df$crime_rate ~ cdi_df$docs) 
+summary(reg_docs)
+reg_docs %>% broom::tidy()
+```
+
+## Crime Rate v.s. hsgrad
+
+```{r}
+ggplot(cdi_df, aes(x = hsgrad, y = crime_rate)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+
+reg_docs = lm(cdi_df$crime_rate ~ cdi_df$hsgrad) 
+summary(reg_docs)
+reg_docs %>% broom::tidy()
+```
 
 ## Abstract
 

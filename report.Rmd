@@ -1,5 +1,5 @@
 ---
-title: "BIST8130 - Final Project"
+title: "BIST8130 - Final Project Report"
 output: github_document
 ---
 
@@ -9,10 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-## Team Member
+## Team Members
 
-Mingkuan Xu (mx2262),  
-
+Mengfan Luo (ml4701), Yushan Wang (yw3772), Jing Lyu(jl6049), Yiqun Jin (yj2686), Mingkuan Xu (mx2262).
+ 
 ## Introduction
 
 ## Dataset

@@ -1,0 +1,20 @@
+---
+title: "BIST8130 - Final Project"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+## Team Member
+
+Mingkuan Xu (mx2262),  
+
+## Introduction
+
+## Dataset
+
+## Reference

@@ -11,7 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Team Member
 
-Mingkuan Xu (mx2262),  
+Mingkuan Xu (mx2262), 
+
 
 ## Introduction
 

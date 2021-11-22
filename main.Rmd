@@ -1,8 +1,7 @@
 ---
-title: "BIST8130 - Codings"
-author: "Mingkuan Xu (mx2262)"
+title: "BIST8130 - Final Proejct Codings"
 date: "11/22/2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(corrplot)
 ```
-## Data Preprocessing
+
+### Step 1: Data Preprocessing
+
+After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
 
 ```{r preprocess}
 cdi_data = read.csv("./data/cdi.csv") %>%
@@ -25,12 +27,29 @@ cdi_data = read.csv("./data/cdi.csv") %>%
     crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
   select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
+
+knitr::kable(head(cdi_data))
 ```
 
-```{r corrplot}
+
+### Step 2 - Correlation Heatmap
+
+We then calculate the pairwise correlations between variables and list all the correlations between the crime rate (our interest) and all other variables.
+
+```{r correlation}
 cdi_cor = cdi_data %>%
   select(-id,-cty,-state, -cty_state) %>%
   cor() 
+
+crime_1000_cor = data.frame(cdi_cor) %>% 
+  select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+  t()
+knitr::kable(crime_1000_cor) 
+```
+
+We then draw the correlation heatmap between pairwise variables.
+
+```{r corrplot}
  
 corrplot(cdi_cor)
 ```

@@ -34,3 +34,42 @@ knitr::kable(var_info)
 | pcincome | Per capita income                |
 | totalinc | Total personal income            |
 | region   | Geographic region                |
+
+``` r
+cdi_data = read.csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(crime_rate = crimes/pop) 
+```
+
+poverty vs crime rate
+
+``` r
+reg <- lm(crimes ~ poverty, data = cdi_data)
+summary(reg)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = crimes ~ poverty, data = cdi_data)
+    ## 
+    ## Residuals:
+    ##    Min     1Q Median     3Q    Max 
+    ## -65035 -20362 -12640   1354 655904 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)   9181.3     5825.7   1.576 0.115750    
+    ## poverty       2056.1      589.4   3.488 0.000535 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 57510 on 438 degrees of freedom
+    ## Multiple R-squared:  0.02703,    Adjusted R-squared:  0.02481 
+    ## F-statistic: 12.17 on 1 and 438 DF,  p-value: 0.0005354
+
+``` r
+cdi_data %>% ggplot() + 
+  geom_point(aes(x = poverty, y = crime_rate, alpha = 0.5))
+```
+
+![](Yushan_Wang_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->

@@ -30,12 +30,21 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 ```{r}
-cdi_df = read_csv("data/cdi.csv") 
+cdi_data = read.csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+  select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
 
-skimr::skim(cdi_df)
 
-numeric_cdi_df = cdi_df %>% 
-  select(-cty,-state,-id)
+skimr::skim(cdi_data)
+
+numeric_cdi_df = cdi_data %>% 
+  select(-cty,-state,-id,-cty_state)
 
 corr = round(cor(numeric_cdi_df), 1)
 
@@ -43,21 +52,111 @@ corrplot(corr)
 ```
 
 
+
+
 ```{r}
 
+#pop18
+reg = lm(crime_rate_1000 ~ pop18, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(pop18, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="pop18", y="CRM_1000")
+
+#pop65
+reg = lm(crime_rate_1000 ~ pop65, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(pop65, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="pop65", y="CRM_1000")
+
+#docs_rate_1000
+reg = lm(crime_rate_1000 ~ docs_rate_1000, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(docs_rate_1000, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="docs_rate_1000", y="CRM_1000")
+
+#beds_rate_1000
+reg = lm(crime_rate_1000 ~ beds_rate_1000, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(beds_rate_1000, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="beds_rate_1000", y="CRM_1000")
+
+
+#hsgrad
+reg = lm(crime_rate_1000 ~ hsgrad, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(hsgrad, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="hsgrad", y="CRM_1000")
+
+#bagrad
+reg = lm(crime_rate_1000 ~ bagrad, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(bagrad, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="bagrad", y="CRM_1000")
+
+#poverty
+reg = lm(crime_rate_1000 ~ poverty, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="poverty", y="CRM_1000")
+
+#unemp
+reg = lm(crime_rate_1000 ~ unemp, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(unemp, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="unemp", y="CRM_1000")
+
+#pcincome
+reg = lm(crime_rate_1000 ~ pcincome, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(pcincome, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="pcincome", y="CRM_1000")
+
+#totalinc
+reg = lm(crime_rate_1000 ~ totalinc, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(totalinc, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="totalinc", y="CRM_1000")
+
+#region
+reg = lm(crime_rate_1000 ~ region, data = cdi_data)
+summary(reg)$coefficients[8]
+
+cdi_data %>% 
+  ggplot(aes(region, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  geom_smooth(method='lm', se=TRUE, color='red') +
+  labs(x="region", y="CRM_1000")
+
 ```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

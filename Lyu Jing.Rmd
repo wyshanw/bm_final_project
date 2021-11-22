@@ -37,8 +37,6 @@ groups <- cdi[, 17]
 # Plot correlation matrix
 pairs(data,lower.panel = panel.smooth)
 
-# Equivalent with a formula
-pairs(~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = iris)
 
 # Equivalent but using the plot function
 plot(data) 

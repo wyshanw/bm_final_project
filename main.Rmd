@@ -57,6 +57,10 @@ summary(cdi_pov)
 
 cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000 , data = cdi_data)
 summary(cdi_pov)
+```
 
+```{r region}
+cdi_region = lm(crime_rate_1000 ~ factor(region), data = cdi_data) # fit model with factoring 
+summary(cdi_region)
 ```
 

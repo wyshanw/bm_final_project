@@ -7,13 +7,26 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(corrplot)
 ```
 
 ## Load Data
 
 ```{r}
-cdi_df = read.csv(./cdi.csv)
+cdi_df = read.csv("data/cdi.csv")
+
+cdi_cor = cdi_df %>% 
+  select(-id,-cty,-state)
+  
 ```
+
+correlation
+
+```{r}
+cdi.cor = cor(cdi_cor)
+corrplot(cdi.cor)
+```
+
 
 ## Abstract
 

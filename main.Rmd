@@ -19,7 +19,8 @@ library(corrplot)
 cdi_data = read.csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(crime_rate = crimes/pop,
-         cty_state = str_c(cty,",",state)) %>% 
+         cty_state = str_c(cty,",",state),
+         crm_1000 = 1000*crimes/pop) %>% 
   relocate(cty_state,cty)
 
 cdi_cor = cdi_data %>%
@@ -27,5 +28,7 @@ cdi_cor = cdi_data %>%
   cor() 
 
 corrplot(cdi_cor)
+
+
 
 ```

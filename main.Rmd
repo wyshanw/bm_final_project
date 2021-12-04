@@ -26,35 +26,61 @@ cdi_data = read_csv("./data/cdi.csv") %>%
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
     crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
-  select(-docs,-beds,-crimes) %>%
+  dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
 knitr::kable(head(cdi_data))
 ```
 
 
-### Step 2 - Correlation Heatmap
+### Step 2 - Exploratory Analysis
 
-We then calculate the pairwise correlations between variables and list all the correlations between the crime rate (our interest) and all other variables.
+We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables.
 
-```{r correlation}
-cdi_cor = cdi_data %>%
-  select(-id,-cty,-state, -cty_state) %>%
-  cor() 
+```{r exploration}
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state,-region) 
 
-crime_1000_cor = data.frame(cdi_cor) %>% 
-  select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
-  t()
-knitr::kable(crime_1000_cor) 
-```
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$area,main="Area")
+boxplot(cdi_data_exp$pop,main="Population")
+boxplot(cdi_data_exp$pop18,main="Population 18-34")
+boxplot(cdi_data_exp$pop65,main="Population 65+")
+boxplot(cdi_data_exp$hsgrad,main="Highschool grads")
+boxplot(cdi_data_exp$bagrad,main="Bachelor's grads")
 
-We then draw the correlation heatmap between pairwise variables.
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$poverty,main="Poverty Rate")
+boxplot(cdi_data_exp$unemp,main="Unemployment Rate")
+boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main="Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_exp$beds_rate_1000,main="Hospital Beds")
 
-```{r corrplot}
+par(mfrow=c(1,1))
+
+ggplot(cdi_data,aes(region)) + 
+  geom_histogram(binwidth = 0.5) +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count")
+
+boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+
+# data exploratory
+pairs(cdi_data_exp)
+
+# correlation plot
+cdi_data_cor = cor(cdi_data_exp)
+corrplot(cdi_data_cor, type = "upper", diag = FALSE)
  
-corrplot(cdi_cor)
-```
+crime_1000_cor = data.frame(cdi_data_cor) %>% 
+  dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+  t()
 
+knitr::kable(crime_1000_cor,digits = 2) 
+
+```
 
 ### Model construction
 

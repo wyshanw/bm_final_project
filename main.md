@@ -24,7 +24,7 @@ cdi_data = read_csv("./data/cdi.csv") %>%
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
     crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
-  select(-docs,-beds,-crimes) %>%
+  dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 ```
 
@@ -43,43 +43,92 @@ cdi_data = read_csv("./data/cdi.csv") %>%
 knitr::kable(head(cdi_data))
 ```
 
-|  id | cty\_state   | cty       | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
-|----:|:-------------|:----------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|------------------:|
-|   1 | Los\_Ange,CA | Los\_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |         2.671394 |         3.125295 |          77.73026 |
-|   2 | Cook,IL      | Cook      | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |         2.968227 |         4.221296 |          85.58869 |
-|   3 | Harris,TX    | Harris    | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |         2.680080 |         4.417360 |          89.96029 |
-|   4 | San\_Dieg,CA | San\_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |         2.363876 |         2.473563 |          69.58362 |
-|   5 | Orange,CA    | Orange    | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |         2.514772 |         2.642129 |          59.95463 |
-|   6 | Kings,NY     | Kings     | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |         2.112868 |         3.886704 |         295.98672 |
+|  id | cty_state   | cty      | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 | crime_rate_1000 |
+|----:|:------------|:---------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|----------------:|
+|   1 | Los_Ange,CA | Los_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |       2.671394 |       3.125295 |        77.73026 |
+|   2 | Cook,IL     | Cook     | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |       2.968227 |       4.221296 |        85.58869 |
+|   3 | Harris,TX   | Harris   | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |       2.680080 |       4.417360 |        89.96029 |
+|   4 | San_Dieg,CA | San_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |       2.363876 |       2.473563 |        69.58362 |
+|   5 | Orange,CA   | Orange   | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |       2.514772 |       2.642129 |        59.95463 |
+|   6 | Kings,NY    | Kings    | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |       2.112868 |       3.886704 |       295.98672 |
 
-### Step 2 - Correlation Heatmap
+### Step 2 - Exploratory Analysis
 
-We then calculate the pairwise correlations between variables and list
-all the correlations between the crime rate (our interest) and all other
-variables.
+We then take a closer look of each variables, calculate the pairwise
+correlations between variables, and list all the correlations between
+the crime rate (our interest) and all other variables.
 
 ``` r
-cdi_cor = cdi_data %>%
-  select(-id,-cty,-state, -cty_state) %>%
-  cor() 
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state,-region) 
 
-crime_1000_cor = data.frame(cdi_cor) %>% 
-  select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$area,main="Area")
+boxplot(cdi_data_exp$pop,main="Population")
+boxplot(cdi_data_exp$pop18,main="Population 18-34")
+boxplot(cdi_data_exp$pop65,main="Population 65+")
+boxplot(cdi_data_exp$hsgrad,main="Highschool grads")
+boxplot(cdi_data_exp$bagrad,main="Bachelor's grads")
+```
+
+![](main_files/figure-gfm/exploration-1.png)<!-- -->
+
+``` r
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$poverty,main="Poverty Rate")
+boxplot(cdi_data_exp$unemp,main="Unemployment Rate")
+boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main="Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_exp$beds_rate_1000,main="Hospital Beds")
+```
+
+![](main_files/figure-gfm/exploration-2.png)<!-- -->
+
+``` r
+par(mfrow=c(1,1))
+
+ggplot(cdi_data,aes(region)) + 
+  geom_histogram(binwidth = 0.5) +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count")
+```
+
+![](main_files/figure-gfm/exploration-3.png)<!-- -->
+
+``` r
+boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+```
+
+![](main_files/figure-gfm/exploration-4.png)<!-- -->
+
+``` r
+# data exploratory
+pairs(cdi_data_exp)
+```
+
+![](main_files/figure-gfm/exploration-5.png)<!-- -->
+
+``` r
+# correlation plot
+cdi_data_cor = cor(cdi_data_exp)
+corrplot(cdi_data_cor, type = "upper", diag = FALSE)
+```
+
+![](main_files/figure-gfm/exploration-6.png)<!-- -->
+
+``` r
+crime_1000_cor = data.frame(cdi_data_cor) %>% 
+  dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
   t()
-knitr::kable(crime_1000_cor) 
+
+knitr::kable(crime_1000_cor,digits = 2) 
 ```
 
-|                       |      area |       pop |     pop18 |      pop65 |     hsgrad |    bagrad |   poverty |     unemp |   pcincome |  totalinc |    region | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
-|:----------------------|----------:|----------:|----------:|-----------:|-----------:|----------:|----------:|----------:|-----------:|----------:|----------:|-----------------:|-----------------:|------------------:|
-| Crime Rate (Per 1000) | 0.0429484 | 0.2800992 | 0.1905688 | -0.0665333 | -0.2264129 | 0.0383046 | 0.4718442 | 0.0418466 | -0.0802442 | 0.2281557 | 0.3427584 |        0.3070831 |        0.3644505 |                 1 |
-
-We then draw the correlation heatmap between pairwise variables.
-
-``` r
-corrplot(cdi_cor)
-```
-
-![](main_files/figure-gfm/corrplot-1.png)<!-- -->
+|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs_rate_1000 | beds_rate_1000 | crime_rate_1000 |
+|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|---------------:|---------------:|----------------:|
+| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |           0.31 |           0.36 |               1 |
 
 ### Model construction
 
@@ -324,19 +373,19 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 ```
 
-| backward         | stepwise         |
-|:-----------------|:-----------------|
-| area             | area             |
-| pop              | pop              |
-| pop18            | pop18            |
-| bagrad           | bagrad           |
-| poverty          | poverty          |
-| pcincome         | pcincome         |
-| totalinc         | totalinc         |
-| region2          | region2          |
-| region3          | region3          |
-| region4          | region4          |
-| beds\_rate\_1000 | beds\_rate\_1000 |
+| backward       | stepwise       |
+|:---------------|:---------------|
+| area           | area           |
+| pop            | pop            |
+| pop18          | pop18          |
+| bagrad         | bagrad         |
+| poverty        | poverty        |
+| pcincome       | pcincome       |
+| totalinc       | totalinc       |
+| region2        | region2        |
+| region3        | region3        |
+| region4        | region4        |
+| beds_rate_1000 | beds_rate_1000 |
 
 ## Criteria based selection
 

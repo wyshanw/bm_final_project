@@ -159,3 +159,17 @@ cdi_region = lm(crime_rate_1000 ~ factor(region), data = cdi_data) # fit model w
 summary(cdi_region)
 ```
 
+## Interaction
+
+Does the relationship between the crime_rate_1000 and poverty vary by region status?
+
+```{r}
+ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_df)
+summary(interact)
+```
+

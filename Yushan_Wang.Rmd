@@ -7,6 +7,7 @@ output: github_document
 library(tidyverse)
 library(leaps)
 library(ALSM)
+library(performance)
 
 ```
 
@@ -64,55 +65,67 @@ plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 ```
 
-```{r, eval = F}
+remove totalinc?
 
-cdi_model_bestsub = 
-  cdi_model %>% 
-  mutate(
-    region1 = ifelse(region == 1, 1, 0),
-    region2 = ifelse(region == 2, 1, 0),
-    region3 = ifelse(region == 3, 1, 0),
-    region4 = ifelse(region == 4, 1, 1),
-    region1 = factor(region1),
-    region2 = factor(region2),
-    region3 = factor(region3),
-    region4 = factor(region4),
+## Model building with interaction
+region*poverty
+0.2 cut-off
 
-  ) %>% 
-  select(-region) 
+```{r}
+fit = lm(crime_rate_1000 ~  
+                  pop + pop18 + hsgrad + bagrad + 
+                  poverty + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  region*poverty , data = cdi_model)
+summary(fit)
+anova(fit)
+```
 
-#mat = as.matrix(cdi_model_bestsub)
-# Printing the 2 best models of each size, using the Cp criterion:
-#leaps(x = mat[,c(1:12, 14:17)], y = mat[,13], nbest = 2, method = "Cp") #9
+### collinearity
+```{r}
+check_collinearity(fit)
+```
 
-# Printing the 2 best models of each size, using the adjusted R^2 criterion:
-#leaps(x = mat[,c(1:12, 14:17)], y = mat[,13], nbest = 2, method = "adjr2")
+## Model building without interaction
 
-# Function regsubsets() performs a subset selection by identifying the "best" model that contains
-b = regsubsets(crime_rate_1000 ~ ., data = cdi_model_bestsub)
-rs = summary(b) 
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + 
+                  poverty + pcincome + totalinc + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+anova(fit_nest)
+```
 
-# area, pop, pop18, poverty, unemp, pincome, totalinc, bed_rate_1000
+remove hsgrad, then ba?
 
+## anova
 
-# plot of Cp and Adj-R2 as functions of parameters
-par(mfrow=c(1,2))
+```{r}
+# compare nested (small vs large) models
+# Ho: smaller model is defensible
+anova(fit_nest, fit)
+# choose nest model(without region*poverty interaction)
+```
 
-plot(2:9, rs$cp, xlab="No. of parameters", ylab="Cp Statistic") 
-abline(0,1)
+## test
 
-plot(2:9, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
+```{r}
+fit_test = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdi_model)
+summary(fit_test)
+anova(fit_test)
 
-rs$cp #8!!!
+check_collinearity(fit_test)
 
-# another way
-#BestSub(cdi_model_bestsub[,c(1:13)],cdi_model_bestsub$crime_rate_1000, method = "sse", num=1) 
-# results: remove unemp, pincome, docs_rate_1000
 
 ```
 
-## interaction
-region*poverty
+pcincome*bagrad significant
+poverty*income significnat, hsgrad, bagrad, poverty insignificant
 
 
 

@@ -17,7 +17,7 @@ library(corrplot)
 ## Data Preprocessing
 
 ```{r preprocess}
-cdi_data = read.csv("./data/cdi.csv") %>%
+cdi_data = read_csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
     cty_state = str_c(cty,",",state),
@@ -26,58 +26,135 @@ cdi_data = read.csv("./data/cdi.csv") %>%
     crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
   select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
+
+knitr::kable(head(cdi_data))
 ```
 
-```{r corrplot}
-cdi_cor = cdi_data %>%
-  select(-id,-cty,-state, -cty_state) %>%
-  cor() 
- 
-corrplot(cdi_cor)
-```
+
+
+
+
+
+
+
+
+### Model construction
+
+Data used for building model:
 
 ```{r}
+cdi_model = cdi_data %>% 
+  select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+```
+```{r}
+# The model we obtained is Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot
+mult.fit.final = lm(Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot,data = cdi_model)
+summary(mult.fit)
 
-# Scatter plot 
-cdi_data %>% 
-  ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
-  geom_smooth(method='lm', se=TRUE, color='red') +
-  labs(x="Percent below poverty level", y="CRM_1000")
-
-# Simple linear regression: crm_1000 vs poverty
-cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
-summary(cdi_pov)
-
-
-cdi_pov = lm(crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
-summary(cdi_pov)
-
-# this one is the best!
-cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 , data = cdi_data)
-summary(cdi_pov)
-
-cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000 , data = cdi_data)
-summary(cdi_pov)
+# fit using one function
+step(mult.fit, direction = "both")
 
 ```
 
+
+## Stepwise Selection
+
+Reversed Stepwise Selection starting with the lowest p-value.
 
 ```{r}
-ggplot(birth, aes(x = age, y = bwt, color = smoke)) + 
-  geom_point() +
-  geom_smooth(method="lm", se=F, aes(group = smoke, color = smoke)) +
-  theme_bw()
+### Step 1:  Fit simple linear regressions for all variables,look for the variable with lowest p-value
+fit1 = lm(Lnsurvival ~ Bloodclot, data = surg)
+summary(fit1)
+fit2 = lm(Lnsurvival ~ Progindex, data = surg)
+summary(fit2)
+fit3 = lm(Lnsurvival ~ Enzyme, data = surg)
+summary(fit3)
+fit4 = lm(Lnsurvival ~ Liver, data = surg)
+summary(fit4)
+fit5 = lm(Lnsurvival ~ Age, data = surg)
+summary(fit5)
+fit6 = lm(Lnsurvival ~ Gender, data = surg)
+summary(fit6)
+fit7 = lm(Lnsurvival ~ Alcmod, data = surg)
+summary(fit7)
+fit8 = lm(Lnsurvival ~ Alcheav, data = surg)
+summary(fit8)
 
-# fit model with interaction
-interact = lm(bwt ~ age*smoke, data = birth)
-summary(interact)
+# Enter first the one with the lowest p-value: Enzyme
+forward1 = lm(Lnsurvival ~ Enzyme, data = surg)
+summary(forward1)
+
+### Step 2: Enter the one with the lowest p-value in the rest 
+fit1 = update(forward1, . ~ . +Bloodclot)
+summary(fit1)
+fit2 = update(forward1, . ~ . +Progindex)
+summary(fit2)
+fit3 = update(forward1, . ~ . +Liver)
+summary(fit3)
+fit4 = update(forward1, . ~ . +Age)
+summary(fit4)
+fit5 = update(forward1, . ~ . +Gender)
+summary(fit5)
+fit6 = update(forward1, . ~ . +Alcmod)
+summary(fit6)
+fit7 = update(forward1, . ~ . +Alcheav)
+summary(fit7)
+
+# Enter the one with the lowest p-value: Progindex
+forward2 = update(forward1, . ~ . + Progindex)
+summary(forward2)
+
+### Step 3: Enter the one with the lowest p-value in the rest 
+fit1 = update(forward2, . ~ . +Bloodclot)
+summary(fit1)
+fit2 = update(forward2, . ~ . +Liver)
+summary(fit2)
+fit3 = update(forward2, . ~ . +Age)
+summary(fit3)
+fit4 = update(forward2, . ~ . +Gender)
+summary(fit4)
+fit5 = update(forward2, . ~ . +Alcmod)
+summary(fit5)
+fit6 = update(forward2, . ~ . +Alcheav)
+summary(fit6)
+# Enter the one with the lowest p-value: Alcheav
+forward3 = update(forward2, . ~ . + Alcheav)
+summary(forward3)
+
+### Step 4: Enter the one with the lowest p-value in the rest 
+fit1 = update(forward3, . ~ . +Bloodclot)
+summary(fit1)
+fit2 = update(forward3, . ~ . +Liver)
+summary(fit2)
+fit3 = update(forward3, . ~ . +Age)
+summary(fit3)
+fit4 = update(forward3, . ~ . +Gender)
+summary(fit4)
+fit5 = update(forward3, . ~ . +Alcmod)
+summary(fit5)
+# Enter the one with the lowest p-value: Bloodclot
+forward4 = update(forward3, . ~ . + Bloodclot)
+summary(forward4)
+
+
+### Step 5: Enter the one with the lowest p-value in the rest 
+fit1 = update(forward4, . ~ . +Liver)
+summary(fit1)
+fit2 = update(forward4, . ~ . +Age)
+summary(fit2)
+fit3 = update(forward4, . ~ . +Gender)
+summary(fit3)
+fit4 = update(forward4, . ~ . +Alcmod)
+summary(fit4)
+# P-value of all new added variables are larger than 0.05, which means that they 
+# are not significant predictor, and we stop here.
+
+# The model we obtained is Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot
+mult.fit.final = lm(Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot,data = surg)
+summary(mult.fit)
+
+# fit using one function
+step(mult.fit, direction = 'forward')
+
 ```
-
-
-```{r}
-
-library(leaps)
-models <- regsubsets(crime_rate_1000~., data = cdi_data, really.big=T,nvmax = 5)
-summary(models)
-```
-

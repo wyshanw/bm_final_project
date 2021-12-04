@@ -18,7 +18,7 @@ library(corrplot)
 After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
 
 ```{r preprocess}
-cdi_data = read.csv("./data/cdi.csv") %>%
+cdi_data = read_csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
     cty_state = str_c(cty,",",state),
@@ -53,6 +53,20 @@ We then draw the correlation heatmap between pairwise variables.
  
 corrplot(cdi_cor)
 ```
+
+
+### Model construction
+
+Data used for building model:
+
+```{r}
+cdi_model = cdi_data %>% 
+  select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+```
+
+
+
 
 ```{r}
 

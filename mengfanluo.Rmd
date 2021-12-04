@@ -52,6 +52,23 @@ corrplot(corr)
 ```
 
 
+```{r}
+par(mfrow=c(3,2))
+
+cdi_data %>% 
+  hist(pop18)
+
+cardio$age = cardio$age / 365
+
+# hist before data cleaning
+hist(cardio$age)
+hist(cardio$weight)
+hist(cardio$height)
+hist(cardio$ap_hi)
+hist(cardio$ap_lo)
+```
+
+
 
 
 ```{r}

@@ -16,7 +16,7 @@ therefore compute the number of crimes, physicians, and hospital beds
 per 1000 people.
 
 ``` r
-cdi_data = read.csv("./data/cdi.csv") %>%
+cdi_data = read_csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
     cty_state = str_c(cty,",",state),
@@ -25,24 +25,37 @@ cdi_data = read.csv("./data/cdi.csv") %>%
     crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
   select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
+```
 
+    ## Rows: 440 Columns: 17
+
+    ## -- Column specification --------------------------------------------------------
+    ## Delimiter: ","
+    ## chr  (2): cty, state
+    ## dbl (15): id, area, pop, pop18, pop65, docs, beds, crimes, hsgrad, bagrad, p...
+
+    ## 
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 knitr::kable(head(cdi_data))
 ```
 
-|  id | cty_state   | cty      | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 | crime_rate_1000 |
-|----:|:------------|:---------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|----------------:|
-|   1 | Los_Ange,CA | Los_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |       2.671394 |       3.125295 |        77.73026 |
-|   2 | Cook,IL     | Cook     | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |       2.968227 |       4.221296 |        85.58869 |
-|   3 | Harris,TX   | Harris   | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |       2.680080 |       4.417360 |        89.96029 |
-|   4 | San_Dieg,CA | San_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |       2.363876 |       2.473563 |        69.58362 |
-|   5 | Orange,CA   | Orange   | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |       2.514772 |       2.642129 |        59.95463 |
-|   6 | Kings,NY    | Kings    | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |       2.112868 |       3.886704 |       295.98672 |
+|  id | cty\_state   | cty       | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
+|----:|:-------------|:----------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|------------------:|
+|   1 | Los\_Ange,CA | Los\_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |         2.671394 |         3.125295 |          77.73026 |
+|   2 | Cook,IL      | Cook      | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |         2.968227 |         4.221296 |          85.58869 |
+|   3 | Harris,TX    | Harris    | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |         2.680080 |         4.417360 |          89.96029 |
+|   4 | San\_Dieg,CA | San\_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |         2.363876 |         2.473563 |          69.58362 |
+|   5 | Orange,CA    | Orange    | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |         2.514772 |         2.642129 |          59.95463 |
+|   6 | Kings,NY     | Kings     | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |         2.112868 |         3.886704 |         295.98672 |
 
 ### Step 2 - Correlation Heatmap
 
-We then calculate the pairwise correlations between variables and draw
-the correlation heat map. We list all the correlations between the crime
-rate (our interest) and all other variables.
+We then calculate the pairwise correlations between variables and list
+all the correlations between the crime rate (our interest) and all other
+variables.
 
 ``` r
 cdi_cor = cdi_data %>%
@@ -50,20 +63,32 @@ cdi_cor = cdi_data %>%
   cor() 
 
 crime_1000_cor = data.frame(cdi_cor) %>% 
-  select("Crime Rate" = crime_rate_1000) %>% 
+  select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
   t()
 knitr::kable(crime_1000_cor) 
 ```
 
-|            |      area |       pop |     pop18 |      pop65 |     hsgrad |    bagrad |   poverty |     unemp |   pcincome |  totalinc |    region | docs_rate_1000 | beds_rate_1000 | crime_rate_1000 |
-|:-----------|----------:|----------:|----------:|-----------:|-----------:|----------:|----------:|----------:|-----------:|----------:|----------:|---------------:|---------------:|----------------:|
-| Crime Rate | 0.0429484 | 0.2800992 | 0.1905688 | -0.0665333 | -0.2264129 | 0.0383046 | 0.4718442 | 0.0418466 | -0.0802442 | 0.2281557 | 0.3427584 |      0.3070831 |      0.3644505 |               1 |
+|                       |      area |       pop |     pop18 |      pop65 |     hsgrad |    bagrad |   poverty |     unemp |   pcincome |  totalinc |    region | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
+|:----------------------|----------:|----------:|----------:|-----------:|-----------:|----------:|----------:|----------:|-----------:|----------:|----------:|-----------------:|-----------------:|------------------:|
+| Crime Rate (Per 1000) | 0.0429484 | 0.2800992 | 0.1905688 | -0.0665333 | -0.2264129 | 0.0383046 | 0.4718442 | 0.0418466 | -0.0802442 | 0.2281557 | 0.3427584 |        0.3070831 |        0.3644505 |                 1 |
+
+We then draw the correlation heatmap between pairwise variables.
 
 ``` r
 corrplot(cdi_cor)
 ```
 
 ![](main_files/figure-gfm/corrplot-1.png)<!-- -->
+
+### Model construction
+
+Data used for building model:
+
+``` r
+cdi_model = cdi_data %>% 
+  select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+```
 
 ``` r
 # Scatter plot 
@@ -75,7 +100,7 @@ cdi_data %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](main_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 # Simple linear regression: crm_1000 vs poverty

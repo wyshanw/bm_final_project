@@ -48,12 +48,18 @@ cdi_model = cdi_data %>%
   mutate(region = factor(region))
 ```
 ```{r}
-# The model we obtained is Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot
-mult.fit.final = lm(Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot,data = cdi_model)
-summary(mult.fit)
 
 # fit using one function
 step(mult.fit, direction = "both")
+
+full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(full.fit) %>% 
+  broom::tidy() %>%
+  mutate(p_rank = rank(p.value))
+
+
+step(full.fit, direction='backward')
+step(full.fit, direction = "both")
 
 ```
 

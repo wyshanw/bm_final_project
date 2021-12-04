@@ -8,6 +8,23 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(corrplot)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
 ## Load Data
@@ -161,21 +178,47 @@ reg_bagrad %>% broom::tidy()
 
 ## Multiple Linear Regression
 
-```{r}
-mlr = lm(crime_rate_1000 ~ docs_rate_1000 + beds_rate_1000 + poverty, data = cdi_df)
+### Interaction
 
-qplot(x = poverty, y = crime_rate_1000, color = factor(region), data = cdi_df, alpha = .5) +
-  geom_smooth(method = "lm", se = FALSE) +
+poverty v.s. hsgrad
+poverty v.s. unemp
+poverty v.s. pcincome
+
+
+```{r}
+# poverty v.s. crime_rate_1000
+ggplot(cdi_df) + geom_point(aes(x = poverty, y = hsgrad, alpha = .5)) +
+  #geom_smooth(method = "lm", se = FALSE) +
   theme_bw()
+
+#slr
+slr = lm(poverty ~ hsgrad, data = cdi_df)
+summary(slr)
 ```
 
+Interaction : the relationship between 2 variables is different (or varies) based on the level of third variable?
 
-## Abstract
+Does the relationship between the poverty and hsgrad vary by region status
 
-## Introduction
+```{r}
 
-## Methods
+ggplot(cdi_df, aes(x = poverty, y = hsgrad, color = region)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
-## Results
+# fit model with interaction
+interact = lm(poverty ~ hsgrad*region, data = cdi_df)
+summary(interact)
+```
+Does the relationship between the poverty and unemp vary by region status
 
-## Conclusion/Discussion
+```{r}
+
+ggplot(cdi_df, aes(x = poverty, y = unemp, color = region)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact = lm(poverty ~ unemp*region, data = cdi_df)
+summary(interact)
+```

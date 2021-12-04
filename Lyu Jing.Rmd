@@ -1,20 +1,24 @@
 ---
-title: "Jing Lyu"
-author: "LYU JING"
+title: "BIST8130 - Final Proejct Codings"
 date: "11/22/2021"
 output: github_document
 ---
 
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,dpi=300)
 ```
 
 ```{r library,warning=FALSE,message=FALSE}
 library(tidyverse)
 library(corrplot)
+library(leaps)
+library(performance)
+library(MASS)
 ```
-## Data Preprocessing
+
+### Step 1: Data Preprocessing
+
+After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
 
 ```{r preprocess}
 cdi_data = read_csv("./data/cdi.csv") %>%
@@ -23,108 +27,178 @@ cdi_data = read_csv("./data/cdi.csv") %>%
     cty_state = str_c(cty,",",state),
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
-    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
-  select(-docs,-beds,-crimes) %>%
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
+  dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
 knitr::kable(head(cdi_data))
 ```
 
 
+### Step 2 - Exploratory Analysis
+
+We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables.
+
+```{r exploration}
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state) 
+
+cdi_data_original = cdi_data_exp
+
+cdi_data_exp = cdi_data_exp %>%
+  mutate(
+    area = ifelse(area %in% boxplot.stats(cdi_data_exp$area)$out,NA,area),
+    pop = ifelse(pop %in% boxplot.stats(cdi_data_exp$pop)$out,NA,pop),
+    crime_rate_1000 = ifelse(crime_rate_1000 %in% boxplot.stats(cdi_data_exp$crime_rate_1000)$out,NA,crime_rate_1000),
+    poverty = ifelse(poverty %in% boxplot.stats(cdi_data_exp$poverty)$out,NA,poverty)
+  ) %>%
+  na.omit()
 
 
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$area,main="Area")
+boxplot(cdi_data_exp$pop,main="Population")
+boxplot(cdi_data_exp$pop18,main="Population 18-34")
+boxplot(cdi_data_exp$pop65,main="Population 65+")
+boxplot(cdi_data_exp$hsgrad,main="Highschool grads")
+boxplot(cdi_data_exp$bagrad,main="Bachelor's grads")
 
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$poverty,main="Poverty Rate")
+boxplot(cdi_data_exp$unemp,main="Unemployment Rate")
+boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main="Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_exp$beds_rate_1000,main="Hospital Beds")
 
+par(mfrow=c(1,1))
 
+ggplot(cdi_data,aes(region)) + 
+  geom_histogram(binwidth = 0.5) +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count")
 
+boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+
+# data exploratory
+pairs(cdi_data_exp)
+
+# correlation plot
+cdi_data_cor = cor(cdi_data_exp)
+corrplot(cdi_data_cor, type = "upper", diag = FALSE)
+ 
+crime_1000_cor = data.frame(cdi_data_cor) %>% 
+  dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+  t()
+
+knitr::kable(crime_1000_cor,digits = 2) 
+
+```
 
 ### Model construction
 
 Data used for building model:
 
 ```{r}
-cdi_model = cdi_data %>% 
-  select(-id,-cty_state, -cty,-state) %>% 
-  mutate(region = factor(region))
+#cdi_model = cdi_data %>% 
+#  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+#  mutate(region = factor(region))
+
+cdi_model = cdi_data_original %>% mutate(region = factor(region))
 ```
+
 ```{r}
 
-# test covariable
 
-model1 = lm(crime_rate_1000 ~ pcincome + bagrad, data = cdi_model)
-summary(model1)
-model2 = lm(crime_rate_1000 ~ pcincome * bagrad, data = cdi_model)
-summary(model2)
+full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(full.fit) %>% 
+  broom::tidy() %>%
+  mutate(p_rank = rank(p.value))
 
 
-model1 = lm(crime_rate_1000 ~ pop + area, data = cdi_model)
-summary(model1)
-model2 = lm(crime_rate_1000 ~ pop * area, data = cdi_model)
-summary(model2)
-```
-# interaction
-```{r}
-# MLR
-regmulti4_hos = lm(crime_rate_1000 ~ ., data = cdi_model)
-summary(regmulti4_hos)
+backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
 
-# 'General' global test for all predictors
-anova(regmulti4_hos)
 
-# MLR with interaction
-regmult5_hos = lm(LOS ~ INFRISK*MEDSCHL, data = data_hosp)
-summary(regmult5_hos)
+both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
 
-# Vizualize interaction for reg5: LOS vs INFRISK by MS affiliation
-qplot(x = INFRISK, y = LOS, color = factor(MEDSCHL), data = data_hosp) +
-  geom_smooth(method = "lm", se=FALSE) +
-  theme_bw() +
-  labs(x="Infection Risk", y="Length of stay (days)", color = "Med School") 
-
-# Lines look fairly parallel, in line with the non-sig interaction result.
-
+bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ```
 
+## Criteria based selection
 
-## Model building with interaction
-region*poverty
-0.2 cut-off
+pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 
 ```{r}
-fit = lm(crime_rate_1000 ~  
-                  pop + pop18 + hsgrad + bagrad + 
-                  poverty + pcincome + totalinc + region +
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
+sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
+sumsb
+
+# plot of Cp and Adj-R2 as functions of parameters
+par(mfrow=c(1,2))
+plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+abline(0,1)
+
+plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
+
+
+```
+
+
+
+## Interaction
+
+Does the relationship between the crime_rate_1000 and poverty vary by region status?
+
+```{r}
+ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_data)
+summary(interact)
+```
+
+## test
+
+```{r}
+fit_test = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
                   beds_rate_1000 + density + 
-                  region*poverty , data = cdi_model)
-summary(fit)
-anova(fit)
+                  poverty*pcincome, data = cdi_model)
+summary(fit_test)
+anova(fit_test)
+
+check_collinearity(fit_test)
 ```
 
-### collinearity
-```{r}
-check_collinearity(fit)
-```
+pcincome*bagrad significant
+poverty*income significnat, hsgrad, bagrad, poverty insignificant
 
-## Model building without interaction
-
-```{r}
-fit_nest = lm(crime_rate_1000 ~  
-                  pop + pop18 + 
-                  poverty + pcincome + totalinc + region +
-                  beds_rate_1000 + density, data = cdi_model)
-summary(fit_nest)
-anova(fit_nest)
-```
-
-remove hsgrad, then ba?
-
-## anova
+## find outlier
 
 ```{r}
-# compare nested (small vs large) models
-# Ho: smaller model is defensible
-anova(fit_nest, fit)
-# choose nest model(without region*poverty interaction)
-```
+plot(fit_test, which = 4) 
 
+cdiOut = cdi_model[-c(1,6),]
+
+# fit model with and without influential points
+with = fit_test 
+
+without = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut)
+
+summary(with); summary(without) 
+
+par(mfrow = c(2,2))
+plot(without)
+
+boxcox(without)
+```

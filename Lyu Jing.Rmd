@@ -49,118 +49,41 @@ cdi_model = cdi_data %>%
 ```
 ```{r}
 
-# fit using one function
-step(mult.fit, direction = "both")
+# test covariable
 
-full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
-summary(full.fit) %>% 
-  broom::tidy() %>%
-  mutate(p_rank = rank(p.value))
+model1 = lm(crime_rate_1000 ~ pcincome + bagrad, data = cdi_model)
+summary(model1)
+model2 = lm(crime_rate_1000 ~ pcincome * bagrad, data = cdi_model)
+summary(model2)
 
 
-step(full.fit, direction='backward')
-step(full.fit, direction = "both")
-
+model1 = lm(crime_rate_1000 ~ pop + area, data = cdi_model)
+summary(model1)
+model2 = lm(crime_rate_1000 ~ pop * area, data = cdi_model)
+summary(model2)
 ```
-
-
-## Stepwise Selection
-
-Reversed Stepwise Selection starting with the lowest p-value.
-
+# interaction
 ```{r}
-### Step 1:  Fit simple linear regressions for all variables,look for the variable with lowest p-value
-fit1 = lm(Lnsurvival ~ Bloodclot, data = surg)
-summary(fit1)
-fit2 = lm(Lnsurvival ~ Progindex, data = surg)
-summary(fit2)
-fit3 = lm(Lnsurvival ~ Enzyme, data = surg)
-summary(fit3)
-fit4 = lm(Lnsurvival ~ Liver, data = surg)
-summary(fit4)
-fit5 = lm(Lnsurvival ~ Age, data = surg)
-summary(fit5)
-fit6 = lm(Lnsurvival ~ Gender, data = surg)
-summary(fit6)
-fit7 = lm(Lnsurvival ~ Alcmod, data = surg)
-summary(fit7)
-fit8 = lm(Lnsurvival ~ Alcheav, data = surg)
-summary(fit8)
+# MLR
+regmulti4_hos = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(regmulti4_hos)
 
-# Enter first the one with the lowest p-value: Enzyme
-forward1 = lm(Lnsurvival ~ Enzyme, data = surg)
-summary(forward1)
+# 'General' global test for all predictors
+anova(regmulti4_hos)
 
-### Step 2: Enter the one with the lowest p-value in the rest 
-fit1 = update(forward1, . ~ . +Bloodclot)
-summary(fit1)
-fit2 = update(forward1, . ~ . +Progindex)
-summary(fit2)
-fit3 = update(forward1, . ~ . +Liver)
-summary(fit3)
-fit4 = update(forward1, . ~ . +Age)
-summary(fit4)
-fit5 = update(forward1, . ~ . +Gender)
-summary(fit5)
-fit6 = update(forward1, . ~ . +Alcmod)
-summary(fit6)
-fit7 = update(forward1, . ~ . +Alcheav)
-summary(fit7)
+# MLR with interaction
+regmult5_hos = lm(LOS ~ INFRISK*MEDSCHL, data = data_hosp)
+summary(regmult5_hos)
 
-# Enter the one with the lowest p-value: Progindex
-forward2 = update(forward1, . ~ . + Progindex)
-summary(forward2)
+# Vizualize interaction for reg5: LOS vs INFRISK by MS affiliation
+qplot(x = INFRISK, y = LOS, color = factor(MEDSCHL), data = data_hosp) +
+  geom_smooth(method = "lm", se=FALSE) +
+  theme_bw() +
+  labs(x="Infection Risk", y="Length of stay (days)", color = "Med School") 
 
-### Step 3: Enter the one with the lowest p-value in the rest 
-fit1 = update(forward2, . ~ . +Bloodclot)
-summary(fit1)
-fit2 = update(forward2, . ~ . +Liver)
-summary(fit2)
-fit3 = update(forward2, . ~ . +Age)
-summary(fit3)
-fit4 = update(forward2, . ~ . +Gender)
-summary(fit4)
-fit5 = update(forward2, . ~ . +Alcmod)
-summary(fit5)
-fit6 = update(forward2, . ~ . +Alcheav)
-summary(fit6)
-# Enter the one with the lowest p-value: Alcheav
-forward3 = update(forward2, . ~ . + Alcheav)
-summary(forward3)
+# Lines look fairly parallel, in line with the non-sig interaction result.
 
-### Step 4: Enter the one with the lowest p-value in the rest 
-fit1 = update(forward3, . ~ . +Bloodclot)
-summary(fit1)
-fit2 = update(forward3, . ~ . +Liver)
-summary(fit2)
-fit3 = update(forward3, . ~ . +Age)
-summary(fit3)
-fit4 = update(forward3, . ~ . +Gender)
-summary(fit4)
-fit5 = update(forward3, . ~ . +Alcmod)
-summary(fit5)
-# Enter the one with the lowest p-value: Bloodclot
-forward4 = update(forward3, . ~ . + Bloodclot)
-summary(forward4)
-
-
-### Step 5: Enter the one with the lowest p-value in the rest 
-fit1 = update(forward4, . ~ . +Liver)
-summary(fit1)
-fit2 = update(forward4, . ~ . +Age)
-summary(fit2)
-fit3 = update(forward4, . ~ . +Gender)
-summary(fit3)
-fit4 = update(forward4, . ~ . +Alcmod)
-summary(fit4)
-# P-value of all new added variables are larger than 0.05, which means that they 
-# are not significant predictor, and we stop here.
-
-# The model we obtained is Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot
-mult.fit.final = lm(Lnsurvival ~ Enzyme + Progindex + Alcheav + Bloodclot,data = surg)
-summary(mult.fit)
-
-# fit using one function
-step(mult.fit, direction = 'forward')
 
 ```
+
+

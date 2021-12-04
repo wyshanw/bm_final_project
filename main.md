@@ -6,6 +6,8 @@ BIST8130 - Final Proejct Codings
 library(tidyverse)
 library(corrplot)
 library(leaps)
+library(performance)
+library(MASS)
 ```
 
 ### Step 1: Data Preprocessing
@@ -475,147 +477,6 @@ plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 ![](main_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-``` r
-# Scatter plot 
-cdi_data %>% 
-  ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
-  geom_smooth(method='lm', se=TRUE, color='red') +
-  labs(x="Percent below poverty level", y="CRM_1000")
-```
-
-    ## `geom_smooth()` using formula 'y ~ x'
-
-![](main_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
-``` r
-# Simple linear regression: crm_1000 vs poverty
-cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
-summary(cdi_pov)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = crime_rate_1000 ~ poverty, data = cdi_data)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -64.008 -14.578  -2.561  13.605 208.853 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  33.1390     2.4435   13.56   <2e-16 ***
-    ## poverty       2.7690     0.2472   11.20   <2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 24.12 on 438 degrees of freedom
-    ## Multiple R-squared:  0.2226, Adjusted R-squared:  0.2209 
-    ## F-statistic: 125.4 on 1 and 438 DF,  p-value: < 2.2e-16
-
-``` r
-cdi_pov = lm(crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
-summary(cdi_pov)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -61.283 -14.894  -0.986  13.537 213.298 
-    ## 
-    ## Coefficients:
-    ##                Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)     26.3724     2.7425   9.616  < 2e-16 ***
-    ## poverty          2.2906     0.2594   8.832  < 2e-16 ***
-    ## beds_rate_1000   2.9973     0.6036   4.966 9.81e-07 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 23.5 on 437 degrees of freedom
-    ## Multiple R-squared:  0.2642, Adjusted R-squared:  0.2608 
-    ## F-statistic: 78.44 on 2 and 437 DF,  p-value: < 2.2e-16
-
-``` r
-# this one is the best!
-cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 , data = cdi_data)
-summary(cdi_pov)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = crime_rate_1000 ~ poverty + docs_rate_1000, data = cdi_data)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -79.514 -13.477  -1.452  12.310 210.024 
-    ## 
-    ## Coefficients:
-    ##                Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)     23.5185     2.7048   8.695  < 2e-16 ***
-    ## poverty          2.6650     0.2354  11.321  < 2e-16 ***
-    ## docs_rate_1000   4.9587     0.7151   6.934 1.48e-11 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 22.92 on 437 degrees of freedom
-    ## Multiple R-squared:  0.2997, Adjusted R-squared:  0.2965 
-    ## F-statistic: 93.51 on 2 and 437 DF,  p-value: < 2.2e-16
-
-``` r
-cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000 , data = cdi_data)
-summary(cdi_pov)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000, 
-    ##     data = cdi_data)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -78.843 -13.611  -1.605  12.313 210.430 
-    ## 
-    ## Coefficients:
-    ##                Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)     23.3218     2.7550   8.465 3.93e-16 ***
-    ## poverty          2.6201     0.2627   9.973  < 2e-16 ***
-    ## docs_rate_1000   4.6922     0.9942   4.720 3.19e-06 ***
-    ## beds_rate_1000   0.3162     0.8186   0.386      0.7    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 22.94 on 436 degrees of freedom
-    ## Multiple R-squared:  0.2999, Adjusted R-squared:  0.2951 
-    ## F-statistic: 62.27 on 3 and 436 DF,  p-value: < 2.2e-16
-
-``` r
-cdi_region = lm(crime_rate_1000 ~ factor(region), data = cdi_data) # fit model with factoring 
-summary(cdi_region)
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = crime_rate_1000 ~ factor(region), data = cdi_data)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -46.505 -15.578  -3.817  13.698 254.757 
-    ## 
-    ## Coefficients:
-    ##                 Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)       41.229      2.446  16.856  < 2e-16 ***
-    ## factor(region)2    9.877      3.419   2.889  0.00406 ** 
-    ## factor(region)3   29.509      3.168   9.315  < 2e-16 ***
-    ## factor(region)4   19.649      3.740   5.254 2.33e-07 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 24.82 on 436 degrees of freedom
-    ## Multiple R-squared:  0.1805, Adjusted R-squared:  0.1749 
-    ## F-statistic: 32.01 on 3 and 436 DF,  p-value: < 2.2e-16
-
 ## Interaction
 
 Does the relationship between the crime\_rate\_1000 and poverty vary by
@@ -629,7 +490,7 @@ ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](main_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 # fit model with interaction
@@ -657,3 +518,183 @@ summary(interact)
     ## Residual standard error: 22.78 on 436 degrees of freedom
     ## Multiple R-squared:  0.3096, Adjusted R-squared:  0.3049 
     ## F-statistic: 65.18 on 3 and 436 DF,  p-value: < 2.2e-16
+
+## test
+
+``` r
+fit_test = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdi_model)
+summary(fit_test)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = crime_rate_1000 ~ pop + pop18 + pcincome + totalinc + 
+    ##     region + beds_rate_1000 + density + poverty * pcincome, data = cdi_model)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -58.902  -9.336  -0.832   9.255  73.749 
+    ## 
+    ## Coefficients:
+    ##                    Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)      -2.950e+01  1.051e+01  -2.806  0.00524 ** 
+    ## pop               7.203e-05  1.209e-05   5.958 5.34e-09 ***
+    ## pop18             5.626e-01  1.949e-01   2.886  0.00410 ** 
+    ## pcincome          1.257e-03  4.125e-04   3.047  0.00246 ** 
+    ## totalinc         -3.303e-03  5.791e-04  -5.703 2.20e-08 ***
+    ## region2           9.792e+00  2.391e+00   4.095 5.06e-05 ***
+    ## region3           2.470e+01  2.331e+00  10.596  < 2e-16 ***
+    ## region4           1.843e+01  2.751e+00   6.701 6.54e-11 ***
+    ## beds_rate_1000    1.213e+00  5.440e-01   2.230  0.02630 *  
+    ## density           3.765e-03  4.402e-04   8.554  < 2e-16 ***
+    ## poverty          -8.555e-01  6.186e-01  -1.383  0.16739    
+    ## pcincome:poverty  2.033e-04  4.523e-05   4.495 8.99e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 16.75 on 428 degrees of freedom
+    ## Multiple R-squared:  0.6337, Adjusted R-squared:  0.6243 
+    ## F-statistic: 67.31 on 11 and 428 DF,  p-value: < 2.2e-16
+
+``` r
+anova(fit_test)
+```
+
+    ## Analysis of Variance Table
+    ## 
+    ## Response: crime_rate_1000
+    ##                   Df Sum Sq Mean Sq F value    Pr(>F)    
+    ## pop                1  25721   25721  91.666 < 2.2e-16 ***
+    ## pop18              1   9379    9379  33.424 1.430e-08 ***
+    ## pcincome           1   6603    6603  23.531 1.724e-06 ***
+    ## totalinc           1  24651   24651  87.851 < 2.2e-16 ***
+    ## region             3  49672   16557  59.007 < 2.2e-16 ***
+    ## beds_rate_1000     1  36018   36018 128.359 < 2.2e-16 ***
+    ## density            1  39180   39180 139.631 < 2.2e-16 ***
+    ## poverty            1  10859   10859  38.698 1.179e-09 ***
+    ## pcincome:poverty   1   5668    5668  20.201 8.986e-06 ***
+    ## Residuals        428 120096     281                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+check_collinearity(fit_test)
+```
+
+    ## # Check for Multicollinearity
+    ## 
+    ## Low Correlation
+    ## 
+    ##              Term  VIF Increased SE Tolerance
+    ##               pop 1.00         1.00      1.00
+    ##             pop18 1.02         1.01      0.98
+    ##          pcincome 1.06         1.03      0.94
+    ##          totalinc 1.02         1.01      0.98
+    ##            region 1.20         1.09      0.84
+    ##    beds_rate_1000 1.26         1.12      0.79
+    ##           density 1.01         1.01      0.99
+    ##           poverty 1.18         1.09      0.85
+    ##  pcincome:poverty 1.00         1.00      1.00
+
+pcincome*bagrad significant poverty*income significnat, hsgrad, bagrad,
+poverty insignificant
+
+## find outlier
+
+``` r
+plot(fit_test, which = 4) 
+```
+
+![](main_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+cdiOut = cdi_model[-c(1,6),]
+
+# fit model with and without influential points
+with = fit_test 
+
+without = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut)
+
+summary(with); summary(without) 
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = crime_rate_1000 ~ pop + pop18 + pcincome + totalinc + 
+    ##     region + beds_rate_1000 + density + poverty * pcincome, data = cdi_model)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -58.902  -9.336  -0.832   9.255  73.749 
+    ## 
+    ## Coefficients:
+    ##                    Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)      -2.950e+01  1.051e+01  -2.806  0.00524 ** 
+    ## pop               7.203e-05  1.209e-05   5.958 5.34e-09 ***
+    ## pop18             5.626e-01  1.949e-01   2.886  0.00410 ** 
+    ## pcincome          1.257e-03  4.125e-04   3.047  0.00246 ** 
+    ## totalinc         -3.303e-03  5.791e-04  -5.703 2.20e-08 ***
+    ## region2           9.792e+00  2.391e+00   4.095 5.06e-05 ***
+    ## region3           2.470e+01  2.331e+00  10.596  < 2e-16 ***
+    ## region4           1.843e+01  2.751e+00   6.701 6.54e-11 ***
+    ## beds_rate_1000    1.213e+00  5.440e-01   2.230  0.02630 *  
+    ## density           3.765e-03  4.402e-04   8.554  < 2e-16 ***
+    ## poverty          -8.555e-01  6.186e-01  -1.383  0.16739    
+    ## pcincome:poverty  2.033e-04  4.523e-05   4.495 8.99e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 16.75 on 428 degrees of freedom
+    ## Multiple R-squared:  0.6337, Adjusted R-squared:  0.6243 
+    ## F-statistic: 67.31 on 11 and 428 DF,  p-value: < 2.2e-16
+
+    ## 
+    ## Call:
+    ## lm(formula = crime_rate_1000 ~ pop + pop18 + pcincome + totalinc + 
+    ##     region + beds_rate_1000 + density + poverty * pcincome, data = cdiOut)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -44.441  -9.094  -0.221   8.454  61.470 
+    ## 
+    ## Coefficients:
+    ##                    Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)      -3.637e+01  9.917e+00  -3.668 0.000276 ***
+    ## pop               5.928e-05  1.157e-05   5.125 4.52e-07 ***
+    ## pop18             7.543e-01  1.841e-01   4.098 4.99e-05 ***
+    ## pcincome          1.177e-03  3.879e-04   3.033 0.002570 ** 
+    ## totalinc         -2.452e-03  5.524e-04  -4.439 1.15e-05 ***
+    ## region2           9.541e+00  2.236e+00   4.267 2.44e-05 ***
+    ## region3           2.475e+01  2.178e+00  11.359  < 2e-16 ***
+    ## region4           1.827e+01  2.571e+00   7.105 5.09e-12 ***
+    ## beds_rate_1000    1.622e+00  5.112e-01   3.173 0.001617 ** 
+    ## density           4.066e-04  5.973e-04   0.681 0.496490    
+    ## poverty          -1.313e+00  5.826e-01  -2.254 0.024710 *  
+    ## pcincome:poverty  2.467e-04  4.302e-05   5.735 1.85e-08 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 15.65 on 426 degrees of freedom
+    ## Multiple R-squared:  0.6138, Adjusted R-squared:  0.6038 
+    ## F-statistic: 61.54 on 11 and 426 DF,  p-value: < 2.2e-16
+
+``` r
+par(mfrow = c(2,2))
+plot(without)
+```
+
+![](main_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+``` r
+boxcox(without)
+```
+
+![](main_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->

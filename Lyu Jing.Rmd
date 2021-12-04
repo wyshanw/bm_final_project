@@ -5,150 +5,79 @@ date: "11/22/2021"
 output: github_document
 ---
 
-```{r}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library,warning=FALSE,message=FALSE}
 library(tidyverse)
-library(graphics)
 library(corrplot)
 ```
+## Data Preprocessing
 
-```{r}
-
-
-
-
-
-
+```{r preprocess}
 cdi_data = read.csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
-  mutate(crime_rate = crimes/pop)
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+  select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
+```
 
+```{r corrplot}
 cdi_cor = cdi_data %>%
-  select(-id,-cty,-state) %>%
+  select(-id,-cty,-state, -cty_state) %>%
   cor() 
-
+ 
 corrplot(cdi_cor)
-
-
-
-  
 ```
 
 ```{r}
-
-
-data = cdi_data %>% 
-  select(crimes,crime_rate,pop18,docs,beds,poverty,totalinc)
-
-
-
-groups <- cdi_data[, 17] 
-# Plot correlation matrix
-pairs(data,lower.panel = panel.smooth)
-
-
-# Equivalent but using the plot function
-plot(data) 
-```
-```{r}
-
-```
-
-## MLR Example
-
-```{r}
-
 
 # Scatter plot 
 cdi_data %>% 
-  ggplot(aes(poverty, crm_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
+  ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
   geom_smooth(method='lm', se=TRUE, color='red') +
   labs(x="Percent below poverty level", y="CRM_1000")
 
 # Simple linear regression: crm_1000 vs poverty
-cdi_pov = lm(crm_1000 ~ poverty, data = cdi_data)
+cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
 summary(cdi_pov)
 
 
-cdi_pov = lm(crm_1000 ~ poverty + beds, data = cdi_data)
+cdi_pov = lm(crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
 summary(cdi_pov)
 
-
-cdi_pov = lm(crm_1000 ~ poverty + docs , data = cdi_data)
+# this one is the best!
+cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 , data = cdi_data)
 summary(cdi_pov)
 
-cdi_pov = lm(crm_1000 ~ poverty + docs + beds , data = cdi_data)
+cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000 , data = cdi_data)
 summary(cdi_pov)
 
-
-# so
 ```
 
-Is there a relationship between length of stay, number of beds, and medical school affiliation?
 
 ```{r}
-# Recode MEDSCHL: Yes:1 and No:0
-cdi_data = mutate(cdi_data, MEDSCHL = ifelse(MEDSCHL == 1, 1, 0))
+ggplot(birth, aes(x = age, y = bwt, color = smoke)) + 
+  geom_point() +
+  geom_smooth(method="lm", se=F, aes(group = smoke, color = smoke)) +
+  theme_bw()
 
-# MLR
-regmult2_hos = lm(LOS ~ INFRISK + MEDSCHL, data = data_hosp)
-summary(regmult2_hos)
-
+# fit model with interaction
+interact = lm(bwt ~ age*smoke, data = birth)
+summary(interact)
 ```
 
-Is there a relationship between length of stay, risk and medical school affiliation?
 
 ```{r}
-# fit MLR
-regmult3_hos = lm(LOS ~ INFRISK + MEDSCHL, data = data_hosp)
-summary(regmult3_hos)
 
+library(leaps)
+models <- regsubsets(crime_rate_1000~., data = cdi_data, really.big=T,nvmax = 5)
+summary(models)
 ```
-
-
-What if we use the categorical predictor REGION (1:NE, 2:NC, 3:S, 4:W)?
-
-```{r}
-# fit model without factoring - wrong
-cat1 = lm(LOS ~ REGION, data = data_hosp)
-summary(cat1)
-
-# fit model with factoring 
-cat2 = lm(LOS ~ factor(REGION), data = data_hosp)
-summary(cat2)
-
-# no intercept model
-cat3 = lm(LOS ~ 0 + factor(REGION), data = data_hosp)
-summary(cat3)
-
-# change regerence from 1 to 3
-data_hosp = mutate(data_hosp, REGION = relevel(factor(REGION), ref = 3))
-cat4 = lm(LOS ~ REGION, data = data_hosp)
-summary(cat4)
-
-```
-
-```{r}
-# MLR
-regmulti4_hos = lm(LOS ~ INFRISK + MEDSCHL + factor(REGION), data = data_hosp)
-summary(regmulti4_hos)
-
-# 'General' global test for all predictors
-anova(regmult4_hos)
-
-# MLR with interaction
-regmult5_hos = lm(LOS ~ INFRISK*MEDSCHL, data = data_hosp)
-summary(regmult5_hos)
-
-# Vizualize interaction for reg5: LOS vs INFRISK by MS affiliation
-qplot(x = INFRISK, y = LOS, color = factor(MEDSCHL), data = data_hosp) +
-  geom_smooth(method = "lm", se=FALSE) +
-  theme_bw() +
-  labs(x="Infection Risk", y="Length of stay (days)", color = "Med School") 
-
-# Lines look fairly parallel, in line with the non-sig interaction result.
-
-
-```
-
-
 

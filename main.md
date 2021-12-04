@@ -389,16 +389,17 @@ bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ## Criteria based selection
 
-pop pop18 poverty pcincome totalinc region bed\_rate\_1000
+selected var: area pop pop18 hsgrad bagrad poverty pcincome totalinc
+region beds\_rate\_1000
 
 ``` r
-sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model)
-sumsb = summary(sb) 
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
+sumsb = summary(sb) # area pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000
 sumsb
 ```
 
     ## Subset selection object
-    ## Call: regsubsets.formula(crime_rate_1000 ~ ., data = cdi_model)
+    ## Call: regsubsets.formula(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
     ## 15 Variables  (and intercept)
     ##                Forced in Forced out
     ## area               FALSE      FALSE
@@ -416,45 +417,47 @@ sumsb
     ## region4            FALSE      FALSE
     ## docs_rate_1000     FALSE      FALSE
     ## beds_rate_1000     FALSE      FALSE
-    ## 1 subsets of each size up to 8
+    ## 1 subsets of each size up to 13
     ## Selection Algorithm: exhaustive
-    ##          area pop pop18 pop65 hsgrad bagrad poverty unemp pcincome totalinc
-    ## 1  ( 1 ) " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 2  ( 1 ) " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 3  ( 1 ) " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 4  ( 1 ) " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 5  ( 1 ) " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 6  ( 1 ) " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 7  ( 1 ) " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 8  ( 1 ) " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
-    ##          region2 region3 region4 docs_rate_1000 beds_rate_1000
-    ## 1  ( 1 ) " "     " "     " "     " "            " "           
-    ## 2  ( 1 ) " "     " "     " "     "*"            " "           
-    ## 3  ( 1 ) " "     "*"     " "     " "            " "           
-    ## 4  ( 1 ) " "     "*"     " "     "*"            " "           
-    ## 5  ( 1 ) " "     "*"     " "     " "            " "           
-    ## 6  ( 1 ) " "     "*"     " "     "*"            " "           
-    ## 7  ( 1 ) " "     "*"     "*"     " "            "*"           
-    ## 8  ( 1 ) " "     "*"     "*"     " "            "*"
+    ##           area pop pop18 pop65 hsgrad bagrad poverty unemp pcincome totalinc
+    ## 1  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 2  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 3  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 4  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 5  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 6  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 7  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 8  ( 1 )  " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 9  ( 1 )  " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 10  ( 1 ) "*"  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 11  ( 1 ) "*"  "*" "*"   " "   " "    "*"    "*"     " "   "*"      "*"     
+    ## 12  ( 1 ) "*"  "*" "*"   " "   "*"    "*"    "*"     " "   "*"      "*"     
+    ## 13  ( 1 ) "*"  "*" "*"   "*"   "*"    "*"    "*"     " "   "*"      "*"     
+    ##           region2 region3 region4 docs_rate_1000 beds_rate_1000
+    ## 1  ( 1 )  " "     " "     " "     " "            " "           
+    ## 2  ( 1 )  " "     " "     " "     "*"            " "           
+    ## 3  ( 1 )  " "     "*"     " "     " "            " "           
+    ## 4  ( 1 )  " "     "*"     " "     "*"            " "           
+    ## 5  ( 1 )  " "     "*"     " "     " "            " "           
+    ## 6  ( 1 )  " "     "*"     " "     "*"            " "           
+    ## 7  ( 1 )  " "     "*"     "*"     " "            "*"           
+    ## 8  ( 1 )  " "     "*"     "*"     " "            "*"           
+    ## 9  ( 1 )  "*"     "*"     "*"     " "            "*"           
+    ## 10  ( 1 ) "*"     "*"     "*"     " "            "*"           
+    ## 11  ( 1 ) "*"     "*"     "*"     " "            "*"           
+    ## 12  ( 1 ) "*"     "*"     "*"     " "            "*"           
+    ## 13  ( 1 ) "*"     "*"     "*"     " "            "*"
 
 ``` r
-#pop pop18 poverty pcincome totalinc region3 region4 bed_rate_1000
-
-
 # plot of Cp and Adj-R2 as functions of parameters
 par(mfrow=c(1,2))
-
-plot(2:9, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+plot(2:14, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
 abline(0,1)
 
-plot(2:9, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
+plot(2:14, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
 ![](main_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
-``` r
-#从图上理解，parameter数量=9； 从summary（sb）理解，parameter数量=7
-```
 
 ``` r
 # Scatter plot 

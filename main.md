@@ -43,14 +43,14 @@ cdi_data = read_csv("./data/cdi.csv") %>%
 knitr::kable(head(cdi_data))
 ```
 
-|  id | cty_state   | cty      | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 | crime_rate_1000 |
-|----:|:------------|:---------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|----------------:|
-|   1 | Los_Ange,CA | Los_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |       2.671394 |       3.125295 |        77.73026 |
-|   2 | Cook,IL     | Cook     | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |       2.968227 |       4.221296 |        85.58869 |
-|   3 | Harris,TX   | Harris   | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |       2.680080 |       4.417360 |        89.96029 |
-|   4 | San_Dieg,CA | San_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |       2.363876 |       2.473563 |        69.58362 |
-|   5 | Orange,CA   | Orange   | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |       2.514772 |       2.642129 |        59.95463 |
-|   6 | Kings,NY    | Kings    | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |       2.112868 |       3.886704 |       295.98672 |
+|  id | cty\_state   | cty       | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
+|----:|:-------------|:----------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|------------------:|
+|   1 | Los\_Ange,CA | Los\_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |         2.671394 |         3.125295 |          77.73026 |
+|   2 | Cook,IL      | Cook      | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |         2.968227 |         4.221296 |          85.58869 |
+|   3 | Harris,TX    | Harris    | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |         2.680080 |         4.417360 |          89.96029 |
+|   4 | San\_Dieg,CA | San\_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |         2.363876 |         2.473563 |          69.58362 |
+|   5 | Orange,CA    | Orange    | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |         2.514772 |         2.642129 |          59.95463 |
+|   6 | Kings,NY     | Kings     | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |         2.112868 |         3.886704 |         295.98672 |
 
 ### Step 2 - Exploratory Analysis
 
@@ -126,9 +126,9 @@ crime_1000_cor = data.frame(cdi_data_cor) %>%
 knitr::kable(crime_1000_cor,digits = 2) 
 ```
 
-|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs_rate_1000 | beds_rate_1000 | crime_rate_1000 |
-|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|---------------:|---------------:|----------------:|
-| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |           0.31 |           0.36 |               1 |
+|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
+|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-----------------:|-----------------:|------------------:|
+| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |             0.31 |             0.36 |                 1 |
 
 ### Model construction
 
@@ -373,141 +373,91 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 ```
 
-| backward       | stepwise       |
-|:---------------|:---------------|
-| area           | area           |
-| pop            | pop            |
-| pop18          | pop18          |
-| bagrad         | bagrad         |
-| poverty        | poverty        |
-| pcincome       | pcincome       |
-| totalinc       | totalinc       |
-| region2        | region2        |
-| region3        | region3        |
-| region4        | region4        |
-| beds_rate_1000 | beds_rate_1000 |
+| backward         | stepwise         |
+|:-----------------|:-----------------|
+| area             | area             |
+| pop              | pop              |
+| pop18            | pop18            |
+| bagrad           | bagrad           |
+| poverty          | poverty          |
+| pcincome         | pcincome         |
+| totalinc         | totalinc         |
+| region2          | region2          |
+| region3          | region3          |
+| region4          | region4          |
+| beds\_rate\_1000 | beds\_rate\_1000 |
 
 ## Criteria based selection
 
-``` r
-# remove categorical variable: region
-cdi_model_bestsub = 
-  cdi_model %>% 
-  select(-region)
+selected var: area pop pop18 hsgrad bagrad poverty pcincome totalinc
+region beds\_rate\_1000
 
-mat = as.matrix(cdi_model_bestsub)
-# Printing the 2 best models of each size, using the Cp criterion:
-leaps(x = mat[,1:12], y = mat[,13], nbest = 2, method = "Cp") #9
+``` r
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
+sumsb = summary(sb) # area pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000
+sumsb
 ```
 
-    ## $which
-    ##        1     2     3     4     5     6     7     8     9     A     B     C
-    ## 1  FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
-    ## 1  FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-    ## 2  FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
-    ## 2  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
-    ## 3  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
-    ## 3  FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
-    ## 4  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-    ## 4  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
-    ## 5  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
-    ## 5  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-    ## 6  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
-    ## 6  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE
-    ## 7  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
-    ## 7   TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
-    ## 8   TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
-    ## 8  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 9   TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 9   TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
-    ## 10  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 10  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 11  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 11  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 12  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 
-    ## $label
-    ##  [1] "(Intercept)" "1"           "2"           "3"           "4"          
-    ##  [6] "5"           "6"           "7"           "8"           "9"          
-    ## [11] "A"           "B"           "C"          
-    ## 
-    ## $size
-    ##  [1]  2  2  3  3  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11 12 12 13
-    ## 
-    ## $Cp
-    ##  [1] 168.583973 238.434725 110.655294 117.054420  75.155242  83.225659
-    ##  [7]  41.466446  56.587194  22.916004  22.986238   8.751537  13.536256
-    ## [13]   5.756546   8.644560   6.035823   7.421464   7.519632   7.909715
-    ## [19]   9.211736   9.386140  11.095118  11.147190  13.000000
+    ## Subset selection object
+    ## Call: regsubsets.formula(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
+    ## 15 Variables  (and intercept)
+    ##                Forced in Forced out
+    ## area               FALSE      FALSE
+    ## pop                FALSE      FALSE
+    ## pop18              FALSE      FALSE
+    ## pop65              FALSE      FALSE
+    ## hsgrad             FALSE      FALSE
+    ## bagrad             FALSE      FALSE
+    ## poverty            FALSE      FALSE
+    ## unemp              FALSE      FALSE
+    ## pcincome           FALSE      FALSE
+    ## totalinc           FALSE      FALSE
+    ## region2            FALSE      FALSE
+    ## region3            FALSE      FALSE
+    ## region4            FALSE      FALSE
+    ## docs_rate_1000     FALSE      FALSE
+    ## beds_rate_1000     FALSE      FALSE
+    ## 1 subsets of each size up to 13
+    ## Selection Algorithm: exhaustive
+    ##           area pop pop18 pop65 hsgrad bagrad poverty unemp pcincome totalinc
+    ## 1  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 2  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 3  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 4  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 5  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 6  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 7  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 8  ( 1 )  " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 9  ( 1 )  " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 10  ( 1 ) "*"  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 11  ( 1 ) "*"  "*" "*"   " "   " "    "*"    "*"     " "   "*"      "*"     
+    ## 12  ( 1 ) "*"  "*" "*"   " "   "*"    "*"    "*"     " "   "*"      "*"     
+    ## 13  ( 1 ) "*"  "*" "*"   "*"   "*"    "*"    "*"     " "   "*"      "*"     
+    ##           region2 region3 region4 docs_rate_1000 beds_rate_1000
+    ## 1  ( 1 )  " "     " "     " "     " "            " "           
+    ## 2  ( 1 )  " "     " "     " "     "*"            " "           
+    ## 3  ( 1 )  " "     "*"     " "     " "            " "           
+    ## 4  ( 1 )  " "     "*"     " "     "*"            " "           
+    ## 5  ( 1 )  " "     "*"     " "     " "            " "           
+    ## 6  ( 1 )  " "     "*"     " "     "*"            " "           
+    ## 7  ( 1 )  " "     "*"     "*"     " "            "*"           
+    ## 8  ( 1 )  " "     "*"     "*"     " "            "*"           
+    ## 9  ( 1 )  "*"     "*"     "*"     " "            "*"           
+    ## 10  ( 1 ) "*"     "*"     "*"     " "            "*"           
+    ## 11  ( 1 ) "*"     "*"     "*"     " "            "*"           
+    ## 12  ( 1 ) "*"     "*"     "*"     " "            "*"           
+    ## 13  ( 1 ) "*"     "*"     "*"     " "            "*"
 
 ``` r
-# Printing the 2 best models of each size, using the adjusted R^2 criterion:
-leaps(x = mat[,1:12], y = mat[,13], nbest = 2, method = "adjr2")
-```
-
-    ## $which
-    ##        1     2     3     4     5     6     7     8     9     A     B     C
-    ## 1  FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
-    ## 1  FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-    ## 2  FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
-    ## 2  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE
-    ## 3  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE FALSE
-    ## 3  FALSE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
-    ## 4  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-    ## 4  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE
-    ## 5  FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
-    ## 5  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE
-    ## 6  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
-    ## 6  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE  TRUE FALSE
-    ## 7  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
-    ## 7   TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE  TRUE
-    ## 8   TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
-    ## 8  FALSE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 9   TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 9   TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE
-    ## 10  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 10  TRUE  TRUE  TRUE  TRUE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 11  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 11  TRUE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 12  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
-    ## 
-    ## $label
-    ##  [1] "(Intercept)" "1"           "2"           "3"           "4"          
-    ##  [6] "5"           "6"           "7"           "8"           "9"          
-    ## [11] "A"           "B"           "C"          
-    ## 
-    ## $size
-    ##  [1]  2  2  3  3  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11 12 12 13
-    ## 
-    ## $adjr2
-    ##  [1] 0.2208622 0.1308443 0.2964871 0.2882216 0.3434222 0.3329740 0.3882228
-    ##  [8] 0.3686020 0.4135409 0.4134496 0.4332585 0.4270212 0.4384731 0.4346996
-    ## [15] 0.4394238 0.4376091 0.4387978 0.4382857 0.4378947 0.4376653 0.4367352
-    ## [22] 0.4366665 0.4355418
-
-``` r
-# Function regsubsets() performs a subset selection by identifying the "best" model that contains
-b = regsubsets(crime_rate_1000 ~ ., data = cdi_model_bestsub)
-rs = summary(b) # area, pop, pop18, poverty, unemp, pincome, totalinc, bed_rate_1000
-# bagrad, unemp different with stepwise
-
 # plot of Cp and Adj-R2 as functions of parameters
 par(mfrow=c(1,2))
-
-plot(2:9, rs$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+plot(2:14, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
 abline(0,1)
 
-plot(2:9, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
+plot(2:14, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
 ![](main_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
-``` r
-rs$cp #8!!!
-```
-
-    ## [1] 168.583973 110.655294  75.155242  41.466446  22.916004   8.751537   5.756546
-    ## [8]   6.035823
 
 ``` r
 # Scatter plot 

@@ -87,3 +87,67 @@ qplot(x = INFRISK, y = LOS, color = factor(MEDSCHL), data = data_hosp) +
 ```
 
 
+## Model building with interaction
+region*poverty
+0.2 cut-off
+
+```{r}
+fit = lm(crime_rate_1000 ~  
+                  pop + pop18 + hsgrad + bagrad + 
+                  poverty + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  region*poverty , data = cdi_model)
+summary(fit)
+anova(fit)
+```
+
+### collinearity
+```{r}
+check_collinearity(fit)
+```
+
+## Model building without interaction
+
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + 
+                  poverty + pcincome + totalinc + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+anova(fit_nest)
+```
+
+remove hsgrad, then ba?
+
+## anova
+
+```{r}
+# compare nested (small vs large) models
+# Ho: smaller model is defensible
+anova(fit_nest, fit)
+# choose nest model(without region*poverty interaction)
+```
+
+## test
+
+```{r}
+fit_test = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdi_model)
+summary(fit_test)
+anova(fit_test)
+
+check_collinearity(fit_test)
+
+
+```
+
+pcincome*bagrad significant
+poverty*income significnat, hsgrad, bagrad, poverty insignificant
+
+
+
+
+

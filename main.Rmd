@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE,dpi=300)
 library(tidyverse)
 library(corrplot)
 library(leaps)
+library(performance)
+library(MASS)
 ```
 
 ### Step 1: Data Preprocessing
@@ -131,34 +133,6 @@ plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
 
-```{r}
-
-# Scatter plot 
-cdi_data %>% 
-  ggplot(aes(poverty, crime_rate_1000)) + geom_point(color='blue') + theme_bw(base_size=20) +
-  geom_smooth(method='lm', se=TRUE, color='red') +
-  labs(x="Percent below poverty level", y="CRM_1000")
-
-# Simple linear regression: crm_1000 vs poverty
-cdi_pov = lm(crime_rate_1000 ~ poverty, data = cdi_data)
-summary(cdi_pov)
-
-
-cdi_pov = lm(crime_rate_1000 ~ poverty + beds_rate_1000, data = cdi_data)
-summary(cdi_pov)
-
-# this one is the best!
-cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 , data = cdi_data)
-summary(cdi_pov)
-
-cdi_pov = lm(crime_rate_1000 ~ poverty + docs_rate_1000 + beds_rate_1000 , data = cdi_data)
-summary(cdi_pov)
-```
-
-```{r region}
-cdi_region = lm(crime_rate_1000 ~ factor(region), data = cdi_data) # fit model with factoring 
-summary(cdi_region)
-```
 
 ## Interaction
 
@@ -174,3 +148,43 @@ interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_data)
 summary(interact)
 ```
 
+## test
+
+```{r}
+fit_test = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdi_model)
+summary(fit_test)
+anova(fit_test)
+
+check_collinearity(fit_test)
+```
+
+pcincome*bagrad significant
+poverty*income significnat, hsgrad, bagrad, poverty insignificant
+
+## find outlier
+
+```{r}
+plot(fit_test, which = 4) 
+
+cdiOut = cdi_model[-c(1,6),]
+
+# fit model with and without influential points
+with = fit_test 
+
+without = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut)
+
+summary(with); summary(without) 
+
+par(mfrow = c(2,2))
+plot(without)
+
+boxcox(without)
+```

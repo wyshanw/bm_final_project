@@ -42,7 +42,19 @@ We then take a closer look of each variables, calculate the pairwise correlation
 
 ```{r exploration}
 cdi_data_exp = cdi_data %>%
-  dplyr::select(-id,-cty,-state, -cty_state,-region) 
+  dplyr::select(-id,-cty,-state, -cty_state) 
+
+cdi_data_original = cdi_data_exp
+
+cdi_data_exp = cdi_data_exp %>%
+  mutate(
+    area = ifelse(area %in% boxplot.stats(cdi_data_exp$area)$out,NA,area),
+    pop = ifelse(pop %in% boxplot.stats(cdi_data_exp$pop)$out,NA,pop),
+    crime_rate_1000 = ifelse(crime_rate_1000 %in% boxplot.stats(cdi_data_exp$crime_rate_1000)$out,NA,crime_rate_1000),
+    poverty = ifelse(poverty %in% boxplot.stats(cdi_data_exp$poverty)$out,NA,poverty)
+  ) %>%
+  na.omit()
+
 
 par(mfrow=c(2,3))
 boxplot(cdi_data_exp$area,main="Area")
@@ -90,9 +102,11 @@ knitr::kable(crime_1000_cor,digits = 2)
 Data used for building model:
 
 ```{r}
-cdi_model = cdi_data %>% 
-  dplyr::select(-id,-cty_state, -cty,-state) %>% 
-  mutate(region = factor(region))
+#cdi_model = cdi_data %>% 
+#  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+#  mutate(region = factor(region))
+
+cdi_model = cdi_data_exp %>% mutate(region = factor(region))
 ```
 
 ```{r}

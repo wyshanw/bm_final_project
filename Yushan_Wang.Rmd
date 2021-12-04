@@ -8,6 +8,8 @@ library(tidyverse)
 library(leaps)
 library(ALSM)
 library(performance)
+library(caret)
+
 
 ```
 
@@ -120,12 +122,63 @@ summary(fit_test)
 anova(fit_test)
 
 check_collinearity(fit_test)
-
-
 ```
 
 pcincome*bagrad significant
 poverty*income significnat, hsgrad, bagrad, poverty insignificant
+
+```{r}
+plot(fit_test, which = 4) 
+
+cdiOut = cdi_model[-c(1,6),]
+
+# fit model with and without influential points
+with = fit_test 
+
+without = lm(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut)
+
+summary(with); summary(without) 
+
+par(mfrow = c(2,2))
+plot(without)
+
+boxcox(without)
+```
+
+## use new dataset do again
+
+
+## Try validation
+
+```{r}
+set.seed(1)
+# Use 5-fold validation and create the training sets
+train = trainControl(method = "cv", number = 5)
+
+# Fit the 4-variables model that we discussed in previous lectures
+model_train = train(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+
+model_train$finalModel
+print(model_train)
+
+#rmse very large :(
+```
+
+
+
+
+
 
 
 

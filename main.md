@@ -44,14 +44,14 @@ cdi_data = read_csv("./data/cdi.csv") %>%
 knitr::kable(head(cdi_data))
 ```
 
-|  id | cty_state   | cty      | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 |    density | crime_rate_1000 |
-|----:|:------------|:---------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|-----------:|----------------:|
-|   1 | Los_Ange,CA | Los_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |       2.671394 |       3.125295 |  2183.0453 |        77.73026 |
-|   2 | Cook,IL     | Cook     | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |       2.968227 |       4.221296 |  5396.4767 |        85.58869 |
-|   3 | Harris,TX   | Harris   | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |       2.680080 |       4.417360 |  1629.9589 |        89.96029 |
-|   4 | San_Dieg,CA | San_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |       2.363876 |       2.473563 |   594.0585 |        69.58362 |
-|   5 | Orange,CA   | Orange   | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |       2.514772 |       2.642129 |  3051.3367 |        59.95463 |
-|   6 | Kings,NY    | Kings    | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |       2.112868 |       3.886704 | 32403.7183 |       295.98672 |
+|  id | cty\_state   | cty       | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 |    density | crime\_rate\_1000 |
+|----:|:-------------|:----------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|-----------:|------------------:|
+|   1 | Los\_Ange,CA | Los\_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |         2.671394 |         3.125295 |  2183.0453 |          77.73026 |
+|   2 | Cook,IL      | Cook      | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |         2.968227 |         4.221296 |  5396.4767 |          85.58869 |
+|   3 | Harris,TX    | Harris    | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |         2.680080 |         4.417360 |  1629.9589 |          89.96029 |
+|   4 | San\_Dieg,CA | San\_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |         2.363876 |         2.473563 |   594.0585 |          69.58362 |
+|   5 | Orange,CA    | Orange    | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |         2.514772 |         2.642129 |  3051.3367 |          59.95463 |
+|   6 | Kings,NY     | Kings     | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |         2.112868 |         3.886704 | 32403.7183 |         295.98672 |
 
 ### Step 2 - Exploratory Analysis
 
@@ -127,9 +127,9 @@ crime_1000_cor = data.frame(cdi_data_cor) %>%
 knitr::kable(crime_1000_cor,digits = 2) 
 ```
 
-|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs_rate_1000 | beds_rate_1000 | density | crime_rate_1000 |
-|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|---------------:|---------------:|--------:|----------------:|
-| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |           0.31 |           0.36 |    0.48 |               1 |
+|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs\_rate\_1000 | beds\_rate\_1000 | density | crime\_rate\_1000 |
+|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-----------------:|-----------------:|--------:|------------------:|
+| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |             0.31 |             0.36 |    0.48 |                 1 |
 
 ### Model construction
 
@@ -385,34 +385,34 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 ```
 
-| backward       | stepwise       |
-|:---------------|:---------------|
-| pop            | pop            |
-| pop18          | pop18          |
-| hsgrad         | hsgrad         |
-| bagrad         | bagrad         |
-| poverty        | poverty        |
-| pcincome       | pcincome       |
-| totalinc       | totalinc       |
-| region2        | region2        |
-| region3        | region3        |
-| region4        | region4        |
-| beds_rate_1000 | beds_rate_1000 |
-| density        | density        |
+| backward         | stepwise         |
+|:-----------------|:-----------------|
+| pop              | pop              |
+| pop18            | pop18            |
+| hsgrad           | hsgrad           |
+| bagrad           | bagrad           |
+| poverty          | poverty          |
+| pcincome         | pcincome         |
+| totalinc         | totalinc         |
+| region2          | region2          |
+| region3          | region3          |
+| region4          | region4          |
+| beds\_rate\_1000 | beds\_rate\_1000 |
+| density          | density          |
 
 ## Criteria based selection
 
-selected var: area pop pop18 hsgrad bagrad poverty pcincome totalinc
-region beds_rate_1000
+pop pop18 hsgrad bagrad poverty pcincome totalinc region
+beds\_rate\_1000 density
 
 ``` r
-sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
-sumsb = summary(sb) # area pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
+sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 sumsb
 ```
 
     ## Subset selection object
-    ## Call: regsubsets.formula(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
+    ## Call: regsubsets.formula(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
     ## 16 Variables  (and intercept)
     ##                Forced in Forced out
     ## area               FALSE      FALSE
@@ -431,7 +431,7 @@ sumsb
     ## docs_rate_1000     FALSE      FALSE
     ## beds_rate_1000     FALSE      FALSE
     ## density            FALSE      FALSE
-    ## 1 subsets of each size up to 13
+    ## 1 subsets of each size up to 14
     ## Selection Algorithm: exhaustive
     ##           area pop pop18 pop65 hsgrad bagrad poverty unemp pcincome totalinc
     ## 1  ( 1 )  " "  " " " "   " "   " "    " "    " "     " "   " "      " "     
@@ -447,6 +447,7 @@ sumsb
     ## 11  ( 1 ) " "  "*" "*"   " "   " "    "*"    "*"     " "   "*"      "*"     
     ## 12  ( 1 ) " "  "*" "*"   " "   "*"    "*"    "*"     " "   "*"      "*"     
     ## 13  ( 1 ) " "  "*" "*"   " "   "*"    "*"    "*"     "*"   "*"      "*"     
+    ## 14  ( 1 ) "*"  "*" "*"   " "   "*"    "*"    "*"     "*"   "*"      "*"     
     ##           region2 region3 region4 docs_rate_1000 beds_rate_1000 density
     ## 1  ( 1 )  " "     " "     " "     " "            " "            "*"    
     ## 2  ( 1 )  " "     " "     " "     " "            " "            "*"    
@@ -460,15 +461,16 @@ sumsb
     ## 10  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
     ## 11  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
     ## 12  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
-    ## 13  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"
+    ## 13  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
+    ## 14  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"
 
 ``` r
 # plot of Cp and Adj-R2 as functions of parameters
 par(mfrow=c(1,2))
-plot(2:14, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
 abline(0,1)
 
-plot(2:14, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
+plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
 ![](main_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
@@ -616,7 +618,7 @@ summary(cdi_region)
 
 ## Interaction
 
-Does the relationship between the crime_rate_1000 and poverty vary by
+Does the relationship between the crime\_rate\_1000 and poverty vary by
 region status?
 
 ``` r

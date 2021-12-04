@@ -113,19 +113,19 @@ bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ## Criteria based selection
 
-selected var: area pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000
+pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 
 ```{r}
-sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
-sumsb = summary(sb) # area pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
+sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 sumsb
 
 # plot of Cp and Adj-R2 as functions of parameters
 par(mfrow=c(1,2))
-plot(2:14, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
 abline(0,1)
 
-plot(2:14, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
+plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 
 ```

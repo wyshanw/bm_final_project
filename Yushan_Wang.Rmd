@@ -71,6 +71,7 @@ abline(0,1)
 
 plot(2:14, rs$adjr2, xlab="No of parameters", ylab="Adj R2")
 
+
 # another way
 #BestSub(cdi_model_bestsub[,c(1:13)],cdi_model_bestsub$crime_rate_1000, method = "sse", num=1) 
 # model with smallest cp, aic, largest r2.adj: 89

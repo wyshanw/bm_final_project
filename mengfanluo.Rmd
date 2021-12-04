@@ -52,7 +52,50 @@ corrplot(corr)
 ```
 
 
+### Model construction
+
+Data used for building model:
+
 ```{r}
+cdi_model = cdi_data %>% 
+  select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+```
+
+
+
+Backward selection
+
+```{r}
+full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(full.fit) %>% 
+  broom::tidy() %>%
+  mutate(p_rank = rank(p.value))
+
+
+step(full.fit, direction='backward')
+step
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{}
 par(mfrow=c(3,2))
 
 cdi_data %>% 
@@ -71,7 +114,9 @@ hist(cardio$ap_lo)
 
 
 
-```{r}
+
+
+```{}
 
 #pop18
 reg = lm(crime_rate_1000 ~ pop18, data = cdi_data)

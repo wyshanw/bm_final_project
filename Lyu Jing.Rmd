@@ -128,26 +128,3 @@ anova(fit_nest, fit)
 # choose nest model(without region*poverty interaction)
 ```
 
-## test
-
-```{r}
-fit_test = lm(crime_rate_1000 ~  
-                  pop + pop18   
-                  + pcincome + totalinc + region +
-                  beds_rate_1000 + density + 
-                  poverty*pcincome, data = cdi_model)
-summary(fit_test)
-anova(fit_test)
-
-check_collinearity(fit_test)
-
-
-```
-
-pcincome*bagrad significant
-poverty*income significnat, hsgrad, bagrad, poverty insignificant
-
-
-
-
-

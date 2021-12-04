@@ -23,7 +23,8 @@ cdi_data = read_csv("./data/cdi.csv") %>%
     cty_state = str_c(cty,",",state),
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
-    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
   dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 ```
@@ -43,14 +44,14 @@ cdi_data = read_csv("./data/cdi.csv") %>%
 knitr::kable(head(cdi_data))
 ```
 
-|  id | cty\_state   | cty       | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
-|----:|:-------------|:----------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|------------------:|
-|   1 | Los\_Ange,CA | Los\_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |         2.671394 |         3.125295 |          77.73026 |
-|   2 | Cook,IL      | Cook      | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |         2.968227 |         4.221296 |          85.58869 |
-|   3 | Harris,TX    | Harris    | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |         2.680080 |         4.417360 |          89.96029 |
-|   4 | San\_Dieg,CA | San\_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |         2.363876 |         2.473563 |          69.58362 |
-|   5 | Orange,CA    | Orange    | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |         2.514772 |         2.642129 |          59.95463 |
-|   6 | Kings,NY     | Kings     | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |         2.112868 |         3.886704 |         295.98672 |
+|  id | cty_state   | cty      | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 |    density | crime_rate_1000 |
+|----:|:------------|:---------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|-----------:|----------------:|
+|   1 | Los_Ange,CA | Los_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |       2.671394 |       3.125295 |  2183.0453 |        77.73026 |
+|   2 | Cook,IL     | Cook     | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |       2.968227 |       4.221296 |  5396.4767 |        85.58869 |
+|   3 | Harris,TX   | Harris   | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |       2.680080 |       4.417360 |  1629.9589 |        89.96029 |
+|   4 | San_Dieg,CA | San_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |       2.363876 |       2.473563 |   594.0585 |        69.58362 |
+|   5 | Orange,CA   | Orange   | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |       2.514772 |       2.642129 |  3051.3367 |        59.95463 |
+|   6 | Kings,NY    | Kings    | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |       2.112868 |       3.886704 | 32403.7183 |       295.98672 |
 
 ### Step 2 - Exploratory Analysis
 
@@ -126,9 +127,9 @@ crime_1000_cor = data.frame(cdi_data_cor) %>%
 knitr::kable(crime_1000_cor,digits = 2) 
 ```
 
-|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs\_rate\_1000 | beds\_rate\_1000 | crime\_rate\_1000 |
-|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-----------------:|-----------------:|------------------:|
-| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |             0.31 |             0.36 |                 1 |
+|                       | area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | docs_rate_1000 | beds_rate_1000 | density | crime_rate_1000 |
+|:----------------------|-----:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|---------------:|---------------:|--------:|----------------:|
+| Crime Rate (Per 1000) | 0.04 | 0.28 |  0.19 | -0.07 |  -0.23 |   0.04 |    0.47 |  0.04 |    -0.08 |     0.23 |           0.31 |           0.36 |    0.48 |               1 |
 
 ### Model construction
 
@@ -136,7 +137,7 @@ Data used for building model:
 
 ``` r
 cdi_model = cdi_data %>% 
-  select(-id,-cty_state, -cty,-state) %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
   mutate(region = factor(region))
 ```
 
@@ -147,250 +148,262 @@ summary(full.fit) %>%
   mutate(p_rank = rank(p.value))
 ```
 
-    ## # A tibble: 16 × 6
+    ## # A tibble: 17 × 6
     ##    term              estimate  std.error statistic  p.value p_rank
     ##    <chr>                <dbl>      <dbl>     <dbl>    <dbl>  <dbl>
-    ##  1 (Intercept)    -116.       29.1          -3.98  8.00e- 5      7
-    ##  2 area             -0.00179   0.000712     -2.51  1.23e- 2     11
-    ##  3 pop               0.000115  0.0000132     8.70  7.49e-17      2
-    ##  4 pop18             1.36      0.344         3.96  8.72e- 5      8
-    ##  5 pop65             0.213     0.321         0.661 5.09e- 1     14
-    ##  6 hsgrad            0.251     0.282         0.892 3.73e- 1     13
-    ##  7 bagrad           -0.649     0.312        -2.08  3.83e- 2     12
-    ##  8 poverty           2.53      0.401         6.29  7.71e-10      5
-    ##  9 unemp             0.232     0.559         0.414 6.79e- 1     16
-    ## 10 pcincome          0.00407   0.000552      7.37  8.76e-13      4
-    ## 11 totalinc         -0.00516   0.000640     -8.07  7.53e-15      3
-    ## 12 region2           8.37      2.87          2.91  3.75e- 3      9
-    ## 13 region3          24.4       2.78          8.77  4.34e-17      1
-    ## 14 region4          21.6       3.53          6.10  2.37e- 9      6
-    ## 15 docs_rate_1000    0.575     1.07          0.540 5.90e- 1     15
-    ## 16 beds_rate_1000    2.28      0.837         2.73  6.67e- 3     10
+    ##  1 (Intercept)    -95.5       26.7          -3.58  3.80e- 4      9
+    ##  2 area            -0.000314   0.000670     -0.469 6.39e- 1     15
+    ##  3 pop              0.0000812  0.0000127     6.41  3.88e-10      4
+    ##  4 pop18            0.870      0.319         2.73  6.65e- 3     11
+    ##  5 pop65           -0.0580     0.295        -0.196 8.44e- 1     17
+    ##  6 hsgrad           0.509      0.259         1.96  5.02e- 2     12
+    ##  7 bagrad          -0.542      0.286        -1.90  5.83e- 2     13
+    ##  8 poverty          1.96       0.372         5.27  2.23e- 7      6
+    ##  9 unemp            0.444      0.512         0.867 3.87e- 1     14
+    ## 10 pcincome         0.00267    0.000527      5.06  6.31e- 7      7
+    ## 11 totalinc        -0.00367    0.000607     -6.04  3.28e- 9      5
+    ## 12 region2          9.30       2.63          3.54  4.41e- 4     10
+    ## 13 region3         27.3        2.56         10.7   1.08e-23      1
+    ## 14 region4         21.4        3.23          6.62  1.08e-10      3
+    ## 15 docs_rate_1000  -0.415      0.981        -0.423 6.72e- 1     16
+    ## 16 beds_rate_1000   2.75       0.767         3.59  3.70e- 4      8
+    ## 17 density          0.00423    0.000461      9.19  1.83e-18      2
 
 ``` r
 backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
 ```
 
-    ## Start:  AIC=2593.46
+    ## Start:  AIC=2515.41
     ## crime_rate_1000 ~ area + pop + pop18 + pop65 + hsgrad + bagrad + 
     ##     poverty + unemp + pcincome + totalinc + region + docs_rate_1000 + 
-    ##     beds_rate_1000
+    ##     beds_rate_1000 + density
     ## 
     ##                  Df Sum of Sq    RSS    AIC
-    ## - unemp           1      60.1 148549 2591.6
-    ## - docs_rate_1000  1     102.0 148591 2591.8
-    ## - pop65           1     153.2 148642 2591.9
-    ## - hsgrad          1     278.4 148768 2592.3
-    ## <none>                        148489 2593.5
-    ## - bagrad          1    1512.7 150002 2595.9
-    ## - area            1    2214.5 150704 2598.0
-    ## - beds_rate_1000  1    2603.2 151092 2599.1
-    ## - pop18           1    5497.2 153986 2607.4
-    ## - poverty         1   13875.3 162365 2630.8
-    ## - pcincome        1   19044.3 167533 2644.6
-    ## - totalinc        1   22783.6 171273 2654.3
-    ## - pop             1   26498.0 174987 2663.7
-    ## - region          3   31508.2 179997 2672.1
+    ## - pop65           1        11 123801 2513.4
+    ## - docs_rate_1000  1        52 123843 2513.6
+    ## - area            1        64 123854 2513.6
+    ## - unemp           1       220 124010 2514.2
+    ## <none>                        123790 2515.4
+    ## - bagrad          1      1055 124845 2517.1
+    ## - hsgrad          1      1129 124919 2517.4
+    ## - pop18           1      2176 125967 2521.1
+    ## - beds_rate_1000  1      3770 127560 2526.6
+    ## - pcincome        1      7488 131278 2539.2
+    ## - poverty         1      8114 131904 2541.3
+    ## - totalinc        1     10694 134484 2549.9
+    ## - pop             1     12027 135817 2554.2
+    ## - density         1     24699 148489 2593.5
+    ## - region          3     37378 161168 2625.5
     ## 
-    ## Step:  AIC=2591.63
-    ## crime_rate_1000 ~ area + pop + pop18 + pop65 + hsgrad + bagrad + 
-    ##     poverty + pcincome + totalinc + region + docs_rate_1000 + 
-    ##     beds_rate_1000
-    ## 
-    ##                  Df Sum of Sq    RSS    AIC
-    ## - docs_rate_1000  1       105 148654 2589.9
-    ## - pop65           1       180 148729 2590.2
-    ## - hsgrad          1       243 148792 2590.3
-    ## <none>                        148549 2591.6
-    ## - bagrad          1      1701 150250 2594.6
-    ## - area            1      2183 150732 2596.1
-    ## - beds_rate_1000  1      2561 151111 2597.2
-    ## - pop18           1      5574 154123 2605.8
-    ## - poverty         1     16078 164627 2634.8
-    ## - pcincome        1     20035 168584 2645.3
-    ## - totalinc        1     22896 171445 2652.7
-    ## - pop             1     26585 175135 2662.1
-    ## - region          3     33282 181831 2674.6
-    ## 
-    ## Step:  AIC=2589.94
-    ## crime_rate_1000 ~ area + pop + pop18 + pop65 + hsgrad + bagrad + 
-    ##     poverty + pcincome + totalinc + region + beds_rate_1000
-    ## 
-    ##                  Df Sum of Sq    RSS    AIC
-    ## - pop65           1       177 148831 2588.5
-    ## - hsgrad          1       215 148869 2588.6
-    ## <none>                        148654 2589.9
-    ## - bagrad          1      1597 150250 2592.6
-    ## - area            1      2185 150839 2594.4
-    ## - pop18           1      5787 154441 2604.8
-    ## - beds_rate_1000  1      6870 155524 2607.8
-    ## - poverty         1     16023 164677 2633.0
-    ## - pcincome        1     20779 169433 2645.5
-    ## - totalinc        1     22855 171509 2650.9
-    ## - pop             1     26559 175213 2660.3
-    ## - region          3     33441 182095 2673.2
-    ## 
-    ## Step:  AIC=2588.47
+    ## Step:  AIC=2513.45
     ## crime_rate_1000 ~ area + pop + pop18 + hsgrad + bagrad + poverty + 
-    ##     pcincome + totalinc + region + beds_rate_1000
+    ##     unemp + pcincome + totalinc + region + docs_rate_1000 + beds_rate_1000 + 
+    ##     density
     ## 
     ##                  Df Sum of Sq    RSS    AIC
-    ## - hsgrad          1       185 149015 2587.0
-    ## <none>                        148831 2588.5
-    ## - bagrad          1      1625 150456 2591.2
-    ## - area            1      2113 150944 2592.7
-    ## - pop18           1      6417 155248 2605.0
-    ## - beds_rate_1000  1      8973 157804 2612.2
-    ## - poverty         1     15905 164735 2631.1
-    ## - pcincome        1     20633 169463 2643.6
-    ## - totalinc        1     22695 171526 2648.9
-    ## - pop             1     26399 175229 2658.3
-    ## - region          3     33269 182100 2671.2
+    ## - docs_rate_1000  1        51 123853 2511.6
+    ## - area            1        69 123871 2511.7
+    ## - unemp           1       211 124012 2512.2
+    ## <none>                        123801 2513.4
+    ## - bagrad          1      1057 124858 2515.2
+    ## - hsgrad          1      1143 124945 2515.5
+    ## - pop18           1      3134 126935 2522.4
+    ## - beds_rate_1000  1      3993 127795 2525.4
+    ## - pcincome        1      7618 131419 2537.7
+    ## - poverty         1      8607 132408 2541.0
+    ## - totalinc        1     10842 134643 2548.4
+    ## - pop             1     12180 135981 2552.7
+    ## - density         1     24841 148642 2591.9
+    ## - region          3     37399 161200 2623.6
     ## 
-    ## Step:  AIC=2587.01
-    ## crime_rate_1000 ~ area + pop + pop18 + bagrad + poverty + pcincome + 
-    ##     totalinc + region + beds_rate_1000
+    ## Step:  AIC=2511.63
+    ## crime_rate_1000 ~ area + pop + pop18 + hsgrad + bagrad + poverty + 
+    ##     unemp + pcincome + totalinc + region + beds_rate_1000 + density
     ## 
     ##                  Df Sum of Sq    RSS    AIC
-    ## <none>                        149015 2587.0
-    ## - bagrad          1      1661 150676 2589.9
-    ## - area            1      2155 151170 2591.3
-    ## - pop18           1      6263 155279 2603.1
-    ## - beds_rate_1000  1      9206 158221 2611.4
-    ## - pcincome        1     21068 170084 2643.2
-    ## - totalinc        1     22930 171945 2648.0
-    ## - poverty         1     23471 172486 2649.4
-    ## - pop             1     26591 175607 2657.3
-    ## - region          3     33202 182217 2669.5
+    ## - area            1        72 123925 2509.9
+    ## - unemp           1       207 124060 2510.4
+    ## <none>                        123853 2511.6
+    ## - hsgrad          1      1188 125041 2513.8
+    ## - bagrad          1      1253 125105 2514.1
+    ## - pop18           1      3084 126937 2520.4
+    ## - beds_rate_1000  1      7105 130957 2534.2
+    ## - pcincome        1      7567 131420 2535.7
+    ## - poverty         1      8679 132531 2539.4
+    ## - totalinc        1     10924 134776 2546.8
+    ## - pop             1     12259 136112 2551.2
+    ## - density         1     24888 148741 2590.2
+    ## - region          3     37348 161201 2621.6
+    ## 
+    ## Step:  AIC=2509.89
+    ## crime_rate_1000 ~ pop + pop18 + hsgrad + bagrad + poverty + unemp + 
+    ##     pcincome + totalinc + region + beds_rate_1000 + density
+    ## 
+    ##                  Df Sum of Sq    RSS    AIC
+    ## - unemp           1       196 124120 2508.6
+    ## <none>                        123925 2509.9
+    ## - hsgrad          1      1219 125144 2512.2
+    ## - bagrad          1      1253 125178 2512.3
+    ## - pop18           1      3072 126996 2518.7
+    ## - beds_rate_1000  1      7166 131091 2532.6
+    ## - pcincome        1      7507 131431 2533.8
+    ## - poverty         1      8630 132554 2537.5
+    ## - totalinc        1     11073 134998 2545.6
+    ## - pop             1     12545 136470 2550.3
+    ## - density         1     26974 150899 2594.5
+    ## - region          3     37292 161217 2619.6
+    ## 
+    ## Step:  AIC=2508.58
+    ## crime_rate_1000 ~ pop + pop18 + hsgrad + bagrad + poverty + pcincome + 
+    ##     totalinc + region + beds_rate_1000 + density
+    ## 
+    ##                  Df Sum of Sq    RSS    AIC
+    ## <none>                        124120 2508.6
+    ## - hsgrad          1      1080 125200 2510.4
+    ## - bagrad          1      1524 125644 2511.9
+    ## - pop18           1      3070 127190 2517.3
+    ## - beds_rate_1000  1      7090 131210 2531.0
+    ## - pcincome        1      8195 132315 2534.7
+    ## - poverty         1     10410 134531 2542.0
+    ## - totalinc        1     11238 135358 2544.7
+    ## - pop             1     12697 136817 2549.4
+    ## - density         1     26824 150944 2592.7
+    ## - region          3     39000 163120 2622.8
 
 ``` r
 both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
 ```
 
-    ## Start:  AIC=2593.46
+    ## Start:  AIC=2515.41
     ## crime_rate_1000 ~ area + pop + pop18 + pop65 + hsgrad + bagrad + 
     ##     poverty + unemp + pcincome + totalinc + region + docs_rate_1000 + 
-    ##     beds_rate_1000
+    ##     beds_rate_1000 + density
     ## 
     ##                  Df Sum of Sq    RSS    AIC
-    ## - unemp           1      60.1 148549 2591.6
-    ## - docs_rate_1000  1     102.0 148591 2591.8
-    ## - pop65           1     153.2 148642 2591.9
-    ## - hsgrad          1     278.4 148768 2592.3
-    ## <none>                        148489 2593.5
-    ## - bagrad          1    1512.7 150002 2595.9
-    ## - area            1    2214.5 150704 2598.0
-    ## - beds_rate_1000  1    2603.2 151092 2599.1
-    ## - pop18           1    5497.2 153986 2607.4
-    ## - poverty         1   13875.3 162365 2630.8
-    ## - pcincome        1   19044.3 167533 2644.6
-    ## - totalinc        1   22783.6 171273 2654.3
-    ## - pop             1   26498.0 174987 2663.7
-    ## - region          3   31508.2 179997 2672.1
+    ## - pop65           1        11 123801 2513.4
+    ## - docs_rate_1000  1        52 123843 2513.6
+    ## - area            1        64 123854 2513.6
+    ## - unemp           1       220 124010 2514.2
+    ## <none>                        123790 2515.4
+    ## - bagrad          1      1055 124845 2517.1
+    ## - hsgrad          1      1129 124919 2517.4
+    ## - pop18           1      2176 125967 2521.1
+    ## - beds_rate_1000  1      3770 127560 2526.6
+    ## - pcincome        1      7488 131278 2539.2
+    ## - poverty         1      8114 131904 2541.3
+    ## - totalinc        1     10694 134484 2549.9
+    ## - pop             1     12027 135817 2554.2
+    ## - density         1     24699 148489 2593.5
+    ## - region          3     37378 161168 2625.5
     ## 
-    ## Step:  AIC=2591.63
-    ## crime_rate_1000 ~ area + pop + pop18 + pop65 + hsgrad + bagrad + 
-    ##     poverty + pcincome + totalinc + region + docs_rate_1000 + 
-    ##     beds_rate_1000
-    ## 
-    ##                  Df Sum of Sq    RSS    AIC
-    ## - docs_rate_1000  1       105 148654 2589.9
-    ## - pop65           1       180 148729 2590.2
-    ## - hsgrad          1       243 148792 2590.3
-    ## <none>                        148549 2591.6
-    ## + unemp           1        60 148489 2593.5
-    ## - bagrad          1      1701 150250 2594.6
-    ## - area            1      2183 150732 2596.1
-    ## - beds_rate_1000  1      2561 151111 2597.2
-    ## - pop18           1      5574 154123 2605.8
-    ## - poverty         1     16078 164627 2634.8
-    ## - pcincome        1     20035 168584 2645.3
-    ## - totalinc        1     22896 171445 2652.7
-    ## - pop             1     26585 175135 2662.1
-    ## - region          3     33282 181831 2674.6
-    ## 
-    ## Step:  AIC=2589.94
-    ## crime_rate_1000 ~ area + pop + pop18 + pop65 + hsgrad + bagrad + 
-    ##     poverty + pcincome + totalinc + region + beds_rate_1000
-    ## 
-    ##                  Df Sum of Sq    RSS    AIC
-    ## - pop65           1       177 148831 2588.5
-    ## - hsgrad          1       215 148869 2588.6
-    ## <none>                        148654 2589.9
-    ## + docs_rate_1000  1       105 148549 2591.6
-    ## + unemp           1        63 148591 2591.8
-    ## - bagrad          1      1597 150250 2592.6
-    ## - area            1      2185 150839 2594.4
-    ## - pop18           1      5787 154441 2604.8
-    ## - beds_rate_1000  1      6870 155524 2607.8
-    ## - poverty         1     16023 164677 2633.0
-    ## - pcincome        1     20779 169433 2645.5
-    ## - totalinc        1     22855 171509 2650.9
-    ## - pop             1     26559 175213 2660.3
-    ## - region          3     33441 182095 2673.2
-    ## 
-    ## Step:  AIC=2588.47
+    ## Step:  AIC=2513.45
     ## crime_rate_1000 ~ area + pop + pop18 + hsgrad + bagrad + poverty + 
-    ##     pcincome + totalinc + region + beds_rate_1000
+    ##     unemp + pcincome + totalinc + region + docs_rate_1000 + beds_rate_1000 + 
+    ##     density
     ## 
     ##                  Df Sum of Sq    RSS    AIC
-    ## - hsgrad          1       185 149015 2587.0
-    ## <none>                        148831 2588.5
-    ## + pop65           1       177 148654 2589.9
-    ## + docs_rate_1000  1       101 148729 2590.2
-    ## + unemp           1        90 148741 2590.2
-    ## - bagrad          1      1625 150456 2591.2
-    ## - area            1      2113 150944 2592.7
-    ## - pop18           1      6417 155248 2605.0
-    ## - beds_rate_1000  1      8973 157804 2612.2
-    ## - poverty         1     15905 164735 2631.1
-    ## - pcincome        1     20633 169463 2643.6
-    ## - totalinc        1     22695 171526 2648.9
-    ## - pop             1     26399 175229 2658.3
-    ## - region          3     33269 182100 2671.2
+    ## - docs_rate_1000  1        51 123853 2511.6
+    ## - area            1        69 123871 2511.7
+    ## - unemp           1       211 124012 2512.2
+    ## <none>                        123801 2513.4
+    ## - bagrad          1      1057 124858 2515.2
+    ## + pop65           1        11 123790 2515.4
+    ## - hsgrad          1      1143 124945 2515.5
+    ## - pop18           1      3134 126935 2522.4
+    ## - beds_rate_1000  1      3993 127795 2525.4
+    ## - pcincome        1      7618 131419 2537.7
+    ## - poverty         1      8607 132408 2541.0
+    ## - totalinc        1     10842 134643 2548.4
+    ## - pop             1     12180 135981 2552.7
+    ## - density         1     24841 148642 2591.9
+    ## - region          3     37399 161200 2623.6
     ## 
-    ## Step:  AIC=2587.01
-    ## crime_rate_1000 ~ area + pop + pop18 + bagrad + poverty + pcincome + 
-    ##     totalinc + region + beds_rate_1000
+    ## Step:  AIC=2511.63
+    ## crime_rate_1000 ~ area + pop + pop18 + hsgrad + bagrad + poverty + 
+    ##     unemp + pcincome + totalinc + region + beds_rate_1000 + density
     ## 
     ##                  Df Sum of Sq    RSS    AIC
-    ## <none>                        149015 2587.0
-    ## + hsgrad          1       185 148831 2588.5
-    ## + pop65           1       146 148869 2588.6
-    ## + docs_rate_1000  1        76 148939 2588.8
-    ## + unemp           1        46 148969 2588.9
-    ## - bagrad          1      1661 150676 2589.9
-    ## - area            1      2155 151170 2591.3
-    ## - pop18           1      6263 155279 2603.1
-    ## - beds_rate_1000  1      9206 158221 2611.4
-    ## - pcincome        1     21068 170084 2643.2
-    ## - totalinc        1     22930 171945 2648.0
-    ## - poverty         1     23471 172486 2649.4
-    ## - pop             1     26591 175607 2657.3
-    ## - region          3     33202 182217 2669.5
+    ## - area            1        72 123925 2509.9
+    ## - unemp           1       207 124060 2510.4
+    ## <none>                        123853 2511.6
+    ## + docs_rate_1000  1        51 123801 2513.4
+    ## + pop65           1        10 123843 2513.6
+    ## - hsgrad          1      1188 125041 2513.8
+    ## - bagrad          1      1253 125105 2514.1
+    ## - pop18           1      3084 126937 2520.4
+    ## - beds_rate_1000  1      7105 130957 2534.2
+    ## - pcincome        1      7567 131420 2535.7
+    ## - poverty         1      8679 132531 2539.4
+    ## - totalinc        1     10924 134776 2546.8
+    ## - pop             1     12259 136112 2551.2
+    ## - density         1     24888 148741 2590.2
+    ## - region          3     37348 161201 2621.6
+    ## 
+    ## Step:  AIC=2509.89
+    ## crime_rate_1000 ~ pop + pop18 + hsgrad + bagrad + poverty + unemp + 
+    ##     pcincome + totalinc + region + beds_rate_1000 + density
+    ## 
+    ##                  Df Sum of Sq    RSS    AIC
+    ## - unemp           1       196 124120 2508.6
+    ## <none>                        123925 2509.9
+    ## + area            1        72 123853 2511.6
+    ## + docs_rate_1000  1        54 123871 2511.7
+    ## + pop65           1        15 123910 2511.8
+    ## - hsgrad          1      1219 125144 2512.2
+    ## - bagrad          1      1253 125178 2512.3
+    ## - pop18           1      3072 126996 2518.7
+    ## - beds_rate_1000  1      7166 131091 2532.6
+    ## - pcincome        1      7507 131431 2533.8
+    ## - poverty         1      8630 132554 2537.5
+    ## - totalinc        1     11073 134998 2545.6
+    ## - pop             1     12545 136470 2550.3
+    ## - density         1     26974 150899 2594.5
+    ## - region          3     37292 161217 2619.6
+    ## 
+    ## Step:  AIC=2508.58
+    ## crime_rate_1000 ~ pop + pop18 + hsgrad + bagrad + poverty + pcincome + 
+    ##     totalinc + region + beds_rate_1000 + density
+    ## 
+    ##                  Df Sum of Sq    RSS    AIC
+    ## <none>                        124120 2508.6
+    ## + unemp           1       196 123925 2509.9
+    ## + area            1        60 124060 2510.4
+    ## - hsgrad          1      1080 125200 2510.4
+    ## + docs_rate_1000  1        50 124070 2510.4
+    ## + pop65           1         4 124116 2510.6
+    ## - bagrad          1      1524 125644 2511.9
+    ## - pop18           1      3070 127190 2517.3
+    ## - beds_rate_1000  1      7090 131210 2531.0
+    ## - pcincome        1      8195 132315 2534.7
+    ## - poverty         1     10410 134531 2542.0
+    ## - totalinc        1     11238 135358 2544.7
+    ## - pop             1     12697 136817 2549.4
+    ## - density         1     26824 150944 2592.7
+    ## - region          3     39000 163120 2622.8
 
 ``` r
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 ```
 
-| backward         | stepwise         |
-|:-----------------|:-----------------|
-| area             | area             |
-| pop              | pop              |
-| pop18            | pop18            |
-| bagrad           | bagrad           |
-| poverty          | poverty          |
-| pcincome         | pcincome         |
-| totalinc         | totalinc         |
-| region2          | region2          |
-| region3          | region3          |
-| region4          | region4          |
-| beds\_rate\_1000 | beds\_rate\_1000 |
+| backward       | stepwise       |
+|:---------------|:---------------|
+| pop            | pop            |
+| pop18          | pop18          |
+| hsgrad         | hsgrad         |
+| bagrad         | bagrad         |
+| poverty        | poverty        |
+| pcincome       | pcincome       |
+| totalinc       | totalinc       |
+| region2        | region2        |
+| region3        | region3        |
+| region4        | region4        |
+| beds_rate_1000 | beds_rate_1000 |
+| density        | density        |
 
 ## Criteria based selection
 
 selected var: area pop pop18 hsgrad bagrad poverty pcincome totalinc
-region beds\_rate\_1000
+region beds_rate_1000
 
 ``` r
 sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
@@ -400,7 +413,7 @@ sumsb
 
     ## Subset selection object
     ## Call: regsubsets.formula(crime_rate_1000 ~ ., data = cdi_model, nvmax = 13)
-    ## 15 Variables  (and intercept)
+    ## 16 Variables  (and intercept)
     ##                Forced in Forced out
     ## area               FALSE      FALSE
     ## pop                FALSE      FALSE
@@ -417,36 +430,37 @@ sumsb
     ## region4            FALSE      FALSE
     ## docs_rate_1000     FALSE      FALSE
     ## beds_rate_1000     FALSE      FALSE
+    ## density            FALSE      FALSE
     ## 1 subsets of each size up to 13
     ## Selection Algorithm: exhaustive
     ##           area pop pop18 pop65 hsgrad bagrad poverty unemp pcincome totalinc
-    ## 1  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 1  ( 1 )  " "  " " " "   " "   " "    " "    " "     " "   " "      " "     
     ## 2  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 3  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 4  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   " "      " "     
-    ## 5  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 6  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 7  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 8  ( 1 )  " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 9  ( 1 )  " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 10  ( 1 ) "*"  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
-    ## 11  ( 1 ) "*"  "*" "*"   " "   " "    "*"    "*"     " "   "*"      "*"     
-    ## 12  ( 1 ) "*"  "*" "*"   " "   "*"    "*"    "*"     " "   "*"      "*"     
-    ## 13  ( 1 ) "*"  "*" "*"   "*"   "*"    "*"    "*"     " "   "*"      "*"     
-    ##           region2 region3 region4 docs_rate_1000 beds_rate_1000
-    ## 1  ( 1 )  " "     " "     " "     " "            " "           
-    ## 2  ( 1 )  " "     " "     " "     "*"            " "           
-    ## 3  ( 1 )  " "     "*"     " "     " "            " "           
-    ## 4  ( 1 )  " "     "*"     " "     "*"            " "           
-    ## 5  ( 1 )  " "     "*"     " "     " "            " "           
-    ## 6  ( 1 )  " "     "*"     " "     "*"            " "           
-    ## 7  ( 1 )  " "     "*"     "*"     " "            "*"           
-    ## 8  ( 1 )  " "     "*"     "*"     " "            "*"           
-    ## 9  ( 1 )  "*"     "*"     "*"     " "            "*"           
-    ## 10  ( 1 ) "*"     "*"     "*"     " "            "*"           
-    ## 11  ( 1 ) "*"     "*"     "*"     " "            "*"           
-    ## 12  ( 1 ) "*"     "*"     "*"     " "            "*"           
-    ## 13  ( 1 ) "*"     "*"     "*"     " "            "*"
+    ## 3  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 4  ( 1 )  " "  " " " "   " "   " "    " "    " "     " "   " "      " "     
+    ## 5  ( 1 )  " "  " " " "   " "   " "    " "    "*"     " "   " "      " "     
+    ## 6  ( 1 )  " "  "*" " "   " "   " "    " "    " "     " "   " "      "*"     
+    ## 7  ( 1 )  " "  "*" " "   " "   " "    " "    " "     " "   " "      "*"     
+    ## 8  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 9  ( 1 )  " "  "*" " "   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 10  ( 1 ) " "  "*" "*"   " "   " "    " "    "*"     " "   "*"      "*"     
+    ## 11  ( 1 ) " "  "*" "*"   " "   " "    "*"    "*"     " "   "*"      "*"     
+    ## 12  ( 1 ) " "  "*" "*"   " "   "*"    "*"    "*"     " "   "*"      "*"     
+    ## 13  ( 1 ) " "  "*" "*"   " "   "*"    "*"    "*"     "*"   "*"      "*"     
+    ##           region2 region3 region4 docs_rate_1000 beds_rate_1000 density
+    ## 1  ( 1 )  " "     " "     " "     " "            " "            "*"    
+    ## 2  ( 1 )  " "     " "     " "     " "            " "            "*"    
+    ## 3  ( 1 )  " "     "*"     " "     " "            " "            "*"    
+    ## 4  ( 1 )  " "     "*"     "*"     " "            "*"            "*"    
+    ## 5  ( 1 )  " "     "*"     "*"     " "            "*"            "*"    
+    ## 6  ( 1 )  " "     "*"     "*"     " "            "*"            "*"    
+    ## 7  ( 1 )  "*"     "*"     "*"     " "            "*"            "*"    
+    ## 8  ( 1 )  " "     "*"     "*"     " "            "*"            "*"    
+    ## 9  ( 1 )  "*"     "*"     "*"     " "            "*"            "*"    
+    ## 10  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
+    ## 11  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
+    ## 12  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"    
+    ## 13  ( 1 ) "*"     "*"     "*"     " "            "*"            "*"
 
 ``` r
 # plot of Cp and Adj-R2 as functions of parameters
@@ -599,3 +613,45 @@ summary(cdi_region)
     ## Residual standard error: 24.82 on 436 degrees of freedom
     ## Multiple R-squared:  0.1805, Adjusted R-squared:  0.1749 
     ## F-statistic: 32.01 on 3 and 436 DF,  p-value: < 2.2e-16
+
+## Interaction
+
+Does the relationship between the crime_rate_1000 and poverty vary by
+region status?
+
+``` r
+ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](main_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+# fit model with interaction
+interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_data)
+summary(interact)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = crime_rate_1000 ~ poverty * region, data = cdi_data)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -68.988 -14.192  -0.386  11.921 193.219 
+    ## 
+    ## Coefficients:
+    ##                Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)     -5.3110     6.3170  -0.841    0.401    
+    ## poverty          6.0407     0.7897   7.650 1.30e-13 ***
+    ## region          16.4326     2.3909   6.873 2.19e-11 ***
+    ## poverty:region  -1.3409     0.2768  -4.844 1.77e-06 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 22.78 on 436 degrees of freedom
+    ## Multiple R-squared:  0.3096, Adjusted R-squared:  0.3049 
+    ## F-statistic: 65.18 on 3 and 436 DF,  p-value: < 2.2e-16

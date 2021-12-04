@@ -1,0 +1,80 @@
+---
+title: "Mingkuan's Part"
+author: "Mingkuan Xu (mx2262)"
+date: "12/4/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library,message=FALSE}
+library(tidyverse)
+library(corrplot)
+```
+
+### Data Preprocessing
+
+After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
+
+```{r preprocess}
+cdi_data = read.csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+  dplyr::select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
+
+knitr::kable(head(cdi_data))
+
+```
+
+## Exploratory Analysis
+
+```{r exploration}
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state,-region) 
+
+# data exploratory
+pairs(cdi_data_exp)
+
+# correlation plot
+cdi_data_cor = cor(cdi_data_exp)
+corrplot(cdi_data_cor, type = "upper", diag = FALSE)
+ 
+crime_1000_cor = data.frame(cdi_data_cor) %>% 
+  dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+  t()
+
+knitr::kable(crime_1000_cor,digits = 2) 
+
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$area,main="Area")
+boxplot(cdi_data_exp$pop,main="Population")
+boxplot(cdi_data_exp$pop18,main="Population Under 18")
+boxplot(cdi_data_exp$pop65,main="Population Under 65")
+boxplot(cdi_data_exp$hsgrad,main="Hsgrad")
+boxplot(cdi_data_exp$bagrad,main="Bagrad")
+
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$poverty,main="Poverty")
+boxplot(cdi_data_exp$unemp,main="Unemployment")
+boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main="Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main="Doctor Rate")
+boxplot(cdi_data_exp$beds_rate_1000,main="Bed Rate")
+
+
+ggplot(cdi_data,aes(cdi_data$region)) + 
+  geom_histogram() +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count")
+
+boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+
+```

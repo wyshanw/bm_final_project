@@ -76,8 +76,12 @@ summary(full.fit) %>%
   mutate(p_rank = rank(p.value))
 
 
-step(full.fit, direction='backward')
-step(full.fit, direction = "both")
+backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
+
+
+both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
+
+bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ```
 

@@ -25,7 +25,8 @@ cdi_data = read_csv("./data/cdi.csv") %>%
     cty_state = str_c(cty,",",state),
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
-    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
   dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
@@ -88,7 +89,7 @@ Data used for building model:
 
 ```{r}
 cdi_model = cdi_data %>% 
-  select(-id,-cty_state, -cty,-state) %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
   mutate(region = factor(region))
 ```
 
@@ -164,12 +165,12 @@ summary(cdi_region)
 Does the relationship between the crime_rate_1000 and poverty vary by region status?
 
 ```{r}
-ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
+ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_df)
+interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_data)
 summary(interact)
 ```
 

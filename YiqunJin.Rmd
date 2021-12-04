@@ -180,9 +180,11 @@ reg_bagrad %>% broom::tidy()
 
 ### Interaction
 
-poverty v.s. hsgrad
-poverty v.s. unemp
-poverty v.s. pcincome
+Does the relationship between the crime_rate_1000 and pcincome vary by region status
+
+poverty  
+
+pcincome
 
 
 ```{r}
@@ -207,8 +209,8 @@ ggplot(cdi_df, aes(x = poverty, y = hsgrad, color = region)) +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact = lm(poverty ~ hsgrad*region, data = cdi_df)
-summary(interact)
+interact1 = lm(poverty ~ hsgrad*region, data = cdi_df)
+summary(interact1)
 ```
 Does the relationship between the poverty and unemp vary by region status
 
@@ -219,6 +221,60 @@ ggplot(cdi_df, aes(x = poverty, y = unemp, color = region)) +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact = lm(poverty ~ unemp*region, data = cdi_df)
-summary(interact)
+interact2 = lm(poverty ~ unemp*region, data = cdi_df)
+summary(interact2)
 ```
+interaction of pcincome and region
+
+```{r}
+ggplot(cdi_df, aes(x = pcincome, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact3 = lm(crime_rate_1000 ~ pcincome*region, data = cdi_df)
+summary(interact3)
+```
+
+interaction of poverty and region
+
+```{r}
+ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact4 = lm(crime_rate_1000 ~ poverty*region, data = cdi_df)
+summary(interact4)
+```
+
+Interpret:
+
+Percent below poverty level: Percent of 1990 total population with income below poverty level
+The development and economic of different regions are different, therefore, different regions (Northeast, North Central, South, West) would have different poverty rate.
+
+interaction of beds_rate_1000 and region
+
+```{r}
+ggplot(cdi_df, aes(x = beds_rate_1000, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact5 = lm(crime_rate_1000 ~ beds_rate_1000*region, data = cdi_df)
+summary(interact5)
+```
+
+interaction of bagrad and region
+
+```{r}
+ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
+
+# fit model with interaction
+interact6 = lm(crime_rate_1000 ~ bagrad*region, data = cdi_df)
+summary(interact6)
+
+```
+

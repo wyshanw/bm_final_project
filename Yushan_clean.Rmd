@@ -237,12 +237,33 @@ fit_int1 = lm(crime_rate_1000 ~
 summary(fit_int1)
 
 check_collinearity(fit_int1)
+# remove density
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# remove bagrad
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
 
 # diagnose
 
-plot(fit_test, which = 1)
-plot(fit_test, which = 2)
+plot(fit_int1, which = 1)
+plot(fit_int1, which = 2)
 boxcox(fit_test)
+
+# box close to one. can also try 0.5
 
 # transformation
 
@@ -251,21 +272,21 @@ cdi_model_trans = cdi_model %>%
     y_sqrt = sqrt(crime_rate_1000)
   )
 
-fit_trans = lm(y_sqrt ~  
-                  pop + pop18   
-                  + pcincome + totalinc + region +
-                  beds_rate_1000 + density + 
+fit_int1_trans = lm(y_sqrt ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000  +
                   poverty*pcincome, data = cdi_model_trans)
+summary(fit_int1_trans)
 
 # diagnose
-plot(fit_trans, which = 1)
-plot(fit_trans, which = 2) # better
-boxcox(fit_trans)
-
-# choose transformed!
+plot(fit_int1_trans, which = 1) #worse
+plot(fit_int1_trans, which = 2) 
 
 
-# model 1!
+# transformed is worse!
+
+
 ```
 
 

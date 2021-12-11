@@ -150,12 +150,15 @@ boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
 Data used for building model:
 
 ```{r}
-cdi_model = cdi_data %>% 
+cdi_model = cdi_data_clean %>% 
   dplyr::select(-id,-cty_state, -cty,-state) %>% 
   mutate(region = factor(region))
 
 #cdi_model = cdi_data_exp %>% mutate(region = factor(region))
 ```
+
+
+
 
 
 ```{r}
@@ -177,7 +180,6 @@ bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ## Criteria based selection
 
-pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 
 ```{r}
 sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
@@ -196,57 +198,3 @@ plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 
 
-## Interaction
-
-Does the relationship between the crime_rate_1000 and poverty vary by region status?
-
-```{r}
-ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
-
-# fit model with interaction
-interact = lm(crime_rate_1000 ~ poverty*region, data = cdi_data)
-summary(interact)
-```
-
-## test
-
-```{r}
-fit_test = lm(crime_rate_1000 ~  
-                  pop + pop18   
-                  + pcincome + totalinc + region +
-                  beds_rate_1000 + density + 
-                  poverty*pcincome, data = cdi_model)
-summary(fit_test)
-anova(fit_test)
-
-check_collinearity(fit_test)
-```
-
-pcincome*bagrad significant
-poverty*income significnat, hsgrad, bagrad, poverty insignificant
-
-## find outlier
-
-```{r}
-plot(fit_test, which = 4) 
-
-cdiOut = cdi_model[-c(1,6),]
-
-# fit model with and without influential points
-with = fit_test 
-
-without = lm(crime_rate_1000 ~  
-                  pop + pop18   
-                  + pcincome + totalinc + region +
-                  beds_rate_1000 + density + 
-                  poverty*pcincome, data = cdiOut)
-
-summary(with); summary(without) 
-
-par(mfrow = c(2,2))
-plot(without)
-
-boxcox(without)
-```

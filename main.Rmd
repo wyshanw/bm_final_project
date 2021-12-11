@@ -14,6 +14,7 @@ library(corrplot)
 library(leaps)
 library(performance)
 library(MASS)
+library(caret)
 ```
 
 ### Step 1: Data Preprocessing
@@ -238,6 +239,40 @@ Our first model: crime_rate_1000 ~
                   
 ## Add Interaction term: poverty+income
 
+According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
+
+```{r}
+poverty_status = cdi_model %>% 
+  mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
+
+ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Poverty Status",
+    x = "Per Capita Income",
+    y = "Crime Rate "
+  )
+```
+
+According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
+
+```{r}
+bagrad_status = cdi_model %>% 
+  mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
+
+ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
+  ylim(0,150) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
+    x = "Per Capita Income",
+    y = "Crime Rate"
+  )
+
+```
+
 ```{r}
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + bagrad +
@@ -363,3 +398,113 @@ The third model: crime_rate_1000 ~
                   poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density +
                   pcincome*bagrad
+     
+                  
+## Cross validation
+
+### model 1
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train1 = train(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density,data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+print(model_train1)
+
+```
+
+
+### model 2
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train2 = train(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+
+summary(model_train2)
+
+
+```
+
+### model 3
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train3 = train(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad,  data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+summary(model_train3)
+
+```
+
+## Compare RMSE
+
+```{r}
+
+model <- c("1", "2", "3")
+
+RMSE <- c(round(model_train1$results$RMSE, 2),  round(model_train2$results$RMSE,2),
+          round(model_train3$results$RMSE, 2))
+
+R_sq <- c(round(model_train1$results$Rsquared, 3),
+          round(model_train2$results$Rsquared, 3),
+          round(model_train3$results$Rsquared, 3))
+
+RMSE_table <- data.frame(model, RMSE, R_sq)
+
+coefs_1 = model_train1$finalModel$coefficients
+names_1 = model_train1$finalModel$xNames
+
+knitr::kable(RMSE_table)
+```
+
+The second model has the lowest RMSE.
+
+### Model Assessment on testing set
+
+```{r}
+
+test_data = test_data %>%
+  mutate(
+    y = crime_rate_1000,
+    y_model_1 = predict(model_train1,test_data),
+    y_model_2 = predict(model_train2,test_data),
+    y_model_3 = predict(model_train3,test_data))
+
+RMSPE_1 = sqrt(mean((test_data$y-test_data$y_model_1)^2))
+RMSPE_2 = sqrt(mean((test_data$y-test_data$y_model_2)^2))
+RMSPE_3 = sqrt(mean((test_data$y-test_data$y_model_3)^2))
+
+model_assessment = 
+  data.frame(round(RMSPE_1,2),
+             round(RMSPE_2,2),
+             round(RMSPE_3,2)) %>% 
+  pivot_longer(RMSPE_1:RMSPE_3,
+               names_to = "model", 
+               names_prefix = "RMSPE_",
+               values_to = "RMSPE") %>%
+  left_join(RMSE_table,by="model") %>%
+  dplyr::select(Model=model,R_square = R_sq,RMSE,RMSPE)
+
+```

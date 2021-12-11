@@ -10,6 +10,35 @@ Mengfan Luo (ml4701), Yushan Wang (yw3772), Jing Lyu(jl6049), Yiqun Jin
 
 ## Introduction
 
-## Dataset
+Over the last three decades, crime has become a major public concern in
+the US arousing massive political discussion and public
+expenditure\[1\]. Crime rates in major cities experienced a general rise
+from the 1960s to 1990s, with two peaks observed in 1980 and in early
+1990s\[2\]. Despite extensive attention across the nation, factors
+influencing crime trends were not yet made clear\[1\]. In this project,
+we examined crime rates and potential affecting factors in 440 US
+counties from “County Demographic Information” (CDI) data set, and
+construct a multiple linear regression model to predict the crime rates.
+
+### Dataset
+
+We analyzed data from the “County Demographic Information” (CDI) data
+set, which contains characteristics of 440 counties in the United States
+collected from 1990-1992. The primary goal of this investigation is to
+develop insight relevant to predicting the crime rate in counties.
+
+## Methods
+
+## Results
+
+## Conclusion / Discussion
 
 ## Reference
+
+\[1\] Committee on Law and Justice, et al. *Understanding Crime Trends:
+Workshop Report*. Edited by Arthur S. Goldberger and Richard Rosenfeld,
+National Academies Press, 2009. Accessed 11 December 2021.
+
+\[2\] Rosenfeld, R., Vogel, M. & McCuddy, T. Crime and Inflation in U.
+S. Cities. *J Quant Criminol* 35, 195–210 (2019).
+<https://doi.org/10.1007/s10940-018-9377-x>

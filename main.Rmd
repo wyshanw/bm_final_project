@@ -2,11 +2,21 @@
 title: "BIST8130 - Final Proejct Codings"
 date: "11/22/2021"
 fontsize: 11pt
-output: html_document
+output: 
+  pdf_document:
+    fig_caption: yes
+
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,dpi=300)
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%",
+  echo = TRUE, warning = FALSE, message = FALSE,
+  dpi=300
+  
+)
 ```
 
 ```{r library,warning=FALSE,message=FALSE}
@@ -17,13 +27,23 @@ library(performance)
 library(MASS)
 library(caret)
 
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%",
+  echo = TRUE, warning = FALSE, dpi=300
+  
+)
+
+
+
 ```
 
 ## Step 1: Data Preprocessing
 
 After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
 
-```{r preprocess}
+```{r preprocess, messgae = FALSE}
 cdi_data = read_csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
@@ -35,7 +55,7 @@ cdi_data = read_csv("./data/cdi.csv") %>%
   dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
-knitr::kable(head(cdi_data))
+#knitr::kable(head(cdi_data))
 ```
 
 
@@ -57,9 +77,11 @@ cdi_data_exp = cdi_data_exp %>%
     poverty = ifelse(poverty %in% boxplot.stats(cdi_data_exp$poverty)$out,NA,poverty)
   ) %>%
   na.omit()
+```
 
 
-par(mfrow=c(2,3))
+```{r, fig.width=20,fig.height=20,fig.cap="\\label{fig:figs}boxplot of continuous variables distribution"}
+par(mfrow=c(4,3))
 boxplot(cdi_data_exp$area,main="Area")
 boxplot(cdi_data_exp$pop,main="Population")
 boxplot(cdi_data_exp$pop18,main="Population 18-34")
@@ -67,14 +89,16 @@ boxplot(cdi_data_exp$pop65,main="Population 65+")
 boxplot(cdi_data_exp$hsgrad,main="Highschool grads")
 boxplot(cdi_data_exp$bagrad,main="Bachelor's grads")
 
-par(mfrow=c(2,3))
+#par(mfrow=c(2,3))
 boxplot(cdi_data_exp$poverty,main="Poverty Rate")
 boxplot(cdi_data_exp$unemp,main="Unemployment Rate")
 boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
 boxplot(cdi_data_exp$totalinc,main="Income Total")
 boxplot(cdi_data_exp$docs_rate_1000,main="Active Physicians")
 boxplot(cdi_data_exp$beds_rate_1000,main="Hospital Beds")
+```
 
+```{r,fig.cap="\\label{fig:figs}Histogram of catagorical variable:region distribution"}
 par(mfrow=c(1,1))
 
 ggplot(cdi_data,aes(region)) + 
@@ -82,21 +106,33 @@ ggplot(cdi_data,aes(region)) +
   theme_classic() +
   xlab("Region")+
   ylab("Count")
+```
 
+
+```{r, fig.cap="\\label{fig:figs}boxplot of dependent variable: crime rate"}
 boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+```
 
+
+```{r, result = "hide"}
 # data exploratory
 pairs(cdi_data_exp)
+```
 
+
+```{r, fig.cap="\\label{fig:figs}Correlation heatmap"}
 # correlation plot
 cdi_data_cor = cor(cdi_data_exp)
 corrplot(cdi_data_cor, type = "upper", diag = FALSE)
- 
+```
+
+
+```{r}
 crime_1000_cor = data.frame(cdi_data_cor) %>% 
   dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
   t()
 
-knitr::kable(crime_1000_cor,digits = 2) 
+#knitr::kable(crime_1000_cor,digits = 2) 
 
 ```
 
@@ -128,7 +164,7 @@ cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_d
 ```
 
 
-```{r}
+```{r, fig.cap="\\label{fig:figs}Boxplot of each continuous variables aftern cleaning outliers"}
 
 par(mfrow=c(3,4))
 boxplot(cdi_data_clean$area,main="Area")
@@ -182,12 +218,17 @@ summary(full.fit) %>%
   broom::tidy() %>%
   mutate(p_rank = rank(p.value))
 
-
 backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
 
 
 both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
 
+
+```
+
+Variables chosen from stepwise regression:
+
+```{r}
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ```
@@ -198,9 +239,15 @@ bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 ```{r}
 sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
 sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
-sumsb
+```
 
-# plot of Cp and Adj-R2 as functions of parameters
+```{r}
+coef(sb, id = 12)
+
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Subset selection for best parameter numbers"}
 par(mfrow=c(1,2))
 plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
 abline(0,1)
@@ -220,39 +267,70 @@ We need to remove totalinc, because it can be replaced. totalinc = pcincome * po
 fit_nest = lm(crime_rate_1000 ~  
                   pop + pop18 + bagrad +
                   poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000+ docs_rate_1000 + density, data = cdi_model)
-summary(fit_nest)
-
-# remove docs
-fit_nest = lm(crime_rate_1000 ~  
-                  pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density, data = cdi_model)
 summary(fit_nest)
+```
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+par(mfrow = c(2,2))
+plot(fit_nest)
+```
+
+
+```{r, }
+boxcox(fit_nest)
 
 
 ```
 
-Our first model: crime_rate_1000 ~  
-                  pop + pop18 + bagrad +
+box close to 0.5~1. Try y^0.5 transformation
+
+### transformation
+
+```{r}
+
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_nest_trans = lm(y_sqrt ~  
+                   pop + pop18 + bagrad +
                   poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density
+                  beds_rate_1000 + density, data = cdi_model_trans)
+summary(fit_nest_trans)
+
+# diagnose
+par(mfrow = c(2,2))
+plot(fit_nest_trans)
+
+
+
+```
+
+Transformed is worse.
+
+
+Our first model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds\_rate\_1000 + density$$
                   
 ## Add Interaction term: poverty+income
 
 According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
 
-```{r}
+```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Poverty"}
 poverty_status = cdi_model %>% 
   mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
 
-ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
-  geom_point() +
+ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_poverty)) + 
+  geom_point(alpha = .5) +
   geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) +
   labs(
     title = "Crime Rate and Per Capita Income by Poverty Status",
     x = "Per Capita Income",
-    y = "Crime Rate "
+    y = "Crime Rate ",
+    color = "Comparison with national avergae"
   )
 ```
 
@@ -263,10 +341,18 @@ fit_int1 = lm(crime_rate_1000 ~
                   poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density +
                   poverty*pcincome, data = cdi_model)
-summary(fit_int1)
+summary(fit_int1) %>% broom::tidy()
+```
 
+
+
+```{r}
 check_collinearity(fit_int1)
+```
 
+We notice that `density`, `bagrad` are not significant
+
+```{r}
 # remove density
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + bagrad +
@@ -291,8 +377,8 @@ check_collinearity(fit_int1)
 
 ### diagnose
 ```{r}
-plot(fit_int1, which = 1)
-plot(fit_int1, which = 2)
+par(mfrow = c(2,2))
+plot(fit_int1)
 boxcox(fit_int1)
 ```
 
@@ -315,8 +401,9 @@ fit_int1_trans = lm(y_sqrt ~
 summary(fit_int1_trans)
 
 # diagnose
-plot(fit_int1_trans, which = 1) #worse
-plot(fit_int1_trans, which = 2) 
+par(mfrow = c(2,2))
+plot(fit_int1_trans)
+
 
 
 
@@ -334,18 +421,19 @@ The second model: crime_rate_1000 ~
 
 According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
 
-```{r}
+```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Bachelor's Degree Status"}
 bagrad_status = cdi_model %>% 
   mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
 
-ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
-  geom_point() +
+ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad)) + 
+  geom_point(alpha = .5) +
   geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
   ylim(0,150) +
   labs(
     title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
     x = "Per Capita Income",
-    y = "Crime Rate"
+    y = "Crime Rate",
+    color = "Comparison with national avergae"
   )
 
 ```
@@ -365,8 +453,8 @@ check_collinearity(fit_int2)
 
 ```{r}
 
-plot(fit_int2, which = 1)
-plot(fit_int2, which = 2)
+par(mfrow = c(2,2))
+plot(fit_int2)
 boxcox(fit_int2)
 ```
 

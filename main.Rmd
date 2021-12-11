@@ -1,7 +1,8 @@
 ---
 title: "BIST8130 - Final Proejct Codings"
 date: "11/22/2021"
-output: github_document
+fontsize: 11pt
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -14,9 +15,11 @@ library(corrplot)
 library(leaps)
 library(performance)
 library(MASS)
+library(caret)
+
 ```
 
-### Step 1: Data Preprocessing
+## Step 1: Data Preprocessing
 
 After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
 
@@ -36,7 +39,7 @@ knitr::kable(head(cdi_data))
 ```
 
 
-### Step 2 - Exploratory Analysis
+## Step 2 - Exploratory Analysis
 
 We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables.
 
@@ -98,7 +101,7 @@ knitr::kable(crime_1000_cor,digits = 2)
 ```
 
 
-### Remove outliers and high leverage point
+## Remove outliers and high leverage point
 
 ```{r}
 # Remove high leverage points
@@ -145,7 +148,7 @@ boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
 ```
 
 
-### Training/Test set split
+## Training/Test set split
 
 ```{r}
 cdi_data_clean = cdi_data_clean %>% 
@@ -159,7 +162,7 @@ test_data = cdi_data_clean[-dt,]
 
 ```
 
-### Model construction
+## Model construction
 
 Data used for building model:
 
@@ -170,8 +173,7 @@ cdi_model = train_data
 ```
 
 
-
-
+### Stepwise regression
 
 ```{r}
 
@@ -190,7 +192,7 @@ bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
 ```
 
-## Criteria based selection
+### Criteria based selection
 
 
 ```{r}
@@ -208,7 +210,7 @@ plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
 According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` could also be selected.
 
-### discussion
+### Discussion
 
 We need to remove totalinc, because it can be replaced. totalinc = pcincome * pop.
 
@@ -254,23 +256,6 @@ ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_p
   )
 ```
 
-According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
-
-```{r}
-bagrad_status = cdi_model %>% 
-  mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
-
-ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
-  geom_point() +
-  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
-  ylim(0,150) +
-  labs(
-    title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
-    x = "Per Capita Income",
-    y = "Crime Rate"
-  )
-
-```
 
 ```{r}
 fit_int1 = lm(crime_rate_1000 ~  
@@ -345,7 +330,25 @@ The second model: crime_rate_1000 ~
                   beds_rate_1000  +
                   poverty*pcincome
 
-## add interaction term: pcincome + bagrad
+## Add interaction term: pcincome + bagrad
+
+According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
+
+```{r}
+bagrad_status = cdi_model %>% 
+  mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
+
+ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
+  ylim(0,150) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
+    x = "Per Capita Income",
+    y = "Crime Rate"
+  )
+
+```
 
 ```{r}
 fit_int2 = lm(crime_rate_1000 ~  
@@ -414,7 +417,7 @@ model_train1 = train(crime_rate_1000 ~
                    trControl = train,
                    method = 'lm',
                    na.action = na.pass)
-
+print(model_train1)
 
 ```
 
@@ -434,6 +437,8 @@ model_train2 = train(crime_rate_1000 ~
                    method = 'lm',
                    na.action = na.pass)
 
+summary(model_train2)
+
 
 ```
 
@@ -451,26 +456,61 @@ model_train3 = train(crime_rate_1000 ~
                    trControl = train,
                    method = 'lm',
                    na.action = na.pass)
-
+summary(model_train3)
 
 ```
 
-## Compare RMSE
+### Compare RMSE
 
 ```{r}
 
-model <- c("model 1", "model 2", "model 3")
+model <- c("1", "2", "3")
 
 RMSE <- c(round(model_train1$results$RMSE, 2),  round(model_train2$results$RMSE,2),
           round(model_train3$results$RMSE, 2))
 
-R_sq <- c(round(model_train1$results$Rsquared, 2),
-          round(model_train2$results$Rsquared,2),
-          round(model_train3$results$Rsquared, 2))
+R_sq <- c(round(model_train1$results$Rsquared, 3),
+          round(model_train2$results$Rsquared, 3),
+          round(model_train3$results$Rsquared, 3))
 
 RMSE_table <- data.frame(model, RMSE, R_sq)
+
+coefs_1 = model_train1$finalModel$coefficients
+names_1 = model_train1$finalModel$xNames
 
 knitr::kable(RMSE_table)
 ```
 
-The second model has the lowest RMSE
+The second model has the lowest RMSE.
+
+### Model Assessment on testing set
+
+```{r}
+
+test_data = test_data %>%
+  mutate(
+    y = crime_rate_1000,
+    y_model_1 = predict(model_train1,test_data),
+    y_model_2 = predict(model_train2,test_data),
+    y_model_3 = predict(model_train3,test_data))
+
+RMSPE_1 = sqrt(mean((test_data$y-test_data$y_model_1)^2))
+RMSPE_2 = sqrt(mean((test_data$y-test_data$y_model_2)^2))
+RMSPE_3 = sqrt(mean((test_data$y-test_data$y_model_3)^2))
+
+
+
+model_assessment = 
+  tibble(
+    RMSPE_1 = round(RMSPE_1,2),
+    RMSPE_2 = round(RMSPE_2,2),
+    RMSPE_3 = round(RMSPE_3,2)) %>% 
+  pivot_longer(RMSPE_1:RMSPE_3,
+               names_to = "model", 
+               names_prefix = "RMSPE_",
+               values_to = "RMSPE") %>%
+  left_join(RMSE_table,by="model") %>%
+  dplyr::select(Model=model,R_square = R_sq,RMSE,RMSPE)
+
+knitr::kable(model_assessment)
+```

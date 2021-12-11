@@ -82,10 +82,22 @@ cdi_model = cdi_data_clean %>%
   mutate(region = factor(region))
 ```
 
+## Abstract
+
+condenses the results into a one-paragraph summary.
 
 ## Introduction
 
 We analyzed data from the “County Demographic Information” (CDI) data set, which contains characteristics of 440 counties in the United States collected from 1990-1992. The primary goal of this investigation is to develop insight relevant to predicting the crime rate in counties. 
+
+## Methods
+
+## Results
+
+
+
+## Conclusion / Discussion
+
 
 ## Crime Rate Correlation
 

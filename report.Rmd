@@ -25,13 +25,71 @@ We analyzed data from the “County Demographic Information” (CDI) data set, w
 
 ## Methods
 
+1. Data processing: 
+
+* Summarize `docs`,`beds`and `crimes` rate per 1000 population
+
+* Create a new variable, `density`, which is population divided by area
+
+2. Exploratory analysis:
+
+* Calculate the pairwise correlations between variables
+
+* List all the correlations between the crime rate (our interest) and all other variables
+
+3. Remove outliers and high leverage points
+
+Use percentile to detect potential outliers and high leverage points. Due to the dataset size, we remove rows containing the smallest and largest 0.2% for each variables.
+
+4. Training/Testing set split:
+Randomly split the dataset into training and testing sets. 90% is training set while 10% is testing. This step aims to support model assessment and avoid overestimation.
+
+5. Model construction:
+
+* Select variables using stepwise regression and criteria based procedure
+
+* Build model using the variables we selected 
+
+* Plot interaction effects and add interaction terms
+
+* Diagnose and transform the models
+
+6. Cross validation
+
+Cross validate on each model and get the model with the lowest RMSE.
+
+7. Model assessment
+In this section, we intend to assess the models we built and choose a final model used for future prediction. We compared the models based on three criteria: the R-square values, the root mean square error (RMSE), and the root mean square prediction error (RMSPE).  
+
+
 ## Results
 
-## Conclusion / Discussion
+## Conclusion and Discussion
 
-## Reference
+## Reference and Documentation
 
 [1] Committee on Law and Justice, et al. *Understanding Crime Trends: Workshop Report*. Edited by Arthur S. Goldberger and Richard Rosenfeld, National Academies Press, 2009. Accessed 11 December 2021.
 
 [2] Rosenfeld, R., Vogel, M. & McCuddy, T. Crime and Inflation in U. S. Cities. *J Quant Criminol* 35, 195–210 (2019). https://doi.org/10.1007/s10940-018-9377-x
+
+[3] Friedman, Jerome, Trevor Hastie, and Robert Tibshirani. The elements of statistical learning. Vol. 1. No. 10. New York: Springer series in statistics, 2001.
+
+
+As Numerous new questions emerging during our discussion, our group explored materials below to solve them.
+
+1. Question: Do we still need a test set when using k-fold cross-validation?
+Source:
+https://stats.stackexchange.com/questions/225949/do-we-need-a-test-set-when-using-k-fold-cross-validation
+https://datascience.stackexchange.com/questions/80310/is-a-test-set-necessary-after-cross-validation-on-training-set
+
+
+2. Question: How to achieve build test set & predict
+Source:
+https://www.ritchieng.com/machine-learning-evaluate-linear-regression-model/
+https://campus.datacamp.com/courses/machine-learning-with-caret-in-r/regression-models-fitting-them-and-evaluating-their-performance?ex=8
+
+3.Question: How to evaluate continuous by continuous interactions
+Source: Continuous by Continuous Interactions, Joel S Steele http://web.pdx.edu/~joel8/resources/ConceptualPresentationResources/ContinuousByContinousInteractions_walkthrough_v2.pdf
+
+
 

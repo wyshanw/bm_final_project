@@ -16,6 +16,14 @@ Mengfan Luo (ml4701), Yushan Wang (yw3772), Jing Lyu(jl6049), Yiqun Jin (yj2686)
  
 ## Introduction
 
-## Dataset
+### Dataset
+
+We analyzed data from the “County Demographic Information” (CDI) data set, which contains characteristics of 440 counties in the United States collected from 1990-1992. The primary goal of this investigation is to develop insight relevant to predicting the crime rate in counties. 
+
+## Methods
+
+## Results
+
+## Conclusion / Discussion
 
 ## Reference

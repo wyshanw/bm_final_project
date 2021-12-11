@@ -14,6 +14,7 @@ library(corrplot)
 library(leaps)
 library(performance)
 library(MASS)
+library(caret)
 ```
 
 ### Step 1: Data Preprocessing
@@ -414,7 +415,7 @@ model_train1 = train(crime_rate_1000 ~
                    trControl = train,
                    method = 'lm',
                    na.action = na.pass)
-
+print(model_train1)
 
 ```
 
@@ -434,6 +435,8 @@ model_train2 = train(crime_rate_1000 ~
                    method = 'lm',
                    na.action = na.pass)
 
+summary(model_train2)
+
 
 ```
 
@@ -451,7 +454,7 @@ model_train3 = train(crime_rate_1000 ~
                    trControl = train,
                    method = 'lm',
                    na.action = na.pass)
-
+summary(model_train3)
 
 ```
 
@@ -459,18 +462,49 @@ model_train3 = train(crime_rate_1000 ~
 
 ```{r}
 
-model <- c("model 1", "model 2", "model 3")
+model <- c("1", "2", "3")
 
 RMSE <- c(round(model_train1$results$RMSE, 2),  round(model_train2$results$RMSE,2),
           round(model_train3$results$RMSE, 2))
 
-R_sq <- c(round(model_train1$results$Rsquared, 2),
-          round(model_train2$results$Rsquared,2),
-          round(model_train3$results$Rsquared, 2))
+R_sq <- c(round(model_train1$results$Rsquared, 3),
+          round(model_train2$results$Rsquared, 3),
+          round(model_train3$results$Rsquared, 3))
 
 RMSE_table <- data.frame(model, RMSE, R_sq)
+
+coefs_1 = model_train1$finalModel$coefficients
+names_1 = model_train1$finalModel$xNames
 
 knitr::kable(RMSE_table)
 ```
 
-The second model has the lowest RMSE
+The second model has the lowest RMSE.
+
+### Model Assessment on testing set
+
+```{r}
+
+test_data = test_data %>%
+  mutate(
+    y = crime_rate_1000,
+    y_model_1 = predict(model_train1,test_data),
+    y_model_2 = predict(model_train2,test_data),
+    y_model_3 = predict(model_train3,test_data))
+
+RMSPE_1 = sqrt(mean((test_data$y-test_data$y_model_1)^2))
+RMSPE_2 = sqrt(mean((test_data$y-test_data$y_model_2)^2))
+RMSPE_3 = sqrt(mean((test_data$y-test_data$y_model_3)^2))
+
+model_assessment = 
+  data.frame(round(RMSPE_1,2),
+             round(RMSPE_2,2),
+             round(RMSPE_3,2)) %>% 
+  pivot_longer(RMSPE_1:RMSPE_3,
+               names_to = "model", 
+               names_prefix = "RMSPE_",
+               values_to = "RMSPE") %>%
+  left_join(RMSE_table,by="model") %>%
+  dplyr::select(Model=model,R_square = R_sq,RMSE,RMSPE)
+
+```

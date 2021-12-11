@@ -68,9 +68,6 @@ We then take a closer look of each variables, calculate the pairwise correlation
 ```{r exploration}
 cdi_data_exp = cdi_data %>%
   dplyr::select(-id,-cty,-state, -cty_state) 
-
-
-
 ```
 
 
@@ -104,13 +101,13 @@ ggplot(cdi_data,aes(region)) +
 
 
 ```{r, fig.cap="\\label{fig:figs}boxplot of dependent variable: crime rate"}
-boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+boxplot(cdi_data_exp$crime_rate_1000,main="boxplot of Crime Rate",horizontal = TRUE)
 ```
 
 
-```{r, result = "hide"}
+```{r}
 # data exploratory
-pairs(cdi_data_exp)
+# pairs(cdi_data_exp)
 ```
 
 
@@ -223,7 +220,7 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 Variables chosen from stepwise regression:
 
 ```{r}
-bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
+bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable(caption = "Vairable selected from stepwise regression")
 
 ```
 
@@ -372,7 +369,7 @@ check_collinearity(fit_int1)
 
 
 ### diagnose
-```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:poverty*pcincome"}
 par(mfrow = c(2,2))
 plot(fit_int1)
 ```
@@ -401,7 +398,7 @@ summary(fit_int1_trans)
 ```
 
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:poverty*pcincome"}
 par(mfrow = c(2,2))
 plot(fit_int1_trans)
 ```
@@ -448,7 +445,7 @@ check_collinearity(fit_int2)
 
 ### diagnose
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:pcincome*bagrad"}
 par(mfrow = c(2,2))
 plot(fit_int2)
 ```
@@ -473,10 +470,10 @@ summary(fit_int2_trans)
 ```
 
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:pcincome*bagrad"}
 par(mfrow = c(2,2))
 plot(fit_int2_trans)
-```
+``` 
 
 Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
 
@@ -566,7 +563,7 @@ RMSE_table <- data.frame(model, RMSE, R_sq)
 coefs_1 = model_train1$finalModel$coefficients
 names_1 = model_train1$finalModel$xNames
 
-knitr::kable(RMSE_table)
+knitr::kable(RMSE_table, caption = "RMSE table for three models")
 ```
 
 The second model has the lowest RMSE.
@@ -600,5 +597,5 @@ model_assessment =
   left_join(RMSE_table,by="model") %>%
   dplyr::select(Model=model,R_square = R_sq,RMSE,RMSPE)
 
-knitr::kable(model_assessment)
+knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TRUE)
 ```

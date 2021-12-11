@@ -238,6 +238,40 @@ Our first model: crime_rate_1000 ~
                   
 ## Add Interaction term: poverty+income
 
+According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
+
+```{r}
+poverty_status = cdi_model %>% 
+  mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
+
+ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Poverty Status",
+    x = "Per Capita Income",
+    y = "Crime Rate "
+  )
+```
+
+According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
+
+```{r}
+bagrad_status = cdi_model %>% 
+  mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
+
+ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
+  ylim(0,150) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
+    x = "Per Capita Income",
+    y = "Crime Rate"
+  )
+
+```
+
 ```{r}
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + bagrad +

@@ -241,11 +241,11 @@ summary(slr)
 
 Interaction : the relationship between 2 variables is different (or varies) based on the level of third variable?
 
-Does the relationship between the poverty and hsgrad vary by region status
+Does the relationship between the poverty and crime rate vary by region status
 
 ```{r}
 
-ggplot(cdi_model, aes(x = poverty, y = hsgrad, color = region)) + 
+ggplot(cdi_model, aes(x = poverty, y = crime_rate_1000, color = region)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
@@ -254,11 +254,11 @@ interact1 = lm(poverty ~ hsgrad*region, data = cdi_data)
 summary(interact1)
 ```
 
-Does the relationship between the poverty and unemp vary by region status
+Does the relationship between the unemp and crime rate vary by region status
 
 ```{r}
 
-ggplot(cdi_model, aes(x = poverty, y = unemp, color = region)) + 
+ggplot(cdi_model, aes(x = unemp, y = crime_rate_1000, color = region)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
@@ -328,16 +328,18 @@ According to Census Bureau, the number of persons below the official government 
 
 
 ```{r}
-poverty_compare = cdi_model %>% 
+poverty_status = cdi_model %>% 
   mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
 
-ggplot(poverty_compare, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
   geom_point() +
-  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) 
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Poverty Status",
+    x = "Per Capita Income",
+    y = "Crime Rate "
+  )
 
-# fit model with interaction
-interact7 = lm(crime_rate_1000 ~ pcincome*national_poverty, data = poverty_compare)
-summary(interact7)
 ```
 unemployment and poverty
 
@@ -357,13 +359,18 @@ bagrad: Percent of persons 25 years old or older with bachelor’s degrees
 pcincome and bagrad
 
 ```{r}
-bagrad_compare = cdi_model %>% 
+bagrad_status = cdi_model %>% 
   mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
 
-ggplot(bagrad_compare, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
-  ylim(0,200)
+  ylim(0,150) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
+    x = "Per Capita Income",
+    y = "Crime Rate"
+  )
 
 # fit model with interaction
 interact7 = lm(crime_rate_1000 ~ pcincome*national_bagrad, data = bagrad_compare)
@@ -394,7 +401,54 @@ ggplot(bagrad_compare, aes(x = unemp, y = crime_rate_1000, color = national_bagr
 interact7 = lm(crime_rate_1000 ~ unemp*national_bagrad, data = bagrad_compare)
 summary(interact7)
 ```
+density and region
 
+```{r}
+ggplot(cdi_model, aes(x = density, y = crime_rate_1000, color = region, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = region, color = region))
+```
+
+density and poverty
+
+```{r}
+ggplot(poverty_compare, aes(x = density, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty))
+```
+density and bagrad
+
+```{r}
+ggplot(bagrad_compare, aes(x = density, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad))
+```
+
+beds_rate_1000 and poverty
+
+```{r}
+ggplot(poverty_compare, aes(x = beds_rate_1000, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) 
+```
+
+beds_rate_1000 and bagrad
+
+```{r}
+ggplot(bagrad_compare, aes(x = beds_rate_1000, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad))
+```
+```{r}
+mean(cdi_model$pop18)
+pop18_compare = cdi_model %>% 
+  mutate(pop18_cdi = if_else(bagrad > 28.58, "higher", "lower"))
+
+ggplot(pop18_compare, aes(x = beds_rate_1000, y = crime_rate_1000, color = pop18_cdi, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = pop18_cdi, color = pop18_cdi))
+
+```
 
 ## Assessing Muticollinearity
 

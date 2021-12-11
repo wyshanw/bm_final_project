@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(corrplot)
+library(ALSM)
 #library(p8105.datasets)
 #library(leaflet)
 
@@ -29,19 +30,23 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
+## Data processing
+
+
 ```{r}
-cdi_data = read.csv("./data/cdi.csv") %>%
+cdi_data = read_csv("data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
     cty_state = str_c(cty,",",state),
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
-    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
-  select(-docs,-beds,-crimes) %>%
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
+  dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
+knitr::kable(head(cdi_data))
 
-skimr::skim(cdi_data)
 
 numeric_cdi_df = cdi_data %>% 
   select(-cty,-state,-id,-cty_state)
@@ -51,15 +56,78 @@ corr = round(cor(numeric_cdi_df), 1)
 corrplot(corr)
 ```
 
+## Outler removing
 
-### Model construction
+
+
+```{r}
+par(mfrow=c(3,4))
+boxplot(cdi_data$area,main="Area")
+boxplot(cdi_data$pop,main="Population")
+boxplot(cdi_data$pop18,main="Population 18-34")
+boxplot(cdi_data$pop65,main="Population 65+")
+boxplot(cdi_data$hsgrad,main="Highschool grads")
+boxplot(cdi_data$bagrad,main="Bachelor's grads")
+
+boxplot(cdi_data$poverty,main="Poverty Rate")
+boxplot(cdi_data$unemp,main="Unemployment Rate")
+boxplot(cdi_data$pcincome,main="Income Per Capita")
+boxplot(cdi_data$totalinc,main="Income Total")
+boxplot(cdi_data$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data$beds_rate_1000,main="Hospital Beds")
+```
+
+
+
+
+
+```{r}
+
+cdi_data_clean = cdi_data[cdi_data$area >= quantile(cdi_data$area,0.005) & cdi_data$area <= quantile(cdi_data$area,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.005) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.005) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.005) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$hsgrad >= quantile(cdi_data_clean$hsgrad,0.005) & cdi_data_clean$hsgrad <= quantile(cdi_data_clean$hsgrad,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$bagrad >= quantile(cdi_data_clean$bagrad,0.005) & cdi_data_clean$bagrad <= quantile(cdi_data_clean$bagrad,0.995),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$poverty >= quantile(cdi_data_clean$poverty,0.005) & cdi_data_clean$poverty <= quantile(cdi_data_clean$poverty,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$unemp >= quantile(cdi_data_clean$unemp,0.005) & cdi_data_clean$unemp <= quantile(cdi_data_clean$unemp,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pcincome >= quantile(cdi_data_clean$pcincome,0.005) & cdi_data_clean$pcincome <= quantile(cdi_data_clean$pcincome,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$totalinc >= quantile(cdi_data_clean$totalinc,0.005) & cdi_data_clean$totalinc <= quantile(cdi_data_clean$totalinc,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$docs_rate_1000 >= quantile(cdi_data_clean$docs_rate_1000,0.005) & cdi_data_clean$docs_rate_1000 <= quantile(cdi_data_clean$docs_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.995),]
+```
+
+
+```{r}
+
+par(mfrow=c(3,4))
+boxplot(cdi_data_clean$area,main="Area")
+boxplot(cdi_data_clean$pop,main="Population")
+boxplot(cdi_data_clean$pop18,main="Population 18-34")
+boxplot(cdi_data_clean$pop65,main="Population 65+")
+boxplot(cdi_data_clean$hsgrad,main="Highschool grads")
+boxplot(cdi_data_clean$bagrad,main="Bachelor's grads")
+
+boxplot(cdi_data_clean$poverty,main="Poverty Rate")
+boxplot(cdi_data_clean$unemp,main="Unemployment Rate")
+boxplot(cdi_data_clean$pcincome,main="Income Per Capita")
+boxplot(cdi_data_clean$totalinc,main="Income Total")
+boxplot(cdi_data_clean$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
+
+```
+
+
+### Model construction for outlier removed dataset
 
 Data used for building model:
 
 ```{r}
-cdi_model = cdi_data %>% 
-  select(-id,-cty_state, -cty,-state) %>% 
+cdi_model_clean = cdi_data_clean %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
   mutate(region = factor(region))
+
 ```
 
 
@@ -73,46 +141,43 @@ summary(full.fit) %>%
   mutate(p_rank = rank(p.value))
 
 
-step(full.fit, direction='backward')
-step
+step(full.fit, direction='backward') %>% broom::tidy()
 ```
 
 
 
+```{r}
+
+full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(full.fit) %>% 
+  broom::tidy() %>%
+  mutate(p_rank = rank(p.value))
 
 
+backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
 
 
+both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
 
+bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
-
-
-
-
-
-
-
-
-
-
-```{}
-par(mfrow=c(3,2))
-
-cdi_data %>% 
-  hist(pop18)
-
-cardio$age = cardio$age / 365
-
-# hist before data cleaning
-hist(cardio$age)
-hist(cardio$weight)
-hist(cardio$height)
-hist(cardio$ap_hi)
-hist(cardio$ap_lo)
 ```
 
+```{r}
+fit_test = lm(crime_rate_1000 ~  
+                  pop + pop18 +poverty+   
+                 + pcincome + totalinc + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_test)
 
+```
 
+```{r}
+par(mfrow = c(2,2))
+plot(fit_test)
+
+plot(fit_test, which = 4)
+```
 
 
 
@@ -230,6 +295,7 @@ sum_df = tibble(
 
 knitr::kable(sum_df)
 ```
+
 
 
 

@@ -225,7 +225,7 @@ summary(fit_nest)
 
 
 
-## Add Interaction term poverty+income
+## Add Interaction term: poverty+income
 
 ```{r}
 fit_int1 = lm(crime_rate_1000 ~  
@@ -388,31 +388,78 @@ check_collinearity(fit_int3)
 
 
 
-## Try validation
+## Cross validation
+
+### model 1
 
 ```{r}
 set.seed(1)
-# Use 5-fold validation and create the training sets
 train = trainControl(method = "cv", number = 5)
 
-# Fit the 4-variables model that we discussed in previous lectures
-model_train = train(crime_rate_1000 ~  
-                  pop + pop18   
-                  + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density + 
-                  poverty*pcincome, data = cdiOut,
+model_train1 = train(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density,data = cdi_model,
                    trControl = train,
                    method = 'lm',
                    na.action = na.pass)
 
-model_train$finalModel
-print(model_train)
 
 ```
 
 
+### model 2
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train2 = train(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
 
 
+```
+
+### model 3
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train3 = train(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad,  data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
 
 
+```
 
+## Compare RMSE
+
+```{r}
+
+model <- c("model 1", "model 2", "model 3")
+
+RMSE <- c(round(model_train1$results$RMSE, 2),  round(model_train2$results$RMSE,2),
+          round(model_train3$results$RMSE, 2))
+
+R_sq <- c(round(model_train1$results$Rsquared, 2),
+          round(model_train2$results$Rsquared,2),
+          round(model_train3$results$Rsquared, 2))
+
+RMSE_table <- data.frame(model, RMSE, R_sq)
+
+knitr::kable(RMSE_table)
+```
+
+The second model has the lowest RMSE

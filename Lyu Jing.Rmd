@@ -249,6 +249,45 @@ plot(without)
 boxcox(without)
 ```
 
+
+Method:
+
+1. Data processing: 
+
+* Summarize `docs`,`beds`and `crimes` rate per 1000 population
+
+* Create a new variable, `density`, which is population divided by area
+
+2. Exploratory analysis:
+
+* Calculate the pairwise correlations between variables
+
+* List all the correlations between the crime rate (our interest) and all other variables
+
+3. Remove outliers and high leverage points
+
+Use percentile to detect potential outliers and high leverage points. Due to the dataset size, we remove rows containing the smallest and largest 0.2% for each variables.
+
+4. Training/Testing set split:
+Randomly split the dataset into training and testing sets. 90% is training set while 10% is testing. This step aims to support model assessment and avoid overestimation.
+
+5. Model construction:
+
+* Select variables using stepwise regression and criteria based procedure
+
+* Build model using the variables we selected 
+
+* Plot interaction effects and add interaction terms
+
+* Diagnose and transform the models
+
+6. Cross validation
+
+Cross validate on each model and get the model with the lowest RMSE.
+
+7. Model assessment
+
+
 Reference:
 As Numerous new questions emerging during our discussion, our group explored materials below to solve them.
 

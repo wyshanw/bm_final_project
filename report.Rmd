@@ -20,32 +20,34 @@ Mengfan Luo (ml4701), Yushan Wang (yw3772), Jing Lyu(jl6049), Yiqun Jin (yj2686)
 Over the last three decades, crime has become a major public concern in the US arousing massive political discussion and public expenditure[1]. Crime rates in major cities experienced a general rise from the 1960s to 1990s, with two peaks observed in 1980 and in early 1990s[2]. Despite extensive attention across the nation, factors influencing crime trends were not yet made clear[1]. In this project, we examined crime rates and potential affecting factors in 440 US counties from "County Demographic Information" (CDI) data set, and construct a multiple linear regression model to predict the crime rates.
 
 
-### Dataset
 
-We analyzed data from the “County Demographic Information” (CDI) data set, which contains characteristics of 440 counties in the United States collected from 1990-1992. The primary goal of this investigation is to develop insight relevant to predicting the crime rate in counties. 
 
 ## Methods
 
-1. Data processing: 
+### 1. Dataset discription
+
+We analyzed data from the “County Demographic Information” (CDI) data set, which contains characteristics of 440 counties in the United States collected from 1990-1992. The primary goal of this investigation is to develop insight relevant to predicting the crime rate in counties. 
+
+### 2. Data processing: 
 
 * Summarize `docs`,`beds`and `crimes` rate per 1000 population
 
 * Create a new variable, `density`, which is population divided by area
 
-2. Exploratory analysis:
+### 3. Exploratory analysis:
 
 * Calculate the pairwise correlations between variables
 
 * List all the correlations between the crime rate (our interest) and all other variables
 
-3. Remove outliers and high leverage points
+### 4. Remove outliers and high leverage points
 
 Use percentile to detect potential outliers and high leverage points. Due to the dataset size, we remove rows containing the smallest and largest 0.2% for each variables.
 
-4. Training/Testing set split:
+### 5. Training/Testing set split:
 Randomly split the dataset into training and testing sets. 90% is training set while 10% is testing. This step aims to support model assessment and avoid overestimation.
 
-5. Model construction:
+### 6. Model construction:
 
 * Select variables using stepwise regression and criteria based procedure
 
@@ -55,11 +57,11 @@ Randomly split the dataset into training and testing sets. 90% is training set w
 
 * Diagnose and transform the models
 
-6. Cross validation
+### 7. Cross validation
 
 Cross validate on each model and get the model with the lowest RMSE.
 
-7. Model assessment
+### 8. Model assessment
 In this section, we intend to assess the models we built and choose a final model used for future prediction. We compared the models based on three criteria: the R-square values, the root mean square error (RMSE), and the root mean square prediction error (RMSPE).  
 
 - R square represents the proportion of the variance that can be explained by the regression model.
@@ -69,9 +71,53 @@ In this section, we intend to assess the models we built and choose a final mode
 
 ## Results
 
+### 1. Dataset discription
+
+We analyzed data from the “County Demographic Information” (CDI) data set, which contains characteristics of 440 counties in the United States collected from 1990-1992. The primary goal of this investigation is to develop insight relevant to predicting the crime rate in counties. 
+
+### 2. Data processing: 
+
+* Summarize `docs`,`beds`and `crimes` rate per 1000 population
+
+* Create a new variable, `density`, which is population divided by area
+
+### 3. Exploratory analysis:
+
+* Calculate the pairwise correlations between variables
+
+* List all the correlations between the crime rate (our interest) and all other variables
+
+### 4. Remove outliers and high leverage points
+
+Use percentile to detect potential outliers and high leverage points. Due to the dataset size, we remove rows containing the smallest and largest 0.2% for each variables.
+
+### 5. Training/Testing set split:
+Randomly split the dataset into training and testing sets. 90% is training set while 10% is testing. This step aims to support model assessment and avoid overestimation.
+
+### 6. Model construction:
+
+* Select variables using stepwise regression and criteria based procedure
+
+* Build model using the variables we selected 
+
+* Plot interaction effects and add interaction terms
+
+* Diagnose and transform the models
+
+### 7. Cross validation
+
+Cross validate on each model and get the model with the lowest RMSE.
+
+### 8. Model assessment
+In this section, we intend to assess the models we built and choose a final model used for future prediction. We compared the models based on three criteria: the R-square values, the root mean square error (RMSE), and the root mean square prediction error (RMSPE).  
+
+- R square represents the proportion of the variance that can be explained by the regression model.
+- RMSE measures the differences between the actual values and the predicted values in the training dataset.
+- RMSPE estimates the prediction errors on new data outside the training dataset.
+
+
 * Model assessment
 
-Evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 1 has the best performance with the smallest RMSPE on testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although model 2 and 3 have achieved a good estimation of the training set, we will choose model 1 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance.
 
 ## Conclusion and Discussion
 

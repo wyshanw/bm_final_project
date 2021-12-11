@@ -97,17 +97,64 @@ knitr::kable(crime_1000_cor,digits = 2)
 
 ```
 
+
+### Remove outliers and high leverage point
+
+```{r}
+
+cdi_data_clean = cdi_data[cdi_data$area >= quantile(cdi_data$area,0.005) & cdi_data$area <= quantile(cdi_data$area,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.005) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.005) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.005) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$hsgrad >= quantile(cdi_data_clean$hsgrad,0.005) & cdi_data_clean$hsgrad <= quantile(cdi_data_clean$hsgrad,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$bagrad >= quantile(cdi_data_clean$bagrad,0.005) & cdi_data_clean$bagrad <= quantile(cdi_data_clean$bagrad,0.995),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$poverty >= quantile(cdi_data_clean$poverty,0.005) & cdi_data_clean$poverty <= quantile(cdi_data_clean$poverty,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$unemp >= quantile(cdi_data_clean$unemp,0.005) & cdi_data_clean$unemp <= quantile(cdi_data_clean$unemp,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pcincome >= quantile(cdi_data_clean$pcincome,0.005) & cdi_data_clean$pcincome <= quantile(cdi_data_clean$pcincome,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$totalinc >= quantile(cdi_data_clean$totalinc,0.005) & cdi_data_clean$totalinc <= quantile(cdi_data_clean$totalinc,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$docs_rate_1000 >= quantile(cdi_data_clean$docs_rate_1000,0.005) & cdi_data_clean$docs_rate_1000 <= quantile(cdi_data_clean$docs_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$density >= quantile(cdi_data_clean$density,0.005) & cdi_data_clean$density <= quantile(cdi_data_clean$density,0.995),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_data_clean$crime_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$crime_rate_1000,0.995),]
+
+
+```
+
+```{r}
+
+par(mfrow=c(3,4))
+boxplot(cdi_data_clean$area,main="Area")
+boxplot(cdi_data_clean$pop,main="Population")
+boxplot(cdi_data_clean$pop18,main="Population 18-34")
+boxplot(cdi_data_clean$pop65,main="Population 65+")
+boxplot(cdi_data_clean$hsgrad,main="Highschool grads")
+boxplot(cdi_data_clean$bagrad,main="Bachelor's grads")
+
+boxplot(cdi_data_clean$poverty,main="Poverty Rate")
+boxplot(cdi_data_clean$unemp,main="Unemployment Rate")
+boxplot(cdi_data_clean$pcincome,main="Income Per Capita")
+boxplot(cdi_data_clean$totalinc,main="Income Total")
+boxplot(cdi_data_clean$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
+
+```
+
+
+
 ### Model construction
 
 Data used for building model:
 
 ```{r}
-#cdi_model = cdi_data %>% 
-#  dplyr::select(-id,-cty_state, -cty,-state) %>% 
-#  mutate(region = factor(region))
+cdi_model = cdi_data %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
 
-cdi_model = cdi_data_original %>% mutate(region = factor(region))
 ```
+
 
 ```{r}
 
@@ -143,7 +190,7 @@ abline(0,1)
 
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
-
+#112
 ```
 
 
@@ -166,12 +213,11 @@ summary(interact)
 
 ```{r}
 fit_test = lm(crime_rate_1000 ~  
-                  pop + pop18   
-                  + pcincome + totalinc + region +
-                  beds_rate_1000 + density + 
+                  pop + pop18 +hsgrad + bagrad+ pcincome + totalinc + region  +
+                  beds_rate_1000 + density + poverty +
                   poverty*pcincome, data = cdi_model)
 summary(fit_test)
-anova(fit_test)
+
 
 check_collinearity(fit_test)
 ```
@@ -202,3 +248,5 @@ plot(without)
 
 boxcox(without)
 ```
+
+

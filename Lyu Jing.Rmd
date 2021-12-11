@@ -249,4 +249,23 @@ plot(without)
 boxcox(without)
 ```
 
+Reference:
+As Numerous new questions emerging during our discussion, our group explored materials below to solve them.
 
+1. Question: Do we still need a test set when using k-fold cross-validation?
+Source:
+https://stats.stackexchange.com/questions/225949/do-we-need-a-test-set-when-using-k-fold-cross-validation
+https://datascience.stackexchange.com/questions/80310/is-a-test-set-necessary-after-cross-validation-on-training-set
+
+
+2. Question: How to achieve build test set & predict
+Source:
+https://www.ritchieng.com/machine-learning-evaluate-linear-regression-model/
+https://campus.datacamp.com/courses/machine-learning-with-caret-in-r/regression-models-fitting-them-and-evaluating-their-performance?ex=8
+
+3.Question: How to evaluate continuous by continuous interactions
+Source: Continuous by Continuous Interactions, Joel S Steele http://web.pdx.edu/~joel8/resources/ConceptualPresentationResources/ContinuousByContinousInteractions_walkthrough_v2.pdf
+
+
+Other reference:
+* Friedman, Jerome, Trevor Hastie, and Robert Tibshirani. The elements of statistical learning. Vol. 1. No. 10. New York: Springer series in statistics, 2001.

@@ -1,20 +1,19 @@
 ---
-title: "BIST8130 - Final Proejct Codings"
-date: "11/22/2021"
+title: "Yushan Wang"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,dpi=300)
+```{r, echo = FALSE, message=FALSE}
+library(tidyverse)
+library(leaps)
+library(ALSM)
+library(performance)
+library(caret)
+library(MASS)
+
 ```
 
-```{r library,warning=FALSE,message=FALSE}
-library(tidyverse)
-library(corrplot)
-library(leaps)
-library(performance)
-library(MASS)
-```
+## load data
 
 ### Step 1: Data Preprocessing
 
@@ -161,7 +160,9 @@ cdi_model = cdi_data_clean %>%
 
 
 
+
 ```{r}
+
 
 full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
 summary(full.fit) %>% 
@@ -176,12 +177,14 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
+
 ```
 
 ## Criteria based selection
 
 
 ```{r}
+
 sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
 sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 sumsb
@@ -193,8 +196,134 @@ abline(0,1)
 
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 
+# unemp! 12
+```
+
+
+
+
+
+## Model building without interaction
+
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000+ docs_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+
+# remove docs
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+
+# this !
+
 
 ```
+
+
+
+## test: poverty+income
+
+```{r}
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000 + density +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+# remove density
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# remove bagrad
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# diagnose
+
+plot(fit_int1, which = 1)
+plot(fit_int1, which = 2)
+boxcox(fit_test)
+
+# box close to one. can also try 0.5
+
+# transformation
+
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_int1_trans = lm(y_sqrt ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model_trans)
+summary(fit_int1_trans)
+
+# diagnose
+plot(fit_int1_trans, which = 1) #worse
+plot(fit_int1_trans, which = 2) 
+
+
+# transformed is worse!
+
+
+```
+
+
+## poverty + region
+
+## unemp + region
+
+
+## use new dataset do again
+
+
+## Try validation
+
+```{r}
+set.seed(1)
+# Use 5-fold validation and create the training sets
+train = trainControl(method = "cv", number = 5)
+
+# Fit the 4-variables model that we discussed in previous lectures
+model_train = train(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+
+model_train$finalModel
+print(model_train)
+
+```
+
+
+
+
+
 
 
 

@@ -9,7 +9,7 @@ library(leaps)
 library(ALSM)
 library(performance)
 library(caret)
-
+library(MASS)
 
 ```
 
@@ -41,10 +41,15 @@ cdi_data = read_csv("./data/cdi.csv") %>%
   dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
+
+  
+```
+
+
+```{r}
 cdi_model = cdi_data %>% 
   dplyr::select(-id,-cty_state, -cty,-state) %>% 
   mutate(region = factor(region))
-  
 ```
 
 
@@ -122,11 +127,41 @@ summary(fit_test)
 anova(fit_test)
 
 check_collinearity(fit_test)
+
+# diagnose
+
+plot(fit_test, which = 1)
+plot(fit_test, which = 2)
+boxcox(fit_test)
+
+# transformation
+
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_trans = lm(y_sqrt ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdi_model_trans)
+
+# diagnose
+plot(fit_trans, which = 1)
+plot(fit_trans, which = 2) # better
+boxcox(fit_trans)
+
+# choose transformed!
+
+
+# model 1!
 ```
 
 pcincome*bagrad significant
 poverty*income significnat, hsgrad, bagrad, poverty insignificant
 
+remove outlier
 ```{r}
 plot(fit_test, which = 4) 
 
@@ -144,9 +179,32 @@ without = lm(crime_rate_1000 ~
 summary(with); summary(without) 
 
 par(mfrow = c(2,2))
-plot(without)
+plot(without, which = 1)
+plot(without, which = 2)
 
 boxcox(without)
+
+# use without
+# transformation
+
+cdiOut_trans = cdiOut %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_out_trans = lm(y_sqrt ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut_trans)
+
+# diagnose
+plot(fit_out_trans, which = 1)
+plot(fit_out_trans, which = 2) 
+boxcox(fit_out_trans)
+
+# choose transformed!
+
 ```
 
 ## use new dataset do again

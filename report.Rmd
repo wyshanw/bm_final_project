@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
+In this project, we aim to build regression models based on a set of demographic variables to estimate county-level crime rates. After an exploratory analysis of the variables on their distributions and correlations, we derived more meaningful variables by manipulating the existing ones, removed outlier values, and implement several variable selection methods. Using the selected variables, we trained a linear regression model, elaborate on the model by adding several interactive terms, and did cross-validations. All 3 resulting models have achieved a good estimation of the training set. The first model has the best prediction on new data (in the testing set), whereas the other two models, despite a better performance of the training data, may have the problem of overfitting.
 
 ## Team Member
 

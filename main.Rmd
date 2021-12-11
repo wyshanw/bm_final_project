@@ -145,16 +145,28 @@ boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
 ```
 
 
+### Training/Test set split
+
+```{r}
+cdi_data_clean = cdi_data_clean %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+
+set.seed(1)
+dt = sort(sample(nrow(cdi_data_clean), nrow(cdi_data_clean)*.9))
+train_data = cdi_data_clean[dt,]
+test_data = cdi_data_clean[-dt,]
+
+```
+
 ### Model construction
 
 Data used for building model:
 
 ```{r}
-cdi_model = cdi_data_clean %>% 
-  dplyr::select(-id,-cty_state, -cty,-state) %>% 
-  mutate(region = factor(region))
 
-#cdi_model = cdi_data_exp %>% mutate(region = factor(region))
+cdi_model = train_data
+
 ```
 
 
@@ -192,8 +204,6 @@ plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic")
 abline(0,1)
 
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
-
-
 ```
 
 

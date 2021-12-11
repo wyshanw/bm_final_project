@@ -9,6 +9,7 @@ output: github_document
 library(tidyverse)
 library(corrplot)
 library(performance)
+library(dplyr)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -31,7 +32,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ## Load Data
 
 ```{r}
-cdi_df = read.csv("data/cdi.csv") %>% 
+cdi_data = read.csv("data/cdi.csv") %>% 
   janitor::clean_names() %>%
   mutate(
     cty_state = str_c(cty,",",state),
@@ -46,10 +47,45 @@ knitr::kable(head(cdi_data))
   
 ```
 
+### Remove outliers and high leverage point
+
+```{r}
+# Remove high leverage points
+
+cdi_data_clean = cdi_data[cdi_data$area >= quantile(cdi_data$area,0.002) & cdi_data$area <= quantile(cdi_data$area,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.002) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.002) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.002) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$hsgrad >= quantile(cdi_data_clean$hsgrad,0.002) & cdi_data_clean$hsgrad <= quantile(cdi_data_clean$hsgrad,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$bagrad >= quantile(cdi_data_clean$bagrad,0.002) & cdi_data_clean$bagrad <= quantile(cdi_data_clean$bagrad,0.998),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$poverty >= quantile(cdi_data_clean$poverty,0.002) & cdi_data_clean$poverty <= quantile(cdi_data_clean$poverty,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$unemp >= quantile(cdi_data_clean$unemp,0.002) & cdi_data_clean$unemp <= quantile(cdi_data_clean$unemp,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pcincome >= quantile(cdi_data_clean$pcincome,0.002) & cdi_data_clean$pcincome <= quantile(cdi_data_clean$pcincome,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$totalinc >= quantile(cdi_data_clean$totalinc,0.002) & cdi_data_clean$totalinc <= quantile(cdi_data_clean$totalinc,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$docs_rate_1000 >= quantile(cdi_data_clean$docs_rate_1000,0.002) & cdi_data_clean$docs_rate_1000 <= quantile(cdi_data_clean$docs_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$density >= quantile(cdi_data_clean$density,0.002) & cdi_data_clean$density <= quantile(cdi_data_clean$density,0.998),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_data_clean$crime_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$crime_rate_1000,0.998),]
+```
+
+
+### Model construction
+
+Data used for building model:
+
+```{r}
+cdi_model = cdi_data_clean %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+```
+
 ## Crime Rate Correlation
 
 ```{r}
-cdi_cor = cdi_df %>% 
+cdi_cor = cdi_data %>% 
   select(-id,-cty_state, -cty, -state) %>% 
   cor() 
  
@@ -79,9 +115,9 @@ knitr::kable(var_info)
 Poverty: Percent of 1990 total population with income below poverty level
 
 ```{r}
-ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_poverty = lm(cdi_df$crime_rate_1000 ~ cdi_df$poverty) 
+reg_poverty = lm(cdi_data$crime_rate_1000 ~ cdi_data$poverty) 
 summary(reg_poverty)
 fitted_value =  reg_poverty$fitted.values
 reg_poverty %>% broom::tidy()
@@ -92,9 +128,9 @@ reg_poverty %>% broom::tidy()
 Beds: Total number of beds, cribs, and bassinets during 1990
 
 ```{r}
-ggplot(cdi_df, aes(x = beds_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = beds_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_beds = lm(cdi_df$crime_rate_1000 ~ cdi_df$beds_rate_1000) 
+reg_beds = lm(cdi_data$crime_rate_1000 ~ cdi_data$beds_rate_1000) 
 summary(reg_beds)
 reg_beds %>% broom::tidy()
 ```
@@ -104,9 +140,9 @@ reg_beds %>% broom::tidy()
 docs: Number of active physicians
 
 ```{r}
-ggplot(cdi_df, aes(x = docs_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = docs_rate_1000, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$docs_rate_1000) 
+reg_docs = lm(cdi_data$crime_rate_1000 ~ cdi_data$docs_rate_1000) 
 summary(reg_docs)
 reg_docs %>% broom::tidy()
 ```
@@ -116,9 +152,9 @@ reg_docs %>% broom::tidy()
 hsgrad: Percent of persons 25 years old or older who completed 12 or more years of school
 
 ```{r}
-ggplot(cdi_df, aes(x = hsgrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = hsgrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_docs = lm(cdi_df$crime_rate_1000 ~ cdi_df$hsgrad) 
+reg_docs = lm(cdi_data$crime_rate_1000 ~ cdi_data$hsgrad) 
 summary(reg_docs)
 reg_docs %>% broom::tidy()
 ```
@@ -128,9 +164,9 @@ reg_docs %>% broom::tidy()
 pop: Estimated 1990 population
 
 ```{r}
-ggplot(cdi_df, aes(x = pop, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = pop, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_pop = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop) 
+reg_pop = lm(cdi_data$crime_rate_1000 ~ cdi_data$pop) 
 summary(reg_pop)
 reg_pop %>% broom::tidy()
 ```
@@ -140,9 +176,9 @@ reg_pop %>% broom::tidy()
 pop18: Percent of total population in age range from 18-34
 
 ```{r}
-ggplot(cdi_df, aes(x = pop18, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = pop18, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_pop18 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop18) 
+reg_pop18 = lm(cdi_data$crime_rate_1000 ~ cdi_data$pop18) 
 summary(reg_pop18)
 reg_pop18 %>% broom::tidy()
 ```
@@ -150,9 +186,9 @@ reg_pop18 %>% broom::tidy()
 ## Crime Rate v.s. pop65
 
 ```{r}
-ggplot(cdi_df, aes(x = pop65, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = pop65, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_pop65 = lm(cdi_df$crime_rate_1000 ~ cdi_df$pop65) 
+reg_pop65 = lm(cdi_data$crime_rate_1000 ~ cdi_data$pop65) 
 summary(reg_pop65)
 reg_pop65 %>% broom::tidy()
 ```
@@ -162,9 +198,9 @@ reg_pop65 %>% broom::tidy()
 Land area measured in square miles
 
 ```{r}
-ggplot(cdi_df, aes(x = area, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = area, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_area = lm(cdi_df$crime_rate_1000 ~ cdi_df$area) 
+reg_area = lm(cdi_data$crime_rate_1000 ~ cdi_data$area) 
 summary(reg_area)
 reg_pop65 %>% broom::tidy()
 ```
@@ -174,9 +210,9 @@ reg_pop65 %>% broom::tidy()
 Percent of persons 25 years old or older with bachelor’s degrees
 
 ```{r}
-ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
+ggplot(cdi_data, aes(x = bagrad, y = crime_rate_1000)) + geom_point(alpha = .5) + geom_smooth(method = "lm", se = FALSE)
 
-reg_bagrad = lm(cdi_df$crime_rate_1000 ~ cdi_df$bagrad) 
+reg_bagrad = lm(cdi_data$crime_rate_1000 ~ cdi_data$bagrad) 
 summary(reg_bagrad)
 reg_bagrad %>% broom::tidy()
 ```
@@ -194,12 +230,12 @@ pcincome
 
 ```{r}
 # poverty v.s. crime_rate_1000
-ggplot(cdi_df) + geom_point(aes(x = poverty, y = hsgrad, alpha = .5)) +
+ggplot(cdi_data) + geom_point(aes(x = poverty, y = hsgrad, alpha = .5)) +
   #geom_smooth(method = "lm", se = FALSE) +
   theme_bw()
 
 #slr
-slr = lm(poverty ~ hsgrad, data = cdi_df)
+slr = lm(poverty ~ hsgrad, data = cdi_data)
 summary(slr)
 ```
 
@@ -209,47 +245,50 @@ Does the relationship between the poverty and hsgrad vary by region status
 
 ```{r}
 
-ggplot(cdi_df, aes(x = poverty, y = hsgrad, color = region)) + 
+ggplot(cdi_model, aes(x = poverty, y = hsgrad, color = region)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact1 = lm(poverty ~ hsgrad*region, data = cdi_df)
+interact1 = lm(poverty ~ hsgrad*region, data = cdi_data)
 summary(interact1)
 ```
+
 Does the relationship between the poverty and unemp vary by region status
 
 ```{r}
 
-ggplot(cdi_df, aes(x = poverty, y = unemp, color = region)) + 
+ggplot(cdi_model, aes(x = poverty, y = unemp, color = region)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact2 = lm(poverty ~ unemp*region, data = cdi_df)
+interact2 = lm(poverty ~ unemp*region, data = cdi_data)
 summary(interact2)
 ```
 interaction of pcincome and region
 
+no obvious interaction between pcincome and region
+
 ```{r}
-ggplot(cdi_df, aes(x = pcincome, y = crime_rate_1000, color = region, alpha = .5)) + 
+ggplot(cdi_model, aes(x = pcincome, y = crime_rate_1000, color = region, alpha = .5)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact3 = lm(crime_rate_1000 ~ pcincome*region, data = cdi_df)
+interact3 = lm(crime_rate_1000 ~ pcincome*region, data = cdi_data)
 summary(interact3)
 ```
 
 interaction of poverty and region
 
 ```{r}
-ggplot(cdi_df, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
+ggplot(cdi_model, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .5)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact4 = lm(crime_rate_1000 ~ poverty*region, data = cdi_df)
+interact4 = lm(crime_rate_1000 ~ poverty*region, data = cdi_data)
 summary(interact4)
 ```
 
@@ -261,24 +300,24 @@ The development and economic of different regions are different, therefore, diff
 interaction of beds_rate_1000 and region
 
 ```{r}
-ggplot(cdi_df, aes(x = beds_rate_1000, y = crime_rate_1000, color = region, alpha = .5)) + 
+ggplot(cdi_model, aes(x = beds_rate_1000, y = crime_rate_1000, color = region, alpha = .5)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact5 = lm(crime_rate_1000 ~ beds_rate_1000*region, data = cdi_df)
+interact5 = lm(crime_rate_1000 ~ beds_rate_1000*region, data = cdi_data)
 summary(interact5)
 ```
 
 interaction of bagrad and region
 
 ```{r}
-ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000, color = region, alpha = .5)) + 
+ggplot(cdi_model, aes(x = bagrad, y = crime_rate_1000, color = region, alpha = .5)) + 
   geom_point() +
   geom_smooth(method = "lm", se = F, aes(group = region, color = region)) 
 
 # fit model with interaction
-interact6 = lm(crime_rate_1000 ~ bagrad*region, data = cdi_df)
+interact6 = lm(crime_rate_1000 ~ bagrad*region, data = cdi_data)
 summary(interact6)
 
 ```
@@ -289,7 +328,7 @@ According to Census Bureau, the number of persons below the official government 
 
 
 ```{r}
-poverty_compare = cdi_df %>% 
+poverty_compare = cdi_model %>% 
   mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
 
 ggplot(poverty_compare, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
@@ -298,6 +337,61 @@ ggplot(poverty_compare, aes(x = pcincome, y = crime_rate_1000, color = national_
 
 # fit model with interaction
 interact7 = lm(crime_rate_1000 ~ pcincome*national_poverty, data = poverty_compare)
+summary(interact7)
+```
+unemployment and poverty
+
+```{r}
+ggplot(poverty_compare, aes(x = unemp, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) 
+
+# fit model with interaction
+interact7 = lm(crime_rate_1000 ~ unemp*national_poverty, data = poverty_compare)
+summary(interact7)
+```
+
+bagrad: Percent of persons 25 years old or older with bachelor’s degrees
+20.8% national
+
+pcincome and bagrad
+
+```{r}
+bagrad_compare = cdi_model %>% 
+  mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
+
+ggplot(bagrad_compare, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
+  ylim(0,200)
+
+# fit model with interaction
+interact7 = lm(crime_rate_1000 ~ pcincome*national_bagrad, data = bagrad_compare)
+summary(interact7)
+```
+
+poverty and bagrad
+
+```{r}
+ggplot(bagrad_compare, aes(x = poverty, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) 
+
+# fit model with interaction
+interact7 = lm(crime_rate_1000 ~ poverty*national_bagrad, data = bagrad_compare)
+summary(interact7)
+```
+
+unemployment and bagrad
+
+```{r}
+ggplot(bagrad_compare, aes(x = unemp, y = crime_rate_1000, color = national_bagrad, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
+  ylim(0,150)
+
+# fit model with interaction
+interact7 = lm(crime_rate_1000 ~ unemp*national_bagrad, data = bagrad_compare)
 summary(interact7)
 ```
 

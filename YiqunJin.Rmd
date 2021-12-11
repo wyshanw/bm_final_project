@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(corrplot)
+library(performance)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -36,9 +37,13 @@ cdi_df = read.csv("data/cdi.csv") %>%
     cty_state = str_c(cty,",",state),
     docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
-    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people.) 
-  select(-docs,-beds,-crimes) %>%
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
+  dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
+
+knitr::kable(head(cdi_data))
+  
 ```
 
 ## Crime Rate Correlation
@@ -276,5 +281,38 @@ ggplot(cdi_df, aes(x = bagrad, y = crime_rate_1000, color = region, alpha = .5))
 interact6 = lm(crime_rate_1000 ~ bagrad*region, data = cdi_df)
 summary(interact6)
 
+```
+
+Interaction of poverty and pcincome
+
+According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
+
+
+```{r}
+poverty_compare = cdi_df %>% 
+  mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
+
+ggplot(poverty_compare, aes(x = pcincome, y = crime_rate_1000, color = national_poverty, alpha = .5)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) 
+
+# fit model with interaction
+interact7 = lm(crime_rate_1000 ~ pcincome*national_poverty, data = poverty_compare)
+summary(interact7)
+```
+
+
+## Assessing Muticollinearity
+
+```{r}
+mult_fit_back_without = lm(crime_rate ~ pop18 + bagrad + poverty + pcincome + region + pcarea + pcbeds, data = cdi_pc_out)
+# Calculate the variance inflation factor (VIF)
+check_collinearity(mult_fit_back_without)
+# Remove the variable whose vif is larger than 10 
+mult_fit_back_without_vif = lm(crime_rate ~ pop18 + bagrad + pcincome + region + pcarea + pcbeds, data = cdi_pc_out)
+mult_fit_back_without_vif 
+# Add the interaction 
+mult_fit_back_without_int = lm(crime_rate ~ pop18 + bagrad + pcincome + region + pcarea + pcbeds + poverty + pcincome*poverty + pcincome*bagrad + pop18*bagrad, data = cdi_pc_out)
+mult_fit_back_without_int
 ```
 

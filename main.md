@@ -33,27 +33,52 @@ cdi_data = read_csv("./data/cdi.csv") %>%
 
     ## Rows: 440 Columns: 17
 
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
     ## chr  (2): cty, state
     ## dbl (15): id, area, pop, pop18, pop65, docs, beds, crimes, hsgrad, bagrad, p...
 
     ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## Warning in FUN(X[[i]], ...): strings not representable in native encoding will
+    ## be translated to UTF-8
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00C4>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00D6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00E4>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00F6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00DF>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00C6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00E6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00D8>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00F8>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00C5>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00E5>' to native encoding
 
 ``` r
 knitr::kable(head(cdi_data))
 ```
 
-|  id | cty_state   | cty      | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 |    density | crime_rate_1000 |
-|----:|:------------|:---------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|-----------:|----------------:|
-|   1 | Los_Ange,CA | Los_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |       2.671394 |       3.125295 |  2183.0453 |        77.73026 |
-|   2 | Cook,IL     | Cook     | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |       2.968227 |       4.221296 |  5396.4767 |        85.58869 |
-|   3 | Harris,TX   | Harris   | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |       2.680080 |       4.417360 |  1629.9589 |        89.96029 |
-|   4 | San_Dieg,CA | San_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |       2.363876 |       2.473563 |   594.0585 |        69.58362 |
-|   5 | Orange,CA   | Orange   | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |       2.514772 |       2.642129 |  3051.3367 |        59.95463 |
-|   6 | Kings,NY    | Kings    | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |       2.112868 |       3.886704 | 32403.7183 |       295.98672 |
+|  id | cty\_state   | cty       | state | area |     pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 |    density | crime\_rate\_1000 |
+|----:|:-------------|:----------|:------|-----:|--------:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|-----------:|------------------:|
+|   1 | Los\_Ange,CA | Los\_Ange | CA    | 4060 | 8863164 |  32.1 |   9.7 |   70.0 |   22.3 |    11.6 |   8.0 |    20786 |   184230 |      4 |         2.671394 |         3.125295 |  2183.0453 |          77.73026 |
+|   2 | Cook,IL      | Cook      | IL    |  946 | 5105067 |  29.2 |  12.4 |   73.4 |   22.8 |    11.1 |   7.2 |    21729 |   110928 |      2 |         2.968227 |         4.221296 |  5396.4767 |          85.58869 |
+|   3 | Harris,TX    | Harris    | TX    | 1729 | 2818199 |  31.3 |   7.1 |   74.9 |   25.4 |    12.5 |   5.7 |    19517 |    55003 |      3 |         2.680080 |         4.417360 |  1629.9589 |          89.96029 |
+|   4 | San\_Dieg,CA | San\_Dieg | CA    | 4205 | 2498016 |  33.5 |  10.9 |   81.9 |   25.3 |     8.1 |   6.1 |    19588 |    48931 |      4 |         2.363876 |         2.473563 |   594.0585 |          69.58362 |
+|   5 | Orange,CA    | Orange    | CA    |  790 | 2410556 |  32.6 |   9.2 |   81.2 |   27.8 |     5.2 |   4.8 |    24400 |    58818 |      4 |         2.514772 |         2.642129 |  3051.3367 |          59.95463 |
+|   6 | Kings,NY     | Kings     | NY    |   71 | 2300664 |  28.3 |  12.4 |   63.7 |   16.6 |    19.5 |   9.5 |    16803 |    38658 |      1 |         2.112868 |         3.886704 | 32403.7183 |         295.98672 |
 
 ### Step 2 - Exploratory Analysis
 
@@ -66,6 +91,7 @@ cdi_data_exp = cdi_data %>%
   dplyr::select(-id,-cty,-state, -cty_state) 
 
 cdi_data_original = cdi_data_exp
+
 cdi_data_exp = cdi_data_exp %>%
   mutate(
     area = ifelse(area %in% boxplot.stats(cdi_data_exp$area)$out,NA,area),
@@ -140,9 +166,31 @@ crime_1000_cor = data.frame(cdi_data_cor) %>%
 knitr::kable(crime_1000_cor,digits = 2) 
 ```
 
-|                       |  area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs_rate_1000 | beds_rate_1000 | density | crime_rate_1000 |
-|:----------------------|------:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|---------------:|---------------:|--------:|----------------:|
-| Crime Rate (Per 1000) | -0.04 | 0.29 |  0.24 | -0.08 |  -0.13 |   0.09 |    0.49 | -0.07 |    -0.08 |     0.19 |   0.46 |           0.32 |           0.39 |    0.29 |               1 |
+|                       |  area |  pop | pop18 | pop65 | hsgrad | bagrad | poverty | unemp | pcincome | totalinc | region | docs\_rate\_1000 | beds\_rate\_1000 | density | crime\_rate\_1000 |
+|:----------------------|------:|-----:|------:|------:|-------:|-------:|--------:|------:|---------:|---------:|-------:|-----------------:|-----------------:|--------:|------------------:|
+| Crime Rate (Per 1000) | -0.04 | 0.29 |  0.24 | -0.08 |  -0.13 |   0.09 |    0.49 | -0.07 |    -0.08 |     0.19 |   0.46 |             0.32 |             0.39 |    0.29 |                 1 |
+
+### Remove outliers and high leverage point
+
+``` r
+cdi_data_clean = cdi_data[cdi_data$area >= quantile(cdi_data$area,0.005) & cdi_data$area <= quantile(cdi_data$area,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.005) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.005) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.005) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$hsgrad >= quantile(cdi_data_clean$hsgrad,0.005) & cdi_data_clean$hsgrad <= quantile(cdi_data_clean$hsgrad,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$bagrad >= quantile(cdi_data_clean$bagrad,0.005) & cdi_data_clean$bagrad <= quantile(cdi_data_clean$bagrad,0.995),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$poverty >= quantile(cdi_data_clean$poverty,0.005) & cdi_data_clean$poverty <= quantile(cdi_data_clean$poverty,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$unemp >= quantile(cdi_data_clean$unemp,0.005) & cdi_data_clean$unemp <= quantile(cdi_data_clean$unemp,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pcincome >= quantile(cdi_data_clean$pcincome,0.005) & cdi_data_clean$pcincome <= quantile(cdi_data_clean$pcincome,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$totalinc >= quantile(cdi_data_clean$totalinc,0.005) & cdi_data_clean$totalinc <= quantile(cdi_data_clean$totalinc,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$docs_rate_1000 >= quantile(cdi_data_clean$docs_rate_1000,0.005) & cdi_data_clean$docs_rate_1000 <= quantile(cdi_data_clean$docs_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.995),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$density >= quantile(cdi_data_clean$density,0.005) & cdi_data_clean$density <= quantile(cdi_data_clean$density,0.995),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_data_clean$crime_rate_1000,0.005) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$crime_rate_1000,0.995),]
+```
 
 ### Model construction
 
@@ -152,6 +200,7 @@ Data used for building model:
 #cdi_model = cdi_data %>% 
 #  dplyr::select(-id,-cty_state, -cty,-state) %>% 
 #  mutate(region = factor(region))
+
 cdi_model = cdi_data_exp %>% mutate(region = factor(region))
 ```
 
@@ -162,7 +211,7 @@ summary(full.fit) %>%
   mutate(p_rank = rank(p.value))
 ```
 
-    ## # A tibble: 17 × 6
+    ## # A tibble: 17 x 6
     ##    term             estimate  std.error statistic  p.value p_rank
     ##    <chr>               <dbl>      <dbl>     <dbl>    <dbl>  <dbl>
     ##  1 (Intercept)    -77.7      27.7         -2.81   5.32e- 3      9
@@ -472,23 +521,23 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 ```
 
-| backward       | stepwise       |
-|:---------------|:---------------|
-| pop            | pop            |
-| pop18          | pop18          |
-| bagrad         | bagrad         |
-| poverty        | poverty        |
-| pcincome       | pcincome       |
-| totalinc       | totalinc       |
-| region2        | region2        |
-| region3        | region3        |
-| region4        | region4        |
-| beds_rate_1000 | beds_rate_1000 |
+| backward         | stepwise         |
+|:-----------------|:-----------------|
+| pop              | pop              |
+| pop18            | pop18            |
+| bagrad           | bagrad           |
+| poverty          | poverty          |
+| pcincome         | pcincome         |
+| totalinc         | totalinc         |
+| region2          | region2          |
+| region3          | region3          |
+| region4          | region4          |
+| beds\_rate\_1000 | beds\_rate\_1000 |
 
 ## Criteria based selection
 
-pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000
-density
+pop pop18 hsgrad bagrad poverty pcincome totalinc region
+beds\_rate\_1000 density
 
 ``` r
 sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
@@ -558,11 +607,11 @@ abline(0,1)
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
-![](main_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## Interaction
 
-Does the relationship between the crime_rate_1000 and poverty vary by
+Does the relationship between the crime\_rate\_1000 and poverty vary by
 region status?
 
 ``` r
@@ -573,7 +622,7 @@ ggplot(cdi_data, aes(x = poverty, y = crime_rate_1000, color = region, alpha = .
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](main_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 # fit model with interaction
@@ -692,7 +741,7 @@ poverty insignificant
 plot(fit_test, which = 4) 
 ```
 
-![](main_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 cdiOut = cdi_model[-c(1,6),]
@@ -774,10 +823,10 @@ par(mfrow = c(2,2))
 plot(without)
 ```
 
-![](main_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 boxcox(without)
 ```
 
-![](main_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](main_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->

@@ -69,16 +69,8 @@ We then take a closer look of each variables, calculate the pairwise correlation
 cdi_data_exp = cdi_data %>%
   dplyr::select(-id,-cty,-state, -cty_state) 
 
-cdi_data_original = cdi_data_exp
 
-cdi_data_exp = cdi_data_exp %>%
-  mutate(
-    area = ifelse(area %in% boxplot.stats(cdi_data_exp$area)$out,NA,area),
-    pop = ifelse(pop %in% boxplot.stats(cdi_data_exp$pop)$out,NA,pop),
-    crime_rate_1000 = ifelse(crime_rate_1000 %in% boxplot.stats(cdi_data_exp$crime_rate_1000)$out,NA,crime_rate_1000),
-    poverty = ifelse(poverty %in% boxplot.stats(cdi_data_exp$poverty)$out,NA,poverty)
-  ) %>%
-  na.omit()
+
 ```
 
 
@@ -273,7 +265,7 @@ fit_nest = lm(crime_rate_1000 ~
 summary(fit_nest)
 ```
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots of model without interaction terms"}
 par(mfrow = c(2,2))
 plot(fit_nest)
 ```
@@ -303,7 +295,7 @@ summary(fit_nest_trans)
 ```
 
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots of model without interaction terms"}
 
 par(mfrow = c(2,2))
 plot(fit_nest_trans)

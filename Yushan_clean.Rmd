@@ -157,36 +157,35 @@ cdi_model = cdi_data_clean %>%
 ```
 
 
+## Perform stepwise regression
 
-
+To start with, we use both automatic backward and stepwise procedure to select variables. We find that the result in both methods are same. The chosen variables are listed in the table below.
 
 
 ```{r}
-
 
 full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
 summary(full.fit) %>% 
   broom::tidy() %>%
   mutate(p_rank = rank(p.value))
 
-
 backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
-
 
 both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
 
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
 
-
 ```
+
 
 ## Criteria based selection
 
+We then perform criteria based selection to further select our variables.
 
 ```{r}
 
 sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
-sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
+sumsb = summary(sb) 
 sumsb
 
 # plot of Cp and Adj-R2 as functions of parameters
@@ -199,48 +198,49 @@ plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 # unemp! 12
 ```
 
+According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` could also be selected.
 
+## discussion
 
+We need to remove totalinc, because it can be replaced. totalinc = pcincome * pop.
 
-
-## Model building without interaction
+## Model building from the vairables we selected
 
 ```{r}
 fit_nest = lm(crime_rate_1000 ~  
                   pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + totalinc + region +
+                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000+ docs_rate_1000 + density, data = cdi_model)
 summary(fit_nest)
 
 # remove docs
 fit_nest = lm(crime_rate_1000 ~  
                   pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + totalinc + region +
+                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density, data = cdi_model)
 summary(fit_nest)
-
-# this !
 
 
 ```
 
 
 
-## test: poverty+income
+## Add Interaction term poverty+income
 
 ```{r}
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + totalinc + region +
+                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density +
                   poverty*pcincome, data = cdi_model)
 summary(fit_int1)
 
 check_collinearity(fit_int1)
+
 # remove density
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + totalinc + region +
+                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000  +
                   poverty*pcincome, data = cdi_model)
 summary(fit_int1)
@@ -250,7 +250,7 @@ check_collinearity(fit_int1)
 # remove bagrad
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + 
-                  poverty + unemp + pcincome + totalinc + region +
+                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000  +
                   poverty*pcincome, data = cdi_model)
 summary(fit_int1)
@@ -261,9 +261,9 @@ check_collinearity(fit_int1)
 
 plot(fit_int1, which = 1)
 plot(fit_int1, which = 2)
-boxcox(fit_test)
+boxcox(fit_int1)
 
-# box close to one. can also try 0.5
+# box close to one.can also try 0.5
 
 # transformation
 
@@ -274,7 +274,7 @@ cdi_model_trans = cdi_model %>%
 
 fit_int1_trans = lm(y_sqrt ~  
                    pop + pop18 + 
-                  poverty + unemp + pcincome + totalinc + region +
+                  poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000  +
                   poverty*pcincome, data = cdi_model_trans)
 summary(fit_int1_trans)
@@ -286,16 +286,106 @@ plot(fit_int1_trans, which = 2)
 
 # transformed is worse!
 
-
 ```
+
 
 
 ## poverty + region
 
-## unemp + region
+```
+fit_int2 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  poverty*region, data = cdi_model)
+summary(fit_int2)
+
+check_collinearity(fit_int2)
 
 
-## use new dataset do again
+```
+
+## unemp + poverty
+
+```
+fit_int2 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  poverty*unemp, data = cdi_model)
+summary(fit_int2)
+
+check_collinearity(fit_int2)
+
+```
+
+
+## pcincome + bagrad
+```{r}
+fit_int2 = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad, data = cdi_model)
+summary(fit_int2)
+
+check_collinearity(fit_int2)
+
+# diagnose
+
+plot(fit_int2, which = 1)
+plot(fit_int2, which = 2)
+boxcox(fit_int2)
+
+# box close to one. can also try 0.5
+
+# transformation
+
+fit_int2_trans = lm(y_sqrt ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad, data = cdi_model_trans)
+summary(fit_int2_trans)
+
+# diagnose
+par(mfrow=c(2,2))
+plot(fit_int2_trans, which = 1) # worse
+plot(fit_int2_trans, which = 2) 
+
+## do not consider transform
+
+
+```
+
+
+## region + density
+```
+fit_int3 = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  region*density, data = cdi_model)
+summary(fit_int3)
+
+check_collinearity(fit_int3)
+```
+
+## bed + bagrad
+
+```
+fit_int3 = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  beds_rate_1000*bagrad, data = cdi_model)
+summary(fit_int3)
+
+check_collinearity(fit_int3)
+```
+
+
+
 
 
 ## Try validation
@@ -308,7 +398,7 @@ train = trainControl(method = "cv", number = 5)
 # Fit the 4-variables model that we discussed in previous lectures
 model_train = train(crime_rate_1000 ~  
                   pop + pop18   
-                  + pcincome + totalinc + region +
+                  + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density + 
                   poverty*pcincome, data = cdiOut,
                    trControl = train,
@@ -319,7 +409,6 @@ model_train$finalModel
 print(model_train)
 
 ```
-
 
 
 

@@ -206,5 +206,160 @@ abline(0,1)
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
+According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` could also be selected.
+
+### discussion
+
+We need to remove totalinc, because it can be replaced. totalinc = pcincome * pop.
+
+## Model building from the vairables we selected
+
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000+ docs_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+
+# remove docs
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
 
 
+```
+
+Our first model: crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density
+                  
+## Add Interaction term: poverty+income
+
+```{r}
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# remove density
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# remove bagrad
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+```
+
+
+### diagnose
+```{r}
+plot(fit_int1, which = 1)
+plot(fit_int1, which = 2)
+boxcox(fit_int1)
+```
+
+box close to 0.5~1. Try y^0.5 transformation
+
+### transformation
+
+```{r}
+
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_int1_trans = lm(y_sqrt ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model_trans)
+summary(fit_int1_trans)
+
+# diagnose
+plot(fit_int1_trans, which = 1) #worse
+plot(fit_int1_trans, which = 2) 
+
+
+
+```
+
+Transformed is worse.
+
+The second model: crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome
+
+## add interaction term: pcincome + bagrad
+
+```{r}
+fit_int2 = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad, data = cdi_model)
+summary(fit_int2)
+
+check_collinearity(fit_int2)
+```
+
+### diagnose
+
+```{r}
+
+plot(fit_int2, which = 1)
+plot(fit_int2, which = 2)
+boxcox(fit_int2)
+```
+
+
+box close to 0.5~1. Try y^0.5 transformation
+
+
+### transformation
+```{r}
+
+fit_int2_trans = lm(y_sqrt ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad, data = cdi_model_trans)
+summary(fit_int2_trans)
+
+# diagnose
+par(mfrow=c(2,2))
+plot(fit_int2_trans, which = 1) # worse
+plot(fit_int2_trans, which = 2) 
+
+
+
+```
+
+Transformed is worse.
+
+The third model: crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad

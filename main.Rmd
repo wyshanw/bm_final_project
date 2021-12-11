@@ -48,10 +48,12 @@ cdi_data = read_csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
     cty_state = str_c(cty,",",state),
-    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    docs_rate_1000 = 1000 * docs/pop, 
+    # Compute number of doctors/hospital beds per 1000 people.
     beds_rate_1000 = 1000 * beds/pop,
     density = as.numeric(pop)/as.numeric(area),
-    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
+    crime_rate_1000 = 1000 * crimes/pop) %>% 
+  # Compute number of crimes per 1000 people. 
   dplyr::select(-docs,-beds,-crimes) %>%
   relocate(id,cty_state,cty)
 
@@ -277,18 +279,17 @@ plot(fit_nest)
 ```
 
 
-```{r, }
+```{r,fig.cap="\\label{fig:figs}Boxcox plot of model without interaction terms" }
 boxcox(fit_nest)
 
 
 ```
 
-box close to 0.5~1. Try y^0.5 transformation
+The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
 
 ### transformation
 
 ```{r}
-
 cdi_model_trans = cdi_model %>% 
   mutate(
     y_sqrt = sqrt(crime_rate_1000)
@@ -299,8 +300,11 @@ fit_nest_trans = lm(y_sqrt ~
                   poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density, data = cdi_model_trans)
 summary(fit_nest_trans)
+```
 
-# diagnose
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+
 par(mfrow = c(2,2))
 plot(fit_nest_trans)
 
@@ -308,11 +312,11 @@ plot(fit_nest_trans)
 
 ```
 
-Transformed is worse.
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
 
 
 Our first model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
+                  poverty + unemp \\ + pcincome + pcincome*pop + region
                   beds\_rate\_1000 + density$$
                   
 ## Add Interaction term: poverty+income
@@ -376,18 +380,21 @@ check_collinearity(fit_int1)
 
 
 ### diagnose
-```{r}
+```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
 par(mfrow = c(2,2))
 plot(fit_int1)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Boxcox plot with interaction terms:poverty*pcincome"}
 boxcox(fit_int1)
 ```
 
-box close to 0.5~1. Try y^0.5 transformation
+The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
 
 ### transformation
 
 ```{r}
-
 cdi_model_trans = cdi_model %>% 
   mutate(
     y_sqrt = sqrt(crime_rate_1000)
@@ -399,23 +406,21 @@ fit_int1_trans = lm(y_sqrt ~
                   beds_rate_1000  +
                   poverty*pcincome, data = cdi_model_trans)
 summary(fit_int1_trans)
-
-# diagnose
-par(mfrow = c(2,2))
-plot(fit_int1_trans)
-
-
-
-
 ```
 
-Transformed is worse.
 
-The second model: crime_rate_1000 ~  
-                   pop + pop18 + 
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000  +
-                  poverty*pcincome
+```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+par(mfrow = c(2,2))
+plot(fit_int1_trans)
+```
+
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
+
+                  
+Our second model: $$crime\_rate\_1000 = pop + pop18 + 
+                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+                  beds\_rate\_1000  +
+                  poverty*pcincome$$
 
 ## Add interaction term: pcincome + bagrad
 
@@ -451,37 +456,37 @@ check_collinearity(fit_int2)
 
 ### diagnose
 
-```{r}
-
+```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
 par(mfrow = c(2,2))
 plot(fit_int2)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Boxcox plot with interaction terms:pcincome*bagrad"}
 boxcox(fit_int2)
 ```
 
 
-box close to 0.5~1. Try y^0.5 transformation
+The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
 
 
 ### transformation
 ```{r}
-
 fit_int2_trans = lm(y_sqrt ~  
                   pop + pop18 + bagrad +
                   poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density +
                   pcincome*bagrad, data = cdi_model_trans)
 summary(fit_int2_trans)
-
-# diagnose
-par(mfrow=c(2,2))
-plot(fit_int2_trans, which = 1) # worse
-plot(fit_int2_trans, which = 2) 
-
-
-
 ```
 
-Transformed is worse.
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots"}
+par(mfrow = c(2,2))
+plot(fit_int2_trans)
+```
+
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
 
 The third model: crime_rate_1000 ~  
                   pop + pop18 + bagrad +
@@ -489,7 +494,10 @@ The third model: crime_rate_1000 ~
                   beds_rate_1000 + density +
                   pcincome*bagrad
      
-                  
+Our third model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+                  beds\_rate\_1000 + density +
+                  pcincome*bagrad$$                  
 ## Cross validation
 
 ### model 1

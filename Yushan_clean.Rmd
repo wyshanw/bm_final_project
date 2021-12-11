@@ -1,0 +1,308 @@
+---
+title: "Yushan Wang"
+output: github_document
+---
+
+```{r, echo = FALSE, message=FALSE}
+library(tidyverse)
+library(leaps)
+library(ALSM)
+library(performance)
+library(caret)
+library(MASS)
+
+```
+
+## load data
+
+### Step 1: Data Preprocessing
+
+After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
+
+```{r preprocess}
+cdi_data = read_csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% # Compute number of crimes per 1000 people. 
+  dplyr::select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
+
+knitr::kable(head(cdi_data))
+```
+
+
+### Step 2 - Exploratory Analysis
+
+We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables.
+
+```{r exploration}
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state) 
+
+cdi_data_original = cdi_data_exp
+
+cdi_data_exp = cdi_data_exp %>%
+  mutate(
+    area = ifelse(area %in% boxplot.stats(cdi_data_exp$area)$out,NA,area),
+    pop = ifelse(pop %in% boxplot.stats(cdi_data_exp$pop)$out,NA,pop),
+    crime_rate_1000 = ifelse(crime_rate_1000 %in% boxplot.stats(cdi_data_exp$crime_rate_1000)$out,NA,crime_rate_1000),
+    poverty = ifelse(poverty %in% boxplot.stats(cdi_data_exp$poverty)$out,NA,poverty)
+  ) %>%
+  na.omit()
+
+
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$area,main="Area")
+boxplot(cdi_data_exp$pop,main="Population")
+boxplot(cdi_data_exp$pop18,main="Population 18-34")
+boxplot(cdi_data_exp$pop65,main="Population 65+")
+boxplot(cdi_data_exp$hsgrad,main="Highschool grads")
+boxplot(cdi_data_exp$bagrad,main="Bachelor's grads")
+
+par(mfrow=c(2,3))
+boxplot(cdi_data_exp$poverty,main="Poverty Rate")
+boxplot(cdi_data_exp$unemp,main="Unemployment Rate")
+boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main="Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_exp$beds_rate_1000,main="Hospital Beds")
+
+par(mfrow=c(1,1))
+
+ggplot(cdi_data,aes(region)) + 
+  geom_histogram(binwidth = 0.5) +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count")
+
+boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
+
+# data exploratory
+pairs(cdi_data_exp)
+
+# correlation plot
+cdi_data_cor = cor(cdi_data_exp)
+corrplot(cdi_data_cor, type = "upper", diag = FALSE)
+ 
+crime_1000_cor = data.frame(cdi_data_cor) %>% 
+  dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+  t()
+
+knitr::kable(crime_1000_cor,digits = 2) 
+
+```
+
+
+### Remove outliers and high leverage point
+
+```{r}
+# Remove high leverage points
+
+cdi_data_clean = cdi_data[cdi_data$area >= quantile(cdi_data$area,0.002) & cdi_data$area <= quantile(cdi_data$area,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.002) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.002) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.002) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$hsgrad >= quantile(cdi_data_clean$hsgrad,0.002) & cdi_data_clean$hsgrad <= quantile(cdi_data_clean$hsgrad,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$bagrad >= quantile(cdi_data_clean$bagrad,0.002) & cdi_data_clean$bagrad <= quantile(cdi_data_clean$bagrad,0.998),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$poverty >= quantile(cdi_data_clean$poverty,0.002) & cdi_data_clean$poverty <= quantile(cdi_data_clean$poverty,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$unemp >= quantile(cdi_data_clean$unemp,0.002) & cdi_data_clean$unemp <= quantile(cdi_data_clean$unemp,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pcincome >= quantile(cdi_data_clean$pcincome,0.002) & cdi_data_clean$pcincome <= quantile(cdi_data_clean$pcincome,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$totalinc >= quantile(cdi_data_clean$totalinc,0.002) & cdi_data_clean$totalinc <= quantile(cdi_data_clean$totalinc,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$docs_rate_1000 >= quantile(cdi_data_clean$docs_rate_1000,0.002) & cdi_data_clean$docs_rate_1000 <= quantile(cdi_data_clean$docs_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$density >= quantile(cdi_data_clean$density,0.002) & cdi_data_clean$density <= quantile(cdi_data_clean$density,0.998),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_data_clean$crime_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$crime_rate_1000,0.998),]
+
+
+```
+
+
+```{r}
+
+par(mfrow=c(3,4))
+boxplot(cdi_data_clean$area,main="Area")
+boxplot(cdi_data_clean$pop,main="Population")
+boxplot(cdi_data_clean$pop18,main="Population 18-34")
+boxplot(cdi_data_clean$pop65,main="Population 65+")
+boxplot(cdi_data_clean$hsgrad,main="Highschool grads")
+boxplot(cdi_data_clean$bagrad,main="Bachelor's grads")
+
+boxplot(cdi_data_clean$poverty,main="Poverty Rate")
+boxplot(cdi_data_clean$unemp,main="Unemployment Rate")
+boxplot(cdi_data_clean$pcincome,main="Income Per Capita")
+boxplot(cdi_data_clean$totalinc,main="Income Total")
+boxplot(cdi_data_clean$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
+
+```
+
+
+### Model construction
+
+Data used for building model:
+
+```{r}
+cdi_model = cdi_data_clean %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+
+#cdi_model = cdi_data_exp %>% mutate(region = factor(region))
+```
+
+
+
+
+
+
+```{r}
+
+
+full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(full.fit) %>% 
+  broom::tidy() %>%
+  mutate(p_rank = rank(p.value))
+
+
+backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
+
+
+both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
+
+bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable()
+
+
+```
+
+## Criteria based selection
+
+
+```{r}
+
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
+sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
+sumsb
+
+# plot of Cp and Adj-R2 as functions of parameters
+par(mfrow=c(1,2))
+plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+abline(0,1)
+
+plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
+
+# unemp! 12
+```
+
+
+
+
+
+## Model building without interaction
+
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000+ docs_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+
+# remove docs
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+
+# this !
+
+
+```
+
+
+
+## test: poverty+income
+
+```{r}
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + totalinc + region +
+                  beds_rate_1000 + density +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# diagnose
+
+plot(fit_test, which = 1)
+plot(fit_test, which = 2)
+boxcox(fit_test)
+
+# transformation
+
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_trans = lm(y_sqrt ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdi_model_trans)
+
+# diagnose
+plot(fit_trans, which = 1)
+plot(fit_trans, which = 2) # better
+boxcox(fit_trans)
+
+# choose transformed!
+
+
+# model 1!
+```
+
+
+## poverty + region
+
+## unemp + region
+
+
+## use new dataset do again
+
+
+## Try validation
+
+```{r}
+set.seed(1)
+# Use 5-fold validation and create the training sets
+train = trainControl(method = "cv", number = 5)
+
+# Fit the 4-variables model that we discussed in previous lectures
+model_train = train(crime_rate_1000 ~  
+                  pop + pop18   
+                  + pcincome + totalinc + region +
+                  beds_rate_1000 + density + 
+                  poverty*pcincome, data = cdiOut,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+
+model_train$finalModel
+print(model_train)
+
+```
+
+
+
+
+
+
+
+

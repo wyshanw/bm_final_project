@@ -129,12 +129,26 @@ crime_1000_cor = data.frame(cdi_data_cor) %>%
 ```
 
 
+## Training/Test set split
+
+```{r}
+cdi_data = cdi_data %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+
+set.seed(1)
+dt = sort(sample(nrow(cdi_data), nrow(cdi_data)*.9))
+train_data = cdi_data[dt,]
+test_data = cdi_data[-dt,]
+
+```
+
 ## Remove outliers and high leverage point
 
 ```{r}
 # Remove high leverage points
 
-cdi_data_clean = cdi_data[cdi_data$area >= quantile(cdi_data$area,0.002) & cdi_data$area <= quantile(cdi_data$area,0.998),]
+cdi_data_clean = train_data[train_data$area >= quantile(train_data$area,0.002) & train_data$area <= quantile(train_data$area,0.998),]
 cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.002) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.998),]
 cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.002) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.998),]
 cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.002) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.998),]
@@ -176,19 +190,6 @@ boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
 ```
 
 
-## Training/Test set split
-
-```{r}
-cdi_data_clean = cdi_data_clean %>% 
-  dplyr::select(-id,-cty_state, -cty,-state) %>% 
-  mutate(region = factor(region))
-
-set.seed(1)
-dt = sort(sample(nrow(cdi_data_clean), nrow(cdi_data_clean)*.9))
-train_data = cdi_data_clean[dt,]
-test_data = cdi_data_clean[-dt,]
-
-```
 
 ## Model construction
 

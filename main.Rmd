@@ -479,11 +479,7 @@ plot(fit_int2_trans)
 
 Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
 
-The third model: crime_rate_1000 ~  
-                  pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density +
-                  pcincome*bagrad
+
      
 Our third model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
                   poverty + unemp + pcincome + \\ pcincome*pop + region +

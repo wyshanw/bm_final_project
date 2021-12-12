@@ -1,7 +1,13 @@
 ---
 title: "BIST8130 - Final Project Report"
+author:
+  - Mengfan Luo (ml4701) Yushan Wang (yw3772)\newline
+  - Jing Lyu (jl6049) Yiqun Jin (yj2686) Mingkuan Xu (mx2262)
+date: 2021/12/11
 fontsize: 11pt
-output: github_document
+header-includes:
+    - \usepackage{setspace}\doublespacing
+output: pdf_document
 ---
 
 
@@ -10,13 +16,13 @@ knitr::opts_chunk$set(
   fig.width = 8,
   fig.asp = .6,
   out.width = "90%",
-  echo = TRUE, warning = FALSE, message = FALSE,
+  echo = FALSE, warning = FALSE, message = FALSE,
   dpi=300
   
 )
 ```
 
-```{r library,warning=FALSE,message=FALSE}
+```{r library,warning=FALSE,message=FALSE,echo = FALSE}
 library(tidyverse)
 library(corrplot)
 library(leaps)
@@ -28,7 +34,7 @@ library(caret)
 
 ```
 
-```{r preprocess, messgae = FALSE}
+```{r preprocess, messgae = FALSE, echo = FALSE}
 cdi_data = read_csv("./data/cdi.csv") %>%
   janitor::clean_names() %>%
   mutate(
@@ -49,19 +55,16 @@ cdi_data_exp = cdi_data %>%
 
 
 ```
+
 ## Abstract
 
-In this project, we aim to build regression models based on a set of demographic variables to estimate county-level crime rates. After an exploratory analysis of the variables on their distributions and correlations, we derived more meaningful variables by manipulating the existing ones, removed outlier values, and implement several variable selection methods. Using the selected variables, we trained a linear regression model, elaborate on the model by adding several interactive terms, and did cross-validations. All 3 resulting models have achieved a good estimation of the training set. The first model has the best prediction on new data (in the testing set), whereas the other two models, despite a better performance of the training data, may have the problem of overfitting.
+In this project, we aim to build regression models based on a set of demographic variables to estimate county-level crime rates. After an exploratory analysis of the variables on their distributions and correlations, we derived more meaningful variables by manipulating the existing ones, removed outlier values, and implement several variable selection methods. Using the selected variables, we trained a linear regression model, elaborate on the model by adding several interactive terms, and did cross-validations. All 3 resulting models have achieved a good estimation of the training set. The third model has the best prediction on new data (in the testing set), whereas the second model, despite a better performance of the training data, may have the problem of overfitting. Further studies can be done on correcting the dataset using external data sources, as well as using more sophisticated non-linear models.
 
-## Team Member
 
-Mengfan Luo (ml4701), Yushan Wang (yw3772), Jing Lyu(jl6049), Yiqun Jin (yj2686), Mingkuan Xu (mx2262).
  
 ## Introduction
 
 Over the last three decades, crime has become a major public concern in the US arousing massive political discussion and public expenditure[1]. Crime rates in major cities experienced a general rise from the 1960s to 1990s, with two peaks observed in 1980 and in early 1990s[2]. Despite extensive attention across the nation, factors influencing crime trends were not yet made clear[1]. In this project, we examined crime rate and potential factors that affect the crime rate in "County Demoraphic Information" (CDI), and constructed multiple linear regression model to predict crime rate.
-
-
 
 
 ## Methods
@@ -69,6 +72,7 @@ Over the last three decades, crime has become a major public concern in the US a
 ### Dataset discription
 
 We analyzed data from the “County Demographic Information” (CDI) data set, which contains characteristics of 440 counties in the United States collected from 1990-1992. The primary goal of this investigation is to develop insight relevant to predicting the crime rate in counties. 
+
 
 ### Model building method
 
@@ -106,6 +110,7 @@ Use percentile to detect potential outliers and high leverage points. Due to the
 Cross validate on each model and get the model with the lowest RMSE.
 
 7. Model assessment
+
 In this section, we intend to assess the models we built and choose a final model used for future prediction. We compared the models based on three criteria: the R-square values, the root mean square error (RMSE), and the root mean square prediction error (RMSPE).  
 
 - R square represents the proportion of the variance that can be explained by the regression model.
@@ -115,10 +120,44 @@ In this section, we intend to assess the models we built and choose a final mode
 
 ## Results
 
+
 ### Descriptive analysis
 
 After importing the csv file containing the County Demographic Information (CDI) data, we noticed that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people. When considering crime rate, population density could be a key factor. Thus, we also create a new variable, `density`, which is population divided by area. 
 
+
+
+```{r, fig.width=12,fig.height= 16}
+par(mfrow = c(2,3))
+boxplot(cdi_data_exp$area,main = "Area")
+boxplot(cdi_data_exp$pop,main = "Population")
+boxplot(cdi_data_exp$pop18,main = "Population 18-34")
+boxplot(cdi_data_exp$pop65,main = "Population 65+")
+boxplot(cdi_data_exp$hsgrad,main = "Highschool grads")
+boxplot(cdi_data_exp$bagrad,main = "Bachelor's grads")
+```
+
+
+```{r, fig.width=12,fig.height= 16,fig.cap="\\label{fig:figs}boxplot of continuous variables distribution"}
+par(mfrow = c(2,3))
+boxplot(cdi_data_exp$poverty,main = "Poverty Rate")
+boxplot(cdi_data_exp$unemp,main = "Unemployment Rate")
+boxplot(cdi_data_exp$pcincome,main = "Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main = "Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main = "Active Physicians")
+boxplot(cdi_data_exp$beds_rate_1000,main = "Hospital Beds")
+```
+
+```{r,fig.cap="\\label{fig:figs}Histogram of catagorical variable:region distribution"}
+par(mfrow=c(1,1))
+
+ggplot(cdi_data,aes(region)) + 
+  geom_histogram(binwidth = 0.5) +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count") +
+  labs(title = "Histogram: Counts of four regions")
+```
 
 After drawing boxplots to show the distribution of the variables, we identified several extreme values in each of the variables. These values can be treated as potential outliers to be removed in further analysis. For example, the distribution of crime rate:
 
@@ -130,12 +169,18 @@ boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
 We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables. We used correlation analysis to prove that the derived variable density is a more meaningful variable compared to area and population, given that it has a stronger association with the crime rate.
 
 
-
 ```{r, fig.cap="\\label{fig:figs}Correlation heatmap"}
 # correlation plot
 cdi_data_cor = cor(cdi_data_exp)
 corrplot(cdi_data_cor, type = "upper", diag = FALSE)
 ```
+
+```{r}
+cdi_data_exp %>% 
+  dplyr::select(-region) %>% 
+  pairs(alpha = .001)
+```
+
 After preliminary analysis of the data, we identify several variables that might be relevant to the crime rate as listed 
 
 ```{r, echo = FALSE}
@@ -152,7 +197,7 @@ knitr::kable(var_info, caption = "Potential Variables Relevant to the Crime Rate
 
 We randomly sampled 10% from the dataset and made it a testing set(n = 44). The rest is training set (n = 396).
 
-```{r}
+```{r echo = FALSE}
 cdi_data = cdi_data %>% 
   dplyr::select(-id,-cty_state, -cty,-state) %>% 
   mutate(region = factor(region))
@@ -163,8 +208,6 @@ train_data = cdi_data[dt,]
 test_data = cdi_data[-dt,]
 
 ```
-
-
 
 ### Data cleaning
 
@@ -206,7 +249,7 @@ cdi_model = cdi_data_clean
 ```
 
 
-```{r}
+```{r result = "hide",echo = FALSE, include = FALSE}
 
 full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
 summary(full.fit) %>% 
@@ -234,7 +277,7 @@ sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
 sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 ```
 
-```{r result = hide}
+```{r result = "hide", echo = FALSE, include = FALSE}
 coef(sb, id = 12)
 
 ```
@@ -254,9 +297,9 @@ In addition, We remove `totalinc`, because it can be replaced: totalinc = pcinco
 
 2. Interaction effects
 
-Interaction term 1: poverty+income
+Interaction term 1: `poverty` + `income`
 
-According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
+According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population []. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
 
 ```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Poverty"}
 poverty_status = cdi_model %>% 
@@ -273,9 +316,11 @@ ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_p
   )
 ```
 
-interaction term 2: pcincome + bagrad
 
-According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
+
+Interaction term 2: `pcincome` + `bagrad`
+
+According to Census Bureau, national percentage of persons 25 years old or older with bachelor’s degrees is 20.8% [4]. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
 
 ```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Bachelor's Degree Status"}
 bagrad_status = cdi_model %>% 
@@ -299,20 +344,22 @@ ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_ba
 
 Our model building criteria is removing variable with p-values > 0.2. We then came up with the following three models.
 
-```{r}
+```{r result = "hide"}
 fit_nest = lm(crime_rate_1000 ~  
                   pop + pop18 + bagrad +
                   poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density, data = cdi_model)
 ```
 
-Our first model only using variables we selected: $$crime\_rate\_1000 = pop + pop18 + bagrad +
-                  poverty + unemp \\ + pcincome + pcincome*pop + region
-                  beds\_rate\_1000 + density$$
+Our first model only using variables we selected: $$ \begin{aligned}
+                  crime\_rate\_1000 &= pop + pop18 + bagrad +
+                  poverty + unemp \\&+ pcincome + pcincome*pop + region
+                  beds\_rate\_1000 + density
+                  \end{aligned}$$
 
 
 
-```{r}
+```{r result = "hide"}
 fit_int1 = lm(crime_rate_1000 ~  
                    pop + pop18 + 
                   poverty + unemp + pcincome + pcincome*pop + region +
@@ -321,12 +368,12 @@ fit_int1 = lm(crime_rate_1000 ~
 ```
 
                   
-Our second model: $$crime\_rate\_1000 = pop + pop18 + 
-                  poverty + unemp + pcincome + \\ pcincome*pop + region +
-                  beds\_rate\_1000  +
-                  poverty*pcincome$$
+Our second model: $$\begin{aligned} crime\_rate\_1000 &= pop + pop18 + 
+                  poverty + unemp + pcincome \\ &+ pcincome*pop + region +
+                  beds\_rate\_1000 + poverty*pcincome
+                  \end{aligned}$$
 
-```{r}
+```{r result = "hide"}
 fit_int2 = lm(crime_rate_1000 ~  
                   pop + pop18 + bagrad +
                   poverty + unemp + pcincome + pcincome*pop + region +
@@ -335,16 +382,17 @@ fit_int2 = lm(crime_rate_1000 ~
 
 ```
 
-Our third model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+Our third model: $$\begin{aligned} crime\_rate\_1000 &= pop + pop18 + bagrad +
+                  poverty + unemp + pcincome \\&+ pcincome*pop + region +
                   beds\_rate\_1000 + density +
-                  pcincome*bagrad$$                       
+                  pcincome*bagrad
+                  \end{aligned}$$                       
 
 4. Model diagnosis and transformation
 
 Use Variable Inflation Factor(VIF), we determine if each model has high collinearity. We choose models that only have low collinearity.
 
-We then drew diagnose plots for each model to see how residuals behave. 
+We then drew diagnose plots for each model to see how residuals behave. In all three models, residuals follows normal distribution with mean = 0, and there is no influential points.
 
 In addition, we drew boxcox plots to see if each model need transformation. The peak of all three boxcox plots are close to 0.5~1. As such, we try $\sqrt{y}$ transformation for each model. Detailed plots can be seen in main.Rmd.
 
@@ -355,7 +403,6 @@ Compare to the diagnose plots of untransformed models, we found that the residua
 ### Cross validation
 
 We performed cross validate on each model and get the model with the lowest RMSE. The results are shown in the table below:
-
 
 
 ```{r}
@@ -427,9 +474,8 @@ knitr::kable(RMSE_table, caption = "RMSE table for three models")
 ```
 
 
-
-
 ### Model assessment
+
 we assessed the models we built in the testing data and evaluated them by $R^2$,$RMSE$ and $RMSPE$. The results shows in the following table:
 
 ```{r}
@@ -462,19 +508,15 @@ model_assessment =
 knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TRUE)
 ```
 
-
-
 ## Conclusion and Discussion
 
-According to the above table, evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 1 has the best performance with the smallest RMSPE on the testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although models 2 and 3 have achieved a good estimation of the training set, we will choose model 1 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance.  
+According to the above table 4, evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 3 has the best performance with the smallest RMSPE on testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although model 2 have achieved a good estimation of the training set, we will choose model 3 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance. 
 
- 
+Overall, our project has several strengths. First, we did feature engineering before training the model by transforming variables using our domain knowledge to the ones more relevant to the predicted variable. For example, while area and population are not directly related to the crime rate, population density (population/area) can be more relevant. Second, we did analysis of correlation and collinearity, which reduced the potential bias caused by confounders. Third, we did interactive analysis and involved multiple interactive terms in our model, which to some extents represented the possible non-linear relations between the parameters and the predicted value. Finally, we separated a testing set from the dataset at the very beginning, on which we evaluated the performance of several models, addressing the potential predicting errors caused by model overfitting. 
 
-Overall, our project has several strengths. First, we did feature engineering before training the model by transforming variables using our domain knowledge to the ones more relevant to the predicted variable. For example, while area and population are not directly related to the crime rate, population density (population/area) can be more relevant. Second, we did an analysis of correlation and collinearity, which reduced the potential bias caused by confounders. Third, we did an interactive analysis and involved multiple interactive terms in our model, which to some extent represented the possible non-linear relations between the parameters and the predicted value. Finally, we separated testing set from the dataset at the very beginning, on which we evaluated the performance of several models, addressing the potential predicting errors caused by model overfitting.  
+Meanwhile, the project also has its limitations. Essentially, we identified several wrong data points in the original dataset: for example, the population of Los Angles, an outstandingly large number, is not consistent with the number found on Wikipedia. Given that some of the data are mistaken, further works can be done on correcting the dataset using external data source. Furthermore, our regression model considered only linear and interactive terms, while some parameters could be better fitted using polynomials or exponents. More sophisticated models can be used in the future to better estimate the data.
 
- 
-
-Meanwhile, the project also has its limitations. Essentially, we identified several wrong data points in the original dataset: for example, the population of Los Angles, an outstandingly large number, is not consistent with the number found on Wikipedia.Given that some of the data are mistaken, further works can be done on correcting the dataset using external data sources. Furthermore, our regression model considered only linear and interactive terms, while some parameters could be better fitted using polynomials or exponents. More sophisticated models can be used in the future to better estimate the data.
+\newpage
 
 ## Reference and Documentation
 
@@ -482,7 +524,11 @@ Meanwhile, the project also has its limitations. Essentially, we identified seve
 
 [2] Rosenfeld, R., Vogel, M. & McCuddy, T. Crime and Inflation in U. S. Cities. *J Quant Criminol* 35, 195–210 (2019). https://doi.org/10.1007/s10940-018-9377-x
 
-[3] Friedman, Jerome, Trevor Hastie, and Robert Tibshirani. The elements of statistical learning. Vol. 1. No. 10. New York: Springer series in statistics, 2001.
+[3] U.S. Department of Commerce Economics and Statistics Administration, Bureau of the Census. Current Population Reports. Poverty in the United States: 1990. Series P-60, No.175
+
+[4] Bureau of the Census. We asked... You told us. Census Questionnaire Content, 1990 CQC-13
+
+[5] Friedman, Jerome, Trevor Hastie, and Robert Tibshirani. The elements of statistical learning. Vol. 1. No. 10. New York: Springer series in statistics, 2001.
 
 
 As Numerous new questions emerging during our discussion, our group explored materials below to solve them.
@@ -498,7 +544,7 @@ Source:
 https://www.ritchieng.com/machine-learning-evaluate-linear-regression-model/
 https://campus.datacamp.com/courses/machine-learning-with-caret-in-r/regression-models-fitting-them-and-evaluating-their-performance?ex=8
 
-3.Question: How to evaluate continuous by continuous interactions
+3. Question: How to evaluate continuous by continuous interactions
 Source: Continuous by Continuous Interactions, Joel S Steele http://web.pdx.edu/~joel8/resources/ConceptualPresentationResources/ContinuousByContinousInteractions_walkthrough_v2.pdf
 
 

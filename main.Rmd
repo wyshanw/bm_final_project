@@ -3,7 +3,7 @@ title: "BIST8130 - Final Proejct Codings"
 date: "11/22/2021"
 fontsize: 11pt
 output: 
-  pdf_document:
+  html_document:
     fig_caption: yes
 
 ---

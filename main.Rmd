@@ -27,14 +27,6 @@ library(performance)
 library(MASS)
 library(caret)
 
-knitr::opts_chunk$set(
-  fig.width = 8,
-  fig.asp = .6,
-  out.width = "90%",
-  echo = TRUE, warning = FALSE, dpi=300
-  
-)
-
 
 
 ```
@@ -276,7 +268,7 @@ boxcox(fit_nest)
 
 ```
 
-The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
+The peak of boxcox plot is close to 0.5~1. Try $\sqrt{y}$ transformation
 
 ### transformation
 
@@ -381,7 +373,7 @@ plot(fit_int1)
 boxcox(fit_int1)
 ```
 
-The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
+The peak of boxcox plot is close to 0.5~1. Try $\sqrt{y}$ transformation
 
 ### transformation
 
@@ -458,7 +450,7 @@ boxcox(fit_int2)
 ```
 
 
-The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
+The peak of boxcox plot is close to 0.5~1. Try $\sqrt{y}$ transformation
 
 
 ### transformation

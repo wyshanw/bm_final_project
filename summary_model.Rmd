@@ -550,7 +550,7 @@ summary(model_train3)
 ```{r}
 library(sjPlot)
 
-tab_model(fit_nest, fit_int1,fit_int2,
+tab_model(fit_nest, fit_int1,fit_int2,show.se = TRUE,
   pred.labels = c("Intercept", "Total population", "Percent of population aged 18-34", "Bachelors proportion",
                   "Percent below poverty level", "Percent unemployment", "Per Capita income", "Region-North Central", "Region-South","Region-West",
                   "Number of hospital beds per 1000 person",
@@ -563,10 +563,7 @@ tab_model(fit_nest, fit_int1,fit_int2,
 )
 
 
-rbind(a, c(1,2,3)) 
 
-
-typeof(a)
 result1 = summary(model_train1) %>% 
   broom::tidy() %>% 
   janitor::clean_names() %>% 

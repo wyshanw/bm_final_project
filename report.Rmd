@@ -3,10 +3,51 @@ title: "BIST8130 - Final Project Report"
 output: github_document
 ---
 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%",
+  echo = TRUE, warning = FALSE, message = FALSE,
+  dpi=300
+  
+)
 ```
 
+```{r library,warning=FALSE,message=FALSE}
+library(tidyverse)
+library(corrplot)
+library(leaps)
+library(performance)
+library(MASS)
+library(caret)
+
+
+
+```
+
+```{r preprocess, messgae = FALSE}
+cdi_data = read_csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, 
+    # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% 
+  # Compute number of crimes per 1000 people. 
+  dplyr::select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
+
+
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state) 
+
+
+
+```
 ## Abstract
 
 In this project, we aim to build regression models based on a set of demographic variables to estimate county-level crime rates. After an exploratory analysis of the variables on their distributions and correlations, we derived more meaningful variables by manipulating the existing ones, removed outlier values, and implement several variable selection methods. Using the selected variables, we trained a linear regression model, elaborate on the model by adding several interactive terms, and did cross-validations. All 3 resulting models have achieved a good estimation of the training set. The first model has the best prediction on new data (in the testing set), whereas the other two models, despite a better performance of the training data, may have the problem of overfitting.
@@ -87,27 +128,7 @@ boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
 
 We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables. We used correlation analysis to prove that the derived variable density is a more meaningful variable compared to area and population, given that it has a stronger association with the crime rate.
 
-```{r preprocess, messgae = FALSE}
-cdi_data = read_csv("./data/cdi.csv") %>%
-  janitor::clean_names() %>%
-  mutate(
-    cty_state = str_c(cty,",",state),
-    docs_rate_1000 = 1000 * docs/pop, 
-    # Compute number of doctors/hospital beds per 1000 people.
-    beds_rate_1000 = 1000 * beds/pop,
-    density = as.numeric(pop)/as.numeric(area),
-    crime_rate_1000 = 1000 * crimes/pop) %>% 
-  # Compute number of crimes per 1000 people. 
-  dplyr::select(-docs,-beds,-crimes) %>%
-  relocate(id,cty_state,cty)
 
-
-cdi_data_exp = cdi_data %>%
-  dplyr::select(-id,-cty,-state, -cty_state) 
-
-
-
-```
 
 ```{r, fig.cap="\\label{fig:figs}Correlation heatmap"}
 # correlation plot
@@ -175,20 +196,7 @@ cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_d
 
 ### Model construction
 
-* Select variables using stepwise regression and criteria based procedure
-
-* Build model using the variables we selected 
-
-* Plot interaction effects and add interaction terms
-
-* Diagnose and transform the models
-
-
-
-
-## Model construction
-
-Data used for building model:
+1. Variables Selection
 
 ```{r}
 
@@ -196,8 +204,6 @@ cdi_model = cdi_data_clean
 
 ```
 
-
-### Stepwise regression
 
 ```{r}
 
@@ -214,14 +220,12 @@ both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise 
 
 ```
 
-Variables chosen from stepwise regression:
+Based on stepwise procedure, we selected the following variables:
 
 ```{r}
 bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable(caption = "Vairable selected from stepwise regression")
 
 ```
-
-### Criteria based selection
 
 
 ```{r}
@@ -229,7 +233,7 @@ sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
 sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
 ```
 
-```{r}
+```{r result = hide}
 coef(sb, id = 12)
 
 ```
@@ -243,69 +247,13 @@ abline(0,1)
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
-According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` could also be selected.
+According to the output of criteria based procedure, we determined that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` and `density` could also be selected.
 
-### Discussion
+In addition, We remove `totalinc`, because it can be replaced: totalinc = pcincome * pop.
 
-We need to remove totalinc, because it can be replaced. totalinc = pcincome * pop.
+2. Interaction effects
 
-## Model building from the vairables we selected
-
-```{r}
-fit_nest = lm(crime_rate_1000 ~  
-                  pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density, data = cdi_model)
-summary(fit_nest)
-```
-
-```{r, fig.cap="\\label{fig:figs}Diagnose plots of model without interaction terms"}
-par(mfrow = c(2,2))
-plot(fit_nest)
-```
-
-
-```{r,fig.cap="\\label{fig:figs}Boxcox plot of model without interaction terms" }
-boxcox(fit_nest)
-
-
-```
-
-The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
-
-### transformation
-
-```{r}
-cdi_model_trans = cdi_model %>% 
-  mutate(
-    y_sqrt = sqrt(crime_rate_1000)
-  )
-
-fit_nest_trans = lm(y_sqrt ~  
-                   pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density, data = cdi_model_trans)
-summary(fit_nest_trans)
-```
-
-
-```{r, fig.cap="\\label{fig:figs}Diagnose plots of model without interaction terms"}
-
-par(mfrow = c(2,2))
-plot(fit_nest_trans)
-
-
-
-```
-
-Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
-
-
-Our first model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
-                  poverty + unemp \\ + pcincome + pcincome*pop + region
-                  beds\_rate\_1000 + density$$
-                  
-## Add Interaction term: poverty+income
+Interaction term 1: poverty+income
 
 According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
 
@@ -324,91 +272,7 @@ ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_p
   )
 ```
 
-
-```{r}
-fit_int1 = lm(crime_rate_1000 ~  
-                   pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density +
-                  poverty*pcincome, data = cdi_model)
-summary(fit_int1) %>% broom::tidy()
-```
-
-
-
-```{r}
-check_collinearity(fit_int1)
-```
-
-We notice that `density`, `bagrad` are not significant
-
-```{r}
-# remove density
-fit_int1 = lm(crime_rate_1000 ~  
-                   pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000  +
-                  poverty*pcincome, data = cdi_model)
-summary(fit_int1)
-
-check_collinearity(fit_int1)
-
-# remove bagrad
-fit_int1 = lm(crime_rate_1000 ~  
-                   pop + pop18 + 
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000  +
-                  poverty*pcincome, data = cdi_model)
-summary(fit_int1)
-
-check_collinearity(fit_int1)
-```
-
-
-### diagnose
-```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:poverty*pcincome"}
-par(mfrow = c(2,2))
-plot(fit_int1)
-```
-
-
-```{r, fig.cap="\\label{fig:figs}Boxcox plot with interaction terms:poverty*pcincome"}
-boxcox(fit_int1)
-```
-
-The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
-
-### transformation
-
-```{r}
-cdi_model_trans = cdi_model %>% 
-  mutate(
-    y_sqrt = sqrt(crime_rate_1000)
-  )
-
-fit_int1_trans = lm(y_sqrt ~  
-                   pop + pop18 + 
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000  +
-                  poverty*pcincome, data = cdi_model_trans)
-summary(fit_int1_trans)
-```
-
-
-```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:poverty*pcincome"}
-par(mfrow = c(2,2))
-plot(fit_int1_trans)
-```
-
-Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
-
-                  
-Our second model: $$crime\_rate\_1000 = pop + pop18 + 
-                  poverty + unemp + pcincome + \\ pcincome*pop + region +
-                  beds\_rate\_1000  +
-                  poverty*pcincome$$
-
-## Add interaction term: pcincome + bagrad
+interaction term 2: pcincome + bagrad
 
 According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
 
@@ -429,56 +293,68 @@ ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_ba
 
 ```
 
+
+3. Build model
+
+Our model building criteria is removing variable with p-values > 0.2. We then came up with the following three models.
+
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density, data = cdi_model)
+```
+
+Our first model only using variables we selected: $$crime\_rate\_1000 = pop + pop18 + bagrad +
+                  poverty + unemp \\ + pcincome + pcincome*pop + region
+                  beds\_rate\_1000 + density$$
+
+
+
+```{r}
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+```
+
+                  
+Our second model: $$crime\_rate\_1000 = pop + pop18 + 
+                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+                  beds\_rate\_1000  +
+                  poverty*pcincome$$
+
 ```{r}
 fit_int2 = lm(crime_rate_1000 ~  
                   pop + pop18 + bagrad +
                   poverty + unemp + pcincome + pcincome*pop + region +
                   beds_rate_1000 + density +
                   pcincome*bagrad, data = cdi_model)
-summary(fit_int2)
 
-check_collinearity(fit_int2)
 ```
 
-### diagnose
+Our third model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+                  beds\_rate\_1000 + density +
+                  pcincome*bagrad$$                       
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:pcincome*bagrad"}
-par(mfrow = c(2,2))
-plot(fit_int2)
-```
+* Diagnose and transform the models
 
+Use Variable Inflation Factor(VIF), we determine if each model has high collinearity. We choose models that only have low collinearity.
 
-```{r, fig.cap="\\label{fig:figs}Boxcox plot with interaction terms:pcincome*bagrad"}
-boxcox(fit_int2)
-```
+We then drew diagnose plots for each model to see how residuals behave. In addition, we drew boxcox plot to see if each model need transformation. 
 
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
 
 The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
 
 
-### transformation
-```{r}
-fit_int2_trans = lm(y_sqrt ~  
-                  pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + pcincome*pop + region +
-                  beds_rate_1000 + density +
-                  pcincome*bagrad, data = cdi_model_trans)
-summary(fit_int2_trans)
-```
 
 
-```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:pcincome*bagrad"}
-par(mfrow = c(2,2))
-plot(fit_int2_trans)
-``` 
 
-Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
 
-     
-Our third model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
-                  poverty + unemp + pcincome + \\ pcincome*pop + region +
-                  beds\_rate\_1000 + density +
-                  pcincome*bagrad$$                  
+           
 
 
 ### 7. Cross validation

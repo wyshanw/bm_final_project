@@ -548,13 +548,31 @@ summary(model_train3)
 
   
 ```{r}
+library(sjPlot)
 
+tab_model(fit_nest, fit_int1,fit_int2,
+  pred.labels = c("Intercept", "Total population", "Percent of population aged 18-34", "Bachelors proportion",
+                  "Percent below poverty level", "Percent unemployment", "Per Capita income", "Region-North Central", "Region-South","Region-West",
+                  "Number of hospital beds per 1000 person",
+                  "Density","Total Population*income per capita", "Poverty*income per capita", "Bachelors proportion*income per capita"),
+  dv.labels = c("Model 1", "Model 2", "Model 3"),
+  string.pred = "Coeffcient",
+  string.ci = "Conf. Int (95%)",
+  string.p = "P-Value",
+  title = "Models summary"
+)
+
+
+rbind(a, c(1,2,3)) 
+
+
+typeof(a)
 result1 = summary(model_train1) %>% 
   broom::tidy() %>% 
   janitor::clean_names() %>% 
   mutate(
-    estimate = as.character(round(estimate,3)),
-    std_error = as.character(round(std_error,3)),
+    estimate = as.character(round(estimate,4)),
+    std_error = as.character(round(std_error,4)),
     coef = str_c(estimate," (",std_error,")")
     ) %>% 
   dplyr::select(term,coef)
@@ -563,8 +581,8 @@ result2 = summary(model_train2) %>%
   broom::tidy() %>% 
   janitor::clean_names() %>% 
   mutate(
-    estimate = as.character(round(estimate,3)),
-    std_error = as.character(round(std_error,3)),
+    estimate = as.character(round(estimate,4)),
+    std_error = as.character(round(std_error,4)),
     coef = str_c(estimate," (",std_error,")")
     ) %>% 
   dplyr::select(term,coef)
@@ -573,8 +591,8 @@ result3 = summary(model_train3) %>%
   broom::tidy() %>% 
   janitor::clean_names() %>% 
   mutate(
-    estimate = as.character(round(estimate,3)),
-    std_error = as.character(round(std_error,3)),
+    estimate = as.character(round(estimate,4)),
+    std_error = as.character(round(std_error,4)),
     coef = str_c(estimate," (",std_error,")")
     ) %>% 
   dplyr::select(term,coef)

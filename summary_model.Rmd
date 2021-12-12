@@ -1,0 +1,655 @@
+---
+title: "BIST8130 - Final Proejct Codings"
+date: "11/22/2021"
+fontsize: 11pt
+output: 
+  html_document:
+    fig_caption: yes
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%",
+  echo = TRUE, warning = FALSE, message = FALSE,
+  dpi=300
+  
+)
+```
+
+```{r library,warning=FALSE,message=FALSE}
+library(tidyverse)
+library(corrplot)
+library(leaps)
+library(performance)
+library(MASS)
+library(caret)
+
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%",
+  echo = TRUE, warning = FALSE, dpi=300
+  
+)
+
+
+
+```
+
+## Step 1: Data Preprocessing
+
+After importing the csv file containing the County Demographic Information (CDI) data, we notice that crimes, physicians, and hospital beds are given as numbers, while other info are given as proportions. We therefore compute the number of crimes, physicians, and hospital beds per 1000 people.
+
+```{r preprocess, messgae = FALSE}
+cdi_data = read_csv("./data/cdi.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    cty_state = str_c(cty,",",state),
+    docs_rate_1000 = 1000 * docs/pop, 
+    # Compute number of doctors/hospital beds per 1000 people.
+    beds_rate_1000 = 1000 * beds/pop,
+    density = as.numeric(pop)/as.numeric(area),
+    crime_rate_1000 = 1000 * crimes/pop) %>% 
+  # Compute number of crimes per 1000 people. 
+  dplyr::select(-docs,-beds,-crimes) %>%
+  relocate(id,cty_state,cty)
+
+#knitr::kable(head(cdi_data))
+```
+
+
+## Step 2 - Exploratory Analysis
+
+We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables.
+
+```{r exploration}
+cdi_data_exp = cdi_data %>%
+  dplyr::select(-id,-cty,-state, -cty_state) 
+```
+
+
+```{r, fig.width=12,fig.height= 16,fig.cap="\\label{fig:figs}boxplot of continuous variables distribution"}
+par(mfrow=c(4,3))
+boxplot(cdi_data_exp$area,main="Area")
+boxplot(cdi_data_exp$pop,main="Population")
+boxplot(cdi_data_exp$pop18,main="Population 18-34")
+boxplot(cdi_data_exp$pop65,main="Population 65+")
+boxplot(cdi_data_exp$hsgrad,main="Highschool grads")
+boxplot(cdi_data_exp$bagrad,main="Bachelor's grads")
+
+#par(mfrow=c(2,3))
+boxplot(cdi_data_exp$poverty,main="Poverty Rate")
+boxplot(cdi_data_exp$unemp,main="Unemployment Rate")
+boxplot(cdi_data_exp$pcincome,main="Income Per Capita")
+boxplot(cdi_data_exp$totalinc,main="Income Total")
+boxplot(cdi_data_exp$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_exp$beds_rate_1000,main="Hospital Beds")
+```
+
+```{r,fig.cap="\\label{fig:figs}Histogram of catagorical variable:region distribution"}
+par(mfrow=c(1,1))
+
+ggplot(cdi_data,aes(region)) + 
+  geom_histogram(binwidth = 0.5) +
+  theme_classic() +
+  xlab("Region")+
+  ylab("Count") +
+  labs(title = "Histogram: Counts of four regions")
+```
+
+
+```{r, fig.cap="\\label{fig:figs}boxplot of dependent variable: crime rate"}
+boxplot(cdi_data_exp$crime_rate_1000,main="Boxplot of Crime Rate",horizontal = TRUE)
+```
+
+
+```{r}
+# data exploratory
+# pairs(cdi_data_exp)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Correlation heatmap"}
+# correlation plot
+cdi_data_cor = cor(cdi_data_exp)
+corrplot(cdi_data_cor, type = "upper", diag = FALSE, title = "Correlation heatmap")
+```
+
+
+```{r}
+crime_1000_cor = data.frame(cdi_data_cor) %>% 
+  dplyr::select("Crime Rate (Per 1000)" = crime_rate_1000) %>% 
+  t()
+
+#knitr::kable(crime_1000_cor,digits = 2) 
+
+```
+
+
+## Training/Test set split
+
+```{r}
+cdi_data = cdi_data %>% 
+  dplyr::select(-id,-cty_state, -cty,-state) %>% 
+  mutate(region = factor(region))
+
+set.seed(1)
+dt = sort(sample(nrow(cdi_data), nrow(cdi_data)*.9))
+train_data = cdi_data[dt,]
+test_data = cdi_data[-dt,]
+
+```
+
+## Remove outliers and high leverage point
+
+```{r}
+# Remove high leverage points
+
+cdi_data_clean = train_data[train_data$area >= quantile(train_data$area,0.002) & train_data$area <= quantile(train_data$area,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop >= quantile(cdi_data_clean$pop,0.002) & cdi_data_clean$pop <= quantile(cdi_data_clean$pop,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop18 >= quantile(cdi_data_clean$pop18,0.002) & cdi_data_clean$pop18 <= quantile(cdi_data_clean$pop18,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pop65 >= quantile(cdi_data_clean$pop65,0.002) & cdi_data_clean$pop65 <= quantile(cdi_data_clean$pop65,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$hsgrad >= quantile(cdi_data_clean$hsgrad,0.002) & cdi_data_clean$hsgrad <= quantile(cdi_data_clean$hsgrad,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$bagrad >= quantile(cdi_data_clean$bagrad,0.002) & cdi_data_clean$bagrad <= quantile(cdi_data_clean$bagrad,0.998),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$poverty >= quantile(cdi_data_clean$poverty,0.002) & cdi_data_clean$poverty <= quantile(cdi_data_clean$poverty,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$unemp >= quantile(cdi_data_clean$unemp,0.002) & cdi_data_clean$unemp <= quantile(cdi_data_clean$unemp,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$pcincome >= quantile(cdi_data_clean$pcincome,0.002) & cdi_data_clean$pcincome <= quantile(cdi_data_clean$pcincome,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$totalinc >= quantile(cdi_data_clean$totalinc,0.002) & cdi_data_clean$totalinc <= quantile(cdi_data_clean$totalinc,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$docs_rate_1000 >= quantile(cdi_data_clean$docs_rate_1000,0.002) & cdi_data_clean$docs_rate_1000 <= quantile(cdi_data_clean$docs_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$beds_rate_1000 >= quantile(cdi_data_clean$beds_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$beds_rate_1000,0.998),]
+cdi_data_clean = cdi_data_clean[cdi_data_clean$density >= quantile(cdi_data_clean$density,0.002) & cdi_data_clean$density <= quantile(cdi_data_clean$density,0.998),]
+
+cdi_data_clean = cdi_data_clean[cdi_data_clean$crime_rate_1000 >= quantile(cdi_data_clean$crime_rate_1000,0.002) & cdi_data_clean$beds_rate_1000 <= quantile(cdi_data_clean$crime_rate_1000,0.998),]
+
+
+```
+
+
+```{r, fig.width=12,fig.height= 16,fig.cap="\\label{fig:figs}Boxplot of each continuous variables aftern cleaning outliers"}
+
+par(mfrow=c(4,3))
+boxplot(cdi_data_clean$area,main="Area")
+boxplot(cdi_data_clean$pop,main="Population")
+boxplot(cdi_data_clean$pop18,main="Population 18-34")
+boxplot(cdi_data_clean$pop65,main="Population 65+")
+boxplot(cdi_data_clean$hsgrad,main="Highschool grads")
+boxplot(cdi_data_clean$bagrad,main="Bachelor's grads")
+
+boxplot(cdi_data_clean$poverty,main="Poverty Rate")
+boxplot(cdi_data_clean$unemp,main="Unemployment Rate")
+boxplot(cdi_data_clean$pcincome,main="Income Per Capita")
+boxplot(cdi_data_clean$totalinc,main="Income Total")
+boxplot(cdi_data_clean$docs_rate_1000,main="Active Physicians")
+boxplot(cdi_data_clean$beds_rate_1000,main="Hospital Beds")
+
+```
+
+
+
+## Model construction
+
+Data used for building model:
+
+```{r}
+
+cdi_model = cdi_data_clean
+
+```
+
+
+### Stepwise regression
+
+```{r}
+
+full.fit = lm(crime_rate_1000 ~ ., data = cdi_model)
+summary(full.fit) %>% 
+  broom::tidy() %>%
+  mutate(p_rank = rank(p.value))
+
+backward = step(full.fit, direction='backward') %>%  broom::tidy() %>%  rename(backward = "term")
+
+
+both = step(full.fit, direction = "both") %>% broom::tidy() %>% rename(stepwise = "term")
+
+
+```
+
+Variables chosen from stepwise regression:
+
+```{r}
+bind_cols(backward[-1,1],both[-1,1]) %>% knitr::kable(caption = "Vairable selected from stepwise regression")
+
+```
+
+### Criteria based selection
+
+
+```{r}
+sb = regsubsets(crime_rate_1000 ~ ., data = cdi_model, nvmax = 14)
+sumsb = summary(sb) # pop pop18 hsgrad bagrad poverty pcincome totalinc region beds_rate_1000 density
+```
+
+```{r}
+coef(sb, id = 12)
+
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Subset selection for best parameter numbers"}
+par(mfrow=c(1,2))
+plot(2:15, sumsb$cp, xlab="No. of parameters", ylab="Cp Statistic") 
+abline(0,1)
+
+plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
+```
+
+According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` and `density` could also be selected.
+
+### Discussion
+
+We need to remove totalinc, because it can be replaced. totalinc = pcincome * pop.
+
+## Model building from the vairables we selected
+
+```{r}
+fit_nest = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density, data = cdi_model)
+summary(fit_nest)
+```
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots of model without interaction terms"}
+par(mfrow = c(2,2))
+plot(fit_nest)
+```
+
+
+```{r,fig.cap="\\label{fig:figs}Boxcox plot of model without interaction terms" }
+boxcox(fit_nest)
+
+
+```
+
+The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
+
+### transformation
+
+```{r}
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_nest_trans = lm(y_sqrt ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density, data = cdi_model_trans)
+summary(fit_nest_trans)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots of model without interaction terms"}
+
+par(mfrow = c(2,2))
+plot(fit_nest_trans)
+
+
+
+```
+
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
+
+
+Our first model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
+                  poverty + unemp \\ + pcincome + pcincome*pop + region
+                  beds\_rate\_1000 + density$$
+                  
+## Add Interaction term: poverty+income
+
+According to Census Bureau, the number of persons below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the Nation's population. Thus, we can use this criteria to divide `poverty` into two category: higher than national poverty rate and lower than national poverty rate.
+
+```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Poverty"}
+poverty_status = cdi_model %>% 
+  mutate(national_poverty = if_else(poverty > 13.5, "higher", "lower"))
+
+ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_poverty)) + 
+  geom_point(alpha = .5) +
+  geom_smooth(method = "lm", se = F, aes(group = national_poverty, color = national_poverty)) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Poverty Status",
+    x = "Per Capita Income",
+    y = "Crime Rate ",
+    color = "Comparison with national avergae"
+  )
+```
+
+
+```{r}
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1) %>% broom::tidy()
+```
+
+
+
+```{r}
+check_collinearity(fit_int1)
+```
+
+We notice that `density`, `bagrad` are not significant
+
+```{r}
+# remove density
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+
+# remove bagrad
+fit_int1 = lm(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model)
+summary(fit_int1)
+
+check_collinearity(fit_int1)
+```
+
+
+### diagnose
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:poverty*pcincome"}
+par(mfrow = c(2,2))
+plot(fit_int1)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Boxcox plot with interaction terms:poverty*pcincome"}
+boxcox(fit_int1)
+```
+
+The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
+
+### transformation
+
+```{r}
+cdi_model_trans = cdi_model %>% 
+  mutate(
+    y_sqrt = sqrt(crime_rate_1000)
+  )
+
+fit_int1_trans = lm(y_sqrt ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model_trans)
+summary(fit_int1_trans)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:poverty*pcincome"}
+par(mfrow = c(2,2))
+plot(fit_int1_trans)
+```
+
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
+
+                  
+Our second model: $$crime\_rate\_1000 = pop + pop18 + 
+                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+                  beds\_rate\_1000  +
+                  poverty*pcincome$$
+
+## Add interaction term: pcincome + bagrad
+
+According to Census Bureau, national percent of persons 25 years old or older with bachelor’s degrees is 20.8%. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
+
+```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Bachelor's Degree Status"}
+bagrad_status = cdi_model %>% 
+  mutate(national_bagrad = if_else(bagrad > 20.8, "higher", "lower"))
+
+ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_bagrad)) + 
+  geom_point(alpha = .5) +
+  geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
+  ylim(0,150) +
+  labs(
+    title = "Crime Rate and Per Capita Income by Percent Bachelor's Degrees Status",
+    x = "Per Capita Income",
+    y = "Crime Rate",
+    color = "Comparison with national avergae"
+  )
+
+```
+
+```{r}
+fit_int2 = lm(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad, data = cdi_model)
+summary(fit_int2)
+
+check_collinearity(fit_int2)
+```
+
+### diagnose
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:pcincome*bagrad"}
+par(mfrow = c(2,2))
+plot(fit_int2)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Boxcox plot with interaction terms:pcincome*bagrad"}
+boxcox(fit_int2)
+```
+
+
+The peak of boxcox plot is close to around 0.5~1. Try $\sqrt{y}$ transformation
+
+
+### transformation
+```{r}
+fit_int2_trans = lm(y_sqrt ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad, data = cdi_model_trans)
+summary(fit_int2_trans)
+```
+
+
+```{r, fig.cap="\\label{fig:figs}Diagnose plots with interaction terms:pcincome*bagrad"}
+par(mfrow = c(2,2))
+plot(fit_int2_trans)
+``` 
+
+Compare to the diagnose plots of untransformed model, we found that the residuals are more unevenly distributed. Therefore, transformed model is worse. We select the untransformed model.
+
+
+     
+Our third model: $$crime\_rate\_1000 = pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + \\ pcincome*pop + region +
+                  beds\_rate\_1000 + density +
+                  pcincome*bagrad$$                  
+## Cross validation
+
+### model 1
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train1 = train(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density,data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+print(model_train1)
+
+```
+
+
+### model 2
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train2 = train(crime_rate_1000 ~  
+                   pop + pop18 + 
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000  +
+                  poverty*pcincome, data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+
+summary(model_train2)
+
+
+```
+
+### model 3
+
+```{r}
+set.seed(1)
+train = trainControl(method = "cv", number = 5)
+
+model_train3 = train(crime_rate_1000 ~  
+                  pop + pop18 + bagrad +
+                  poverty + unemp + pcincome + pcincome*pop + region +
+                  beds_rate_1000 + density +
+                  pcincome*bagrad,  data = cdi_model,
+                   trControl = train,
+                   method = 'lm',
+                   na.action = na.pass)
+summary(model_train3)
+
+```
+
+
+#### Summary of models
+
+  
+```{r}
+
+result1 = summary(model_train1) %>% 
+  broom::tidy() %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    estimate = as.character(round(estimate,3)),
+    std_error = as.character(round(std_error,3)),
+    coef = str_c(estimate," (",std_error,")")
+    ) %>% 
+  dplyr::select(term,coef)
+
+result2 = summary(model_train2) %>% 
+  broom::tidy() %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    estimate = as.character(round(estimate,3)),
+    std_error = as.character(round(std_error,3)),
+    coef = str_c(estimate," (",std_error,")")
+    ) %>% 
+  dplyr::select(term,coef)
+
+result3 = summary(model_train3) %>% 
+  broom::tidy() %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    estimate = as.character(round(estimate,3)),
+    std_error = as.character(round(std_error,3)),
+    coef = str_c(estimate," (",std_error,")")
+    ) %>% 
+  dplyr::select(term,coef)
+
+result12 = full_join(result1,result2, by = "term")
+result123 = full_join(result12,result2, by = "term") %>% 
+  mutate("Coeff.(SE Coeff)" = c("b0","b1","b2","b3","b4","b5","b6","b7","b8","b9","b10","b11","b12","b13")) %>%
+  relocate(term, "Coeff.(SE Coeff)") %>% 
+  rename(Variable = term,
+         "Model 1 (p = 12)" = coef.x,
+         "Model 2 (p = 11)" = coef.y,
+         "Model 3 (p = 11)" = coef)
+result123 %>% knitr::kable()
+
+      
+```
+                   
+
+### Compare RMSE
+
+```{r}
+
+model <- c("1", "2", "3")
+
+RMSE <- c(round(model_train1$results$RMSE, 2),  round(model_train2$results$RMSE,2),
+          round(model_train3$results$RMSE, 2))
+
+R_sq <- c(round(model_train1$results$Rsquared, 3),
+          round(model_train2$results$Rsquared, 3),
+          round(model_train3$results$Rsquared, 3))
+
+RMSE_table <- data.frame(model, RMSE, R_sq)
+
+coefs_1 = model_train1$finalModel$coefficients
+names_1 = model_train1$finalModel$xNames
+
+knitr::kable(RMSE_table, caption = "RMSE table for three models")
+```
+
+The second model has the lowest RMSE.
+
+### Model Assessment on testing set
+
+```{r}
+
+test_data = test_data %>%
+  mutate(
+    y = crime_rate_1000,
+    y_model_1 = predict(model_train1,test_data),
+    y_model_2 = predict(model_train2,test_data),
+    y_model_3 = predict(model_train3,test_data))
+
+RMSPE_1 = sqrt(mean((test_data$y-test_data$y_model_1)^2))
+RMSPE_2 = sqrt(mean((test_data$y-test_data$y_model_2)^2))
+RMSPE_3 = sqrt(mean((test_data$y-test_data$y_model_3)^2))
+
+
+
+model_assessment = 
+  tibble(
+    RMSPE_1 = round(RMSPE_1,2),
+    RMSPE_2 = round(RMSPE_2,2),
+    RMSPE_3 = round(RMSPE_3,2)) %>% 
+  pivot_longer(RMSPE_1:RMSPE_3,
+               names_to = "model", 
+               names_prefix = "RMSPE_",
+               values_to = "RMSPE") %>%
+  left_join(RMSE_table,by="model") %>%
+  dplyr::select(Model=model,R_square = R_sq,RMSE,RMSPE)
+
+
+
+
+
+knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TRUE)
+```
+
+

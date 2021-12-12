@@ -425,7 +425,7 @@ ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_ba
   geom_smooth(method = "lm", se = F, aes(group = national_bagrad, color = national_bagrad)) +
   ylim(0,150) +
   labs(
-    title = "Crime Rate and Per Capita Income by Percent Bachelor’s Degrees Status",
+    title = "Crime Rate and Per Capita Income by Percent Bachelor's Degrees Status",
     x = "Per Capita Income",
     y = "Crime Rate",
     color = "Comparison with national avergae"

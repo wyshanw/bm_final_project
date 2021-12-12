@@ -197,7 +197,7 @@ Data used for building model:
 
 ```{r}
 
-cdi_model = train_data
+cdi_model = cdi_data_clean
 
 ```
 

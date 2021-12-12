@@ -248,7 +248,7 @@ abline(0,1)
 plot(2:15, sumsb$adjr2, xlab="No of parameters", ylab="Adj R2")
 ```
 
-According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` could also be selected.
+According to the output, we determine that the number of variables should be above 12 because $C_p \leq p$. Based on this analysis, we find that `unemp` and `density` could also be selected.
 
 ### Discussion
 

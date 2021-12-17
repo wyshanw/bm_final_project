@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2022/dev) (preloaded format=pdflatex 2021.9.27)  11 DEC 2021 22:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2022/dev) (preloaded format=pdflatex 2021.9.27)  17 DEC 2021 10:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -570,77 +570,69 @@ File: report_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
 Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-5-1.pdf  used 
 on input line 269.
 (pdftex.def)             Requested size: 422.77669pt x 253.22562pt.
-<report_files/figure-latex/unnamed-chunk-6-1.pdf, id=133, 578.16pt x 346.29375p
-t>
-File: report_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-6-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-6-1.pdf  used 
-on input line 272.
+[6 <./report_files/figure-latex/unnamed-chunk-5-1.pdf>] [7]
+<report_files/figure-latex/unnamed-chunk-14-1.pdf, id=155, 578.16pt x 346.29375
+pt>
+File: report_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type pdf)
+<use report_files/figure-latex/unnamed-chunk-14-1.pdf>
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-14-1.pdf  used
+ on input line 351.
 (pdftex.def)             Requested size: 422.77669pt x 253.22562pt.
-[6 <./report_files/figure-latex/unnamed-chunk-5-1.pdf> <./report_files/figure-l
-atex/unnamed-chunk-6-1.pdf>] [7]
-<report_files/figure-latex/unnamed-chunk-15-1.pdf, id=159, 578.16pt x 346.29375
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 355.
+<report_files/figure-latex/unnamed-chunk-15-1.pdf, id=156, 578.16pt x 346.29375
 pt>
 File: report_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pdf)
 <use report_files/figure-latex/unnamed-chunk-15-1.pdf>
 Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-15-1.pdf  used
- on input line 353.
+ on input line 379.
 (pdftex.def)             Requested size: 422.77669pt x 253.22562pt.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 357.
-<report_files/figure-latex/unnamed-chunk-16-1.pdf, id=160, 578.16pt x 346.29375
+<report_files/figure-latex/unnamed-chunk-16-1.pdf, id=157, 578.16pt x 346.29375
 pt>
 File: report_files/figure-latex/unnamed-chunk-16-1.pdf Graphic file (type pdf)
 <use report_files/figure-latex/unnamed-chunk-16-1.pdf>
 Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-16-1.pdf  used
- on input line 381.
+ on input line 390.
 (pdftex.def)             Requested size: 422.77669pt x 253.22562pt.
-[8] [9 <./report_files/figure-latex/unnamed-chunk-15-1.pdf> <./report_files/fig
-ure-latex/unnamed-chunk-16-1.pdf>]
-<report_files/figure-latex/unnamed-chunk-17-1.pdf, id=191, 578.16pt x 346.29375
-pt>
-File: report_files/figure-latex/unnamed-chunk-17-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-17-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-17-1.pdf  used
- on input line 392.
-(pdftex.def)             Requested size: 422.77669pt x 253.22562pt.
-[10 <./report_files/figure-latex/unnamed-chunk-17-1.pdf>] [11] [12] [13]
-Underfull \hbox (badness 10000) in paragraph at lines 563--568
+[8] [9 <./report_files/figure-latex/unnamed-chunk-14-1.pdf> <./report_files/fig
+ure-latex/unnamed-chunk-15-1.pdf>] [10 <./report_files/figure-latex/unnamed-chu
+nk-16-1.pdf>] [11] [12] [13] [14] [15] [16] [17] [18] [19] [20] [21]
+Underfull \hbox (badness 10000) in paragraph at lines 957--962
 []$\T1/lmr/m/n/10.95 https : / / stats . stackexchange . com / questions / 2259
 49 / do -[] we -[] need -[] a -[] test -[] set -[] when -[] using -[] k -[]
  []
 
 
-Underfull \hbox (badness 7379) in paragraph at lines 563--568
+Underfull \hbox (badness 7379) in paragraph at lines 957--962
 \T1/lmr/m/n/10.95 fold -[] cross -[] validation$[] []$https : / / datascience .
  stackexchange . com / questions / 80310 / is -[] a -[] test -[] set -[]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 568--572
+Underfull \hbox (badness 10000) in paragraph at lines 962--966
 \T1/lmr/m/n/10.95 machine -[] learning -[] with -[] caret -[] in -[] r / regres
 sion -[] models -[] ^^\tting -[] them -[] and -[] evaluating -[] their -[]
  []
 
 
-Underfull \hbox (badness 1112) in paragraph at lines 572--575
+Underfull \hbox (badness 1112) in paragraph at lines 966--969
 []\T1/lmr/m/n/10.95 Question: How to eval-u-ate con-tin-u-ous by con-tin-u-ous 
 in-ter-ac-tions Source: Con-tin-u-
  []
 
 
-Underfull \hbox (badness 2635) in paragraph at lines 572--575
+Underfull \hbox (badness 2635) in paragraph at lines 966--969
 \T1/lmr/m/n/10.95 ous by Con-tin-u-ous In-ter-ac-tions, Joel S Steele []$http :
  / / web . pdx . edu / ~joel8 / resources /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 572--575
+Underfull \hbox (badness 10000) in paragraph at lines 966--969
 \T1/lmr/m/n/10.95 ConceptualPresentationResources / ContinuousByContinousIntera
 ctions _ walkthrough _ v2 .
  []
 
-[14] (./report.aux)
+[22] (./report.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
@@ -648,13 +640,13 @@ Package rerunfilecheck Info: File `report.out' has not changed.
 (rerunfilecheck)             Checksum: 9980B0A3CFC2EA1CF0B8F3937862429F;1895.
  ) 
 Here is how much of TeX's memory you used:
- 10926 strings out of 480559
- 161486 string characters out of 5902367
+ 10925 strings out of 480559
+ 161086 string characters out of 5902367
  466238 words of memory out of 5000000
- 28281 multiletter control sequences out of 15000+600000
+ 28273 multiletter control sequences out of 15000+600000
  445927 words of font info for 59 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,9n,66p,369b,435s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,9n,66p,369b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/Users/apple/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/Users
 /apple/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/apple/Li
 brary/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/Users/apple/Library
@@ -670,10 +662,10 @@ m/lmr12.pfb></Users/apple/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr1
 /Users/apple/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb></User
 s/apple/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/app
 le/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on report.pdf (14 pages, 4386610 bytes).
+Output written on report.pdf (22 pages, 355151 bytes).
 PDF statistics:
- 324 PDF objects out of 1000 (max. 8388607)
- 263 compressed objects within 3 object streams
- 68 named destinations out of 1000 (max. 500000)
- 158 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 353 PDF objects out of 1000 (max. 8388607)
+ 286 compressed objects within 3 object streams
+ 76 named destinations out of 1000 (max. 500000)
+ 153 words of extra memory for PDF output out of 10000 (max. 10000000)
 

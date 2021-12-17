@@ -29,6 +29,7 @@ library(leaps)
 library(performance)
 library(MASS)
 library(caret)
+library(sjPlot)
 
 
 
@@ -173,12 +174,6 @@ We then take a closer look of each variables, calculate the pairwise correlation
 # correlation plot
 cdi_data_cor = cor(cdi_data_exp)
 corrplot(cdi_data_cor, type = "upper", diag = FALSE)
-```
-
-```{r}
-cdi_data_exp %>% 
-  dplyr::select(-region) %>% 
-  pairs(alpha = .001)
 ```
 
 After preliminary analysis of the data, we identify several variables that might be relevant to the crime rate as listed 
@@ -508,9 +503,26 @@ model_assessment =
 knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TRUE)
 ```
 
+Here is the summary table of for our three models:
+```{r}
+tab_model(fit_nest, fit_int1,fit_int2,show.se = TRUE,
+  pred.labels = c("Intercept", "Total population", "Percent of population aged 18-34", "Bachelors proportion",
+                  "Percent below poverty level", "Percent unemployment", "Per Capita income", "Region-North Central", "Region-South","Region-West",
+                  "Number of hospital beds per 1000 person",
+                  "Density","Total Population*income per capita", "Poverty*income per capita", "Bachelors proportion*income per capita"),
+  dv.labels = c("Model 1", "Model 2", "Model 3"),
+  string.pred = "Coeffcient",
+  string.ci = "Conf. Int (95%)",
+  string.p = "P-Value",
+  title = "Table 5: Models summary"
+)
+
+```
 ## Conclusion and Discussion
 
 According to the above table 4, evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 3 has the best performance with the smallest RMSPE on testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although model 2 have achieved a good estimation of the training set, we will choose model 3 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance. 
+
+
 
 Overall, our project has several strengths. First, we did feature engineering before training the model by transforming variables using our domain knowledge to the ones more relevant to the predicted variable. For example, while area and population are not directly related to the crime rate, population density (population/area) can be more relevant. Second, we did analysis of correlation and collinearity, which reduced the potential bias caused by confounders. Third, we did interactive analysis and involved multiple interactive terms in our model, which to some extents represented the possible non-linear relations between the parameters and the predicted value. Finally, we separated a testing set from the dataset at the very beginning, on which we evaluated the performance of several models, addressing the potential predicting errors caused by model overfitting. 
 

@@ -491,7 +491,7 @@ tab_model(fit_nest, fit_int1,fit_int2,show.se = TRUE,
   string.pred = "Coeffcient",
   string.ci = "Conf. Int (95%)",
   string.p = "P-Value",
-  title = "Table 5: Models summary"
+  title = "Table 4: Models summary"
 )
 ```
                   

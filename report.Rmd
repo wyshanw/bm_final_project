@@ -352,7 +352,7 @@ In addition, we drew boxcox plots to see if each model needed transformation. Th
 
 Here is a summary table of for our three models:
 
-![](table1.png)
+![](image/table3.png)
 
 ## Cross Validation
 
@@ -408,7 +408,7 @@ model_train3 = train(crime_rate_1000 ~
 
 ```
 
-```{r}
+```{r, results='hide'}
 
 model <- c("1", "2", "3")
 

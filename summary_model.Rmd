@@ -565,13 +565,21 @@ tab_model(fit_nest, fit_int1,fit_int2,show.se = TRUE,
   file="table.html"
 )
 
+plot_model(fit_nest, fit_int1,fit_int2,show.se = TRUE
+)
 
-html2pdf(filename = "table.html", 
-  table_width = 13, 
-   silent = TRUE, 
-   style = TRUE, 
-   build_pdf = TRUE, 
-   clean = TRUE)
+webshot::install_phantomjs()
+webshot::webshot("table.html")
+
+library(kableExtra)
+
+mtcars %>%
+  kable() %>%
+  kable_styling() %>%
+  save_kable("test.pdf")
+
+
+html2pdf(filename = "table.html", table_width = 13, silent = TRUE, style = TRUE, build_pdf = TRUE, mac = TRUE, clean = TRUE)
 
 tables <- list.clean(readHTMLTable("table.html"), fun = is.null, recursive = FALSE)
 tables2 = tables[[1]] %>% janitor::row_to_names(row_number = 1)

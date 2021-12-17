@@ -559,9 +559,15 @@ tab_model(fit_nest, fit_int1,fit_int2,show.se = TRUE,
   string.pred = "Coeffcient",
   string.ci = "Conf. Int (95%)",
   string.p = "P-Value",
-  title = "Models summary"
+  title = "Models summary",
+  file="table.html"
 )
+```
 
+
+```{r, echo=FALSE}
+htmltools::includeHTML("table.html")
+```
 
 
 result1 = summary(model_train1) %>% 

@@ -1,0 +1,43 @@
+---
+title: "test"
+author: "LYU JING"
+date: "12/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r}
+library(html2latex)
+library(lme4)
+library(sjPlot)
+  
+  # This is a terrible model
+model = lmer(mpg ~ cyl * disp + (1|vs), mtcars)
+  
+  # We save the sjPlot table to an .html file
+  
+TAB = sjPlot::tab_model(
+    model,
+    show.r2 = TRUE,
+    show.icc = FALSE,
+    show.re.var = FALSE,
+    p.style = "scientific",
+    emph.p = TRUE,
+    file = "temp.html")
+    
+TAB
+```
+
+```{r}
+html2pdf(filename = "temp.html", 
+  table_width = 13, 
+   silent = TRUE, 
+   style = TRUE, 
+   build_pdf = TRUE, 
+   clean = TRUE)
+```
+

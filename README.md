@@ -317,8 +317,7 @@ Content, 1990 CQC-13
 elements of statistical learning. Vol. 1. No. 10. New York: Springer
 series in statistics, 2001.
 
-As Numerous new questions emerging during our discussion, our group
-explored materials below to solve them.
+We also referenced several online materials during our discussion:
 
 1.  Question: Do we still need a test set when using k-fold
     cross-validation? Source:

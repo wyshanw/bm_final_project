@@ -165,16 +165,15 @@ After drawing boxplots to show the distribution of the variables, we identified 
 ```{r, fig.cap="\\label{fig:figs}boxplot of dependent variable: crime rate"}
 boxplot(cdi_data_exp$crime_rate_1000,main="Crime Rate",horizontal = TRUE)
 ```
-
-
-We then take a closer look of each variables, calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables. We used correlation analysis to prove that the derived variable density is a more meaningful variable compared to area and population, given that it has a stronger association with the crime rate.
-
+At first glance of pairwise plots, we did not recognize any relationship between each variables. After we took closer look of each variables, we calculate the pairwise correlations between variables, and list all the correlations between the crime rate (our interest) and all other variables. We used correlation analysis to prove that the derived variable density is a more meaningful variable compared to area and population, given that it has a stronger association with the crime rate.
 
 ```{r, fig.cap="\\label{fig:figs}Correlation heatmap"}
 # correlation plot
 cdi_data_cor = cor(cdi_data_exp)
 corrplot(cdi_data_cor, type = "upper", diag = FALSE)
 ```
+
+
 
 After preliminary analysis of the data, we identify several variables that might be relevant to the crime rate as listed 
 
@@ -504,20 +503,9 @@ knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TR
 ```
 
 Here is the summary table of for our three models:
-```{r}
-tab_model(fit_nest, fit_int1,fit_int2,show.se = TRUE,
-  pred.labels = c("Intercept", "Total population", "Percent of population aged 18-34", "Bachelors proportion",
-                  "Percent below poverty level", "Percent unemployment", "Per Capita income", "Region-North Central", "Region-South","Region-West",
-                  "Number of hospital beds per 1000 person",
-                  "Density","Total Population*income per capita", "Poverty*income per capita", "Bachelors proportion*income per capita"),
-  dv.labels = c("Model 1", "Model 2", "Model 3"),
-  string.pred = "Coeffcient",
-  string.ci = "Conf. Int (95%)",
-  string.p = "P-Value",
-  title = "Table 5: Models summary"
-)
 
-```
+![](image/sjplot.png)
+
 ## Conclusion and Discussion
 
 According to the above table 4, evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 3 has the best performance with the smallest RMSPE on testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although model 2 have achieved a good estimation of the training set, we will choose model 3 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance. 

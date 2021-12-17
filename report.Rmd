@@ -158,7 +158,7 @@ After a preliminary analysis of the data, we identified several variables that m
 ```{r, echo = FALSE}
 Variable <- c("area","density",	"pop", "pop18",	"pop65",	"docs_rate_1000",	"beds_rate_1000",	"crime_rate_1000",	"hsgrad",	"bagrad",	"poverty",	"unemp",	"pcincome",	"totalinc",	"region")
 
-Meaning <- c("Land area","Population Density" ,"Esimate 1990 population", "Percent of population aged 18-34", "Percent of population aged 65+", "Number of active physicians per 1000 people", "Number of hospital beds per 1000 people", "Number of serious crimes per 1000 people", "Percent high school graduates", "Percent bachelor’s degrees", "Percent below poverty level", "Percent unemployment", "Per capita income", "Total personal income", "Geographic region")
+Meaning <- c("Land area","Population Density" ,"Esimate 1990 population", "Percent of population aged 18-34", "Percent of population aged 65+", "Number of active physicians per 1000 people", "Number of hospital beds per 1000 people", "Number of serious crimes per 1000 people", "Percent high school graduates", "Percent bachelor’s degrees", "Percent below poverty level", "Percent unemployment", "Per capita income", "Total personal income", "Geographic region (1=Northeast, 2=North Central, 3=South, 4=West)")
 
 var_info <- data.frame(Variable, Meaning)
 
@@ -356,7 +356,7 @@ In addition, we drew boxcox plots to see if each model needed transformation. Th
 
 Here is a summary table of for our three models:
 
-![](image/table.png)
+![](table1.png)
 
 ## Cross Validation
 
@@ -471,7 +471,17 @@ knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TR
 
 # Conclusion and Discussion
 
-According to table 5, evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 3 has the best performance with the smallest RMSPE on the testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although model 2 have achieved a good estimation of the training set, we will choose model 3 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance. 
+According to table 5, evaluated in terms of accuracy in estimating the training set, model 2 has the best performance with its leading R square and the smallest RMSE, followed by model 3 and model 1. In terms of predicting values outside the training set, model 3 has the best performance with the smallest RMSPE on the testing set. Such an inconsistency of model performance may be explained by model overfitting of the training data. Above all, although model 2 have achieved a good estimation of the training set, we will choose model 3 as the final model, given its fair RMSE and R-square values, plus excellent testing set performance. By using model 3, we can predict the crime rate by the following parameters.
+
+```{r, echo = FALSE}
+Parameters <- c("pop", "pop18","beds_rate_1000","bagrad",	"poverty",	"unemp",	"pcincome",	"region","pcincome*pop", "pcincome*bagrad")
+
+Meaning <- c("Esimate 1990 population", "Percent of total population in age range from 18-34", "Total number of hospital beds, cribs and bassinets during 1990 per 1000 people",  "Percent of person 25 years old or older with bachelor’s degrees", "Percent of 1990 total population with income below poverty level", "Percent of labor force that is unemployed", "Income (in dollars) per person among those in 1990 population",  "Geographic region","Per capita income * Total Population", "Per capita income * Percent bachelor’s degrees")
+
+var_info <- data.frame(Parameters, Meaning)
+
+knitr::kable(var_info, format = "latex", caption = "Model 3 Parameters")
+```
 
 Overall, our project has several strengths. First, we did feature engineering before training the model by transforming variables using our domain knowledge to the ones more relevant to the predicted variable. For example, while area and population are not directly related to the crime rate, population density (population/area) can be more relevant. Second, we did analysis of correlation and collinearity to reduce potential bias. Third, we did interactive analysis and involved multiple interactive terms in our model, which to some extents represented the possible non-linear relations between the parameters and the predicted value. Finally, we separated a testing set from the dataset at the very beginning, on which we evaluated the performance of several models, addressing the potential predicting errors caused by model overfitting. 
 

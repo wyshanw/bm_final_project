@@ -97,11 +97,11 @@ Use percentile to detect potential outliers and high leverage points. Remove row
 
 5. Model construction:
 
-* Select variables using stepwise regression and criteria based procedure
+* Select variables using stepwise regression and criteria based procedure 
 
-* Build model using selected variables
+* Investigate interaction effects
 
-* Plot interaction effects and add interaction terms
+* Build model using selected variables and interaction terms (p-value < 0.2)
 
 * Diagnose and transform the models
 
@@ -293,7 +293,7 @@ In addition, We removed `totalinc`, because it can be replaced with totalinc = p
 
 Interaction term 1: `poverty` + `income`
 
-According to the Census Bureau, the number of people below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the national population [4]. Thus, we used this criteria to divide `poverty` into two categories: higher than national poverty rate and lower than national poverty rate.
+According to the Census Bureau, the number of people below the official government poverty level was 33.6 million in 1990, representing 13.5 percent of the national population [4]. Thus, we used this criteria to divide `poverty` into two categories: higher than national poverty rate and lower than national poverty rate. In figure 6, we observed an intersection of the two lines, suggesting that the association between crime rate and per capita income is modified by poverty status.  
 
 ```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Poverty"}
 poverty_status = cdi_model %>% 
@@ -307,13 +307,14 @@ ggplot(poverty_status, aes(x = pcincome, y = crime_rate_1000, color = national_p
     x = "Per Capita Income",
     y = "Crime Rate ",
     color = "Comparison with national avergae"
-  )
+  ) +
+  theme_classic()
 ```
 
 
 Interaction term 2: `pcincome` + `bagrad`
 
-According to the Census Bureau, national percentage of people 25 years old or older with bachelor’s degrees is 20.8% [4]. Thus, we can use this criteria to divide `bagrad` into two category: higher than national `bagrad` and lower than national `bargrad`.
+According to the Census Bureau, the percentage of people 25 years old or older with bachelor’s degrees was 20.8% in 1990 [4]. Thus, we used this criteria to divide `bagrad` into two categories: higher than national `bagrad` and lower than national `bargrad`. In figure 7, we observed that the association between crime rate and per capita income is modified by percent bachelor's degrees status.
 
 ```{r, fig.cap="\\label{fig:figs}Interaction plot of Income Per Capita and Bachelor's Degree Status"}
 bagrad_status = cdi_model %>% 
@@ -328,14 +329,15 @@ ggplot(bagrad_status, aes(x = pcincome, y = crime_rate_1000, color = national_ba
     x = "Per Capita Income",
     y = "Crime Rate",
     color = "Comparison with national avergae"
-  )
+  )+
+  theme_classic()
 
 ```
 
 
 3. Build model
 
-Our model building criteria is removing variable with p-values > 0.2. We then came up with the following three models.
+We added interaction terms to the selected variables, resulting in the following three models:
 
 ```{r result = "hide"}
 fit_nest = lm(crime_rate_1000 ~  
@@ -344,10 +346,9 @@ fit_nest = lm(crime_rate_1000 ~
                   beds_rate_1000 + density, data = cdi_model)
 ```
 
-Our first model only using variables we selected: $$ \begin{aligned}
-                  crime\_rate\_1000 &= pop + pop18 + bagrad +
-                  poverty + unemp \\&+ pcincome + pcincome*pop + region
-                  beds\_rate\_1000 + density
+Our first model uses only variables we selected: $$ \begin{aligned}
+                  crime\_rate\_1000 &=\beta_0 +\beta_1 pop + \beta_2 pop18 + \beta_3 bagrad +
+                  \beta_4 poverty + \beta_5 unemp \\&+ \beta_6 pcincome + \beta_7 pcincome*pop + \beta_8 region + \beta_9 beds\_rate\_1000 + \beta_{10}density
                   \end{aligned}$$
 
 
@@ -391,7 +392,9 @@ In addition, we drew boxcox plots to see if each model need transformation. The 
 
 Compare to the diagnose plots of untransformed models, we found that the residuals are more unevenly distributed in all three models. Therefore, transformed models are worse. We selected the untransformed models.
 
+Here is the summary table of for our three models:
 
+![](image/table.png)
 
 ### Cross validation
 
@@ -501,9 +504,7 @@ model_assessment =
 knitr::kable(model_assessment, caption = "Model assessment table", booktabs = TRUE)
 ```
 
-Here is the summary table of for our three models:
 
-![](image/sjplot.png)
 
 ## Conclusion and Discussion
 

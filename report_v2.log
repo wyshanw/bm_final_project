@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2022/dev) (preloaded format=pdflatex 2021.12.17)  17 DEC 2021 14:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2022/dev) (preloaded format=pdflatex 2021.12.17)  17 DEC 2021 15:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**report.tex
-(./report.tex
+**report_v2.tex
+(./report_v2.tex
 LaTeX2e <2021-11-15> patch level 1
 L3 programming layer <2021-11-22> (/Users/mingkuan/Library/TinyTeX/texmf-dist/t
 ex/latex/base/article.cls
@@ -383,7 +383,10 @@ x.def
 File: l3backend-pdftex.def 2021-12-14 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count295
 \l__pdf_internal_box=\box60
-) (./report.aux
+) (./report_v2.aux
+
+LaTeX Warning: Label `fig:figs' multiply defined.
+
 
 LaTeX Warning: Label `fig:figs' multiply defined.
 
@@ -400,7 +403,7 @@ LaTeX Warning: Label `fig:figs' multiply defined.
 LaTeX Warning: Label `fig:figs' multiply defined.
 
 )
-\openout1 = `report.aux'.
+\openout1 = `report_v2.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 83.
 LaTeX Font Info:    ... okay on input line 83.
@@ -447,9 +450,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 83.
 LaTeX Info: Redefining \pageref on input line 83.
 LaTeX Info: Redefining \nameref on input line 83.
-(./report.out) (./report.out)
+(./report_v2.out) (./report_v2.out)
 \@outlinefile=\write3
-\openout3 = `report.out'.
+\openout3 = `report_v2.out'.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -523,161 +526,162 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/Users/mingkuan/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-64.
-(/Users/mingkuan/Library/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
-File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) [2]
+[2]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-85.
+73.
 (/Users/mingkuan/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-<report_files/figure-latex/unnamed-chunk-1-1.pdf, id=91, 867.24pt x 1156.32pt>
-File: report_files/figure-latex/unnamed-chunk-1-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-1-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-1-1.pdf  used 
-on input line 190.
-(pdftex.def)             Requested size: 469.75827pt x 626.34435pt.
-
-LaTeX Warning: Float too large for page by 1.64348pt on input line 192.
-
-<report_files/figure-latex/unnamed-chunk-2-1.pdf, id=92, 469.755pt x 325.215pt>
-
-File: report_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-2-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-2-1.pdf  used 
-on input line 196.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-<report_files/figure-latex/unnamed-chunk-3-1.pdf, id=93, 469.755pt x 325.215pt>
-
-File: report_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-3-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-3-1.pdf  used 
-on input line 206.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 206--214
-[][]
- []
-
-[3] [4 <./report_files/figure-latex/unnamed-chunk-1-1.pdf>] [5 <./report_files/
-figure-latex/unnamed-chunk-2-1.pdf>]
-<report_files/figure-latex/unnamed-chunk-4-1.pdf, id=123, 469.755pt x 325.215pt
->
-File: report_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-4-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-4-1.pdf  used 
-on input line 217.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[6 <./report_files/figure-latex/unnamed-chunk-3-1.pdf>] [7]
-<report_files/figure-latex/unnamed-chunk-13-1.pdf, id=144, 469.755pt x 325.215p
-t>
-File: report_files/figure-latex/unnamed-chunk-13-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-13-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-13-1.pdf  used
- on input line 295.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+) [3]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 300.
-<report_files/figure-latex/unnamed-chunk-14-1.pdf, id=145, 469.755pt x 325.215p
-t>
-File: report_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-14-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-14-1.pdf  used
- on input line 323.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-<report_files/figure-latex/unnamed-chunk-15-1.pdf, id=146, 469.755pt x 325.215p
-t>
-File: report_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-15-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-15-1.pdf  used
- on input line 339.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-[8] [9 <./report_files/figure-latex/unnamed-chunk-4-1.pdf>] [10 <./report_files
-/figure-latex/unnamed-chunk-13-1.pdf>] [11 <./report_files/figure-latex/unnamed
--chunk-14-1.pdf>] [12 <./report_files/figure-latex/unnamed-chunk-15-1.pdf>]
-<table1.png, id=206, 995.72pt x 858.20625pt>
-File: table1.png Graphic file (type png)
-<use table1.png>
-Package pdftex.def Info: table1.png  used on input line 383.
-(pdftex.def)             Requested size: 469.7661pt x 404.88913pt.
-[13 <./table1.png>] [14]
-Overfull \hbox (18.40575pt too wide) in paragraph at lines 449--474
- [][] 
- []
-
-[15]
-Underfull \hbox (badness 10000) in paragraph at lines 532--537
+(Font)              <10.95> on input line 208.
+LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 216.
+[4] [5] [6]
+Underfull \hbox (badness 10000) in paragraph at lines 343--348
 []$\T1/lmr/m/n/10.95 https : / / stats . stackexchange . com / questions / 2259
 49 / do -[] we -[] need -[] a -[] test -[] set -[] when -[] using -[] k -[]
  []
 
 
-Underfull \hbox (badness 7379) in paragraph at lines 532--537
+Underfull \hbox (badness 7379) in paragraph at lines 343--348
 \T1/lmr/m/n/10.95 fold -[] cross -[] validation$[] []$https : / / datascience .
  stackexchange . com / questions / 80310 / is -[] a -[] test -[] set -[]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 537--541
+Underfull \hbox (badness 10000) in paragraph at lines 348--352
 \T1/lmr/m/n/10.95 machine -[] learning -[] with -[] caret -[] in -[] r / regres
 sion -[] models -[] ^^\tting -[] them -[] and -[] evaluating -[] their -[]
  []
 
 
-Underfull \hbox (badness 1112) in paragraph at lines 541--544
+Underfull \hbox (badness 1112) in paragraph at lines 352--355
 []\T1/lmr/m/n/10.95 Question: How to eval-u-ate con-tin-u-ous by con-tin-u-ous 
 in-ter-ac-tions Source: Con-tin-u-
  []
 
 
-Underfull \hbox (badness 2635) in paragraph at lines 541--544
+Underfull \hbox (badness 2635) in paragraph at lines 352--355
 \T1/lmr/m/n/10.95 ous by Con-tin-u-ous In-ter-ac-tions, Joel S Steele []$http :
  / / web . pdx . edu / ~joel8 / resources /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 541--544
+Underfull \hbox (badness 10000) in paragraph at lines 352--355
 \T1/lmr/m/n/10.95 ConceptualPresentationResources / ContinuousByContinousIntera
 ctions _ walkthrough _ v2 .
  []
 
-[16] (./report.aux)
+<report_v2_files/figure-latex/unnamed-chunk-1-1.pdf, id=124, 867.24pt x 1156.32
+pt>
+File: report_v2_files/figure-latex/unnamed-chunk-1-1.pdf Graphic file (type pdf
+)
+<use report_v2_files/figure-latex/unnamed-chunk-1-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-1-1.pdf  us
+ed on input line 362.
+(pdftex.def)             Requested size: 469.75827pt x 626.34435pt.
+
+LaTeX Warning: Float too large for page by 1.64348pt on input line 364.
+
+[7]
+<report_v2_files/figure-latex/unnamed-chunk-2-1.pdf, id=144, 469.755pt x 325.21
+5pt>
+File: report_v2_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf
+)
+<use report_v2_files/figure-latex/unnamed-chunk-2-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-2-1.pdf  us
+ed on input line 368.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<report_v2_files/figure-latex/unnamed-chunk-3-1.pdf, id=145, 469.755pt x 325.21
+5pt>
+File: report_v2_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf
+)
+<use report_v2_files/figure-latex/unnamed-chunk-3-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-3-1.pdf  us
+ed on input line 375.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<report_v2_files/figure-latex/unnamed-chunk-5-1.pdf, id=146, 469.755pt x 325.21
+5pt>
+File: report_v2_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf
+)
+<use report_v2_files/figure-latex/unnamed-chunk-5-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-5-1.pdf  us
+ed on input line 410.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+[8]
+<report_v2_files/figure-latex/unnamed-chunk-13-1.pdf, id=153, 469.755pt x 325.2
+15pt>
+File: report_v2_files/figure-latex/unnamed-chunk-13-1.pdf Graphic file (type pd
+f)
+<use report_v2_files/figure-latex/unnamed-chunk-13-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-13-1.pdf  u
+sed on input line 439.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<report_v2_files/figure-latex/unnamed-chunk-14-1.pdf, id=154, 469.755pt x 325.2
+15pt>
+File: report_v2_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type pd
+f)
+<use report_v2_files/figure-latex/unnamed-chunk-14-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-14-1.pdf  u
+sed on input line 445.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<report_v2_files/figure-latex/unnamed-chunk-15-1.pdf, id=155, 469.755pt x 325.2
+15pt>
+File: report_v2_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pd
+f)
+<use report_v2_files/figure-latex/unnamed-chunk-15-1.pdf>
+Package pdftex.def Info: report_v2_files/figure-latex/unnamed-chunk-15-1.pdf  u
+sed on input line 452.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+
+Overfull \hbox (18.40575pt too wide) in paragraph at lines 477--502
+ [][] 
+ []
+
+<table1.png, id=156, 995.72pt x 858.20625pt>
+File: table1.png Graphic file (type png)
+<use table1.png>
+Package pdftex.def Info: table1.png  used on input line 504.
+(pdftex.def)             Requested size: 469.7661pt x 404.88913pt.
+[9] [10 <./report_v2_files/figure-latex/unnamed-chunk-1-1.pdf>] [11 <./report_v
+2_files/figure-latex/unnamed-chunk-2-1.pdf>] [12 <./report_v2_files/figure-late
+x/unnamed-chunk-3-1.pdf>] [13 <./report_v2_files/figure-latex/unnamed-chunk-5-1
+.pdf>] [14 <./report_v2_files/figure-latex/unnamed-chunk-13-1.pdf>] [15 <./repo
+rt_v2_files/figure-latex/unnamed-chunk-14-1.pdf>] [16 <./report_v2_files/figure
+-latex/unnamed-chunk-15-1.pdf>] [17 <./table1.png>] (./report_v2.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 2C5DA641EA270133C6AC0E6B0CB25784;2415.
+Package rerunfilecheck Info: File `report_v2.out' has not changed.
+(rerunfilecheck)             Checksum: 284925E86C48CB622887683A93D26F8A;2218.
  ) 
 Here is how much of TeX's memory you used:
- 11382 strings out of 480313
- 178701 string characters out of 5896366
- 471379 words of memory out of 5000000
- 28995 multiletter control sequences out of 15000+600000
- 445944 words of font info for 59 fonts, out of 8000000 for 9000
+ 11348 strings out of 480313
+ 177973 string characters out of 5896366
+ 473279 words of memory out of 5000000
+ 28965 multiletter control sequences out of 15000+600000
+ 445897 words of font info for 59 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,8n,63p,369b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,8n,63p,372b,441s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/Users/mingkuan/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/Us
 ers/mingkuan/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/mi
 ngkuan/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/Users/ming
-kuan/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/Users/mingku
-an/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</Users/mingkuan/Li
-brary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/mingkuan/Libr
-ary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/mingkuan/Librar
-y/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/mingkuan/Library/
-TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></Users/mingkuan/Library/Tin
-yTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/mingkuan/Library/TinyTe
-X/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/mingkuan/Library/TinyTeX/t
-exmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/mingkuan/Library/TinyTeX/texm
-f-dist/fonts/type1/public/lm/lmr8.pfb></Users/mingkuan/Library/TinyTeX/texmf-di
-st/fonts/type1/public/lm/lmri10.pfb></Users/mingkuan/Library/TinyTeX/texmf-dist
-/fonts/type1/public/lm/lmsy10.pfb></Users/mingkuan/Library/TinyTeX/texmf-dist/f
-onts/type1/public/lm/lmtt10.pfb>
-Output written on report.pdf (16 pages, 404043 bytes).
+kuan/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}</Users/mingku
+an/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/mingkuan
+/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/mingkuan/L
+ibrary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/mingkuan/Lib
+rary/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></Users/mingkuan/Librar
+y/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/mingkuan/Library/T
+inyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/mingkuan/Library/Tiny
+TeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/mingkuan/Library/TinyTeX
+/texmf-dist/fonts/type1/public/lm/lmri10.pfb></Users/mingkuan/Library/TinyTeX/t
+exmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/mingkuan/Library/TinyTeX/tex
+mf-dist/fonts/type1/public/lm/lmtk10.pfb></Users/mingkuan/Library/TinyTeX/texmf
+-dist/fonts/type1/public/lm/lmtt10.pfb>
+Output written on report_v2.pdf (17 pages, 404752 bytes).
 PDF statistics:
- 325 PDF objects out of 1000 (max. 8388607)
- 264 compressed objects within 3 object streams
- 65 named destinations out of 1000 (max. 500000)
- 177 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 320 PDF objects out of 1000 (max. 8388607)
+ 259 compressed objects within 3 object streams
+ 64 named destinations out of 1000 (max. 500000)
+ 169 words of extra memory for PDF output out of 10000 (max. 10000000)
 
